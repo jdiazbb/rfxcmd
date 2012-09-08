@@ -460,7 +460,7 @@ def decodePacket( message ):
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
 		print timestamp + " " + ByteToHex(message)
-		print "RFXCMD does not hanlde this message, see readme.txt for more information."
+		print "RFXCMD does not handle this message, see readme.txt for more information."
 
 	# decodePackage END
 	return
