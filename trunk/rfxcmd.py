@@ -36,7 +36,7 @@
 #			* Better error handling
 #			
 #	v0.1d	12-JUL-2012
-#			* Added simulate function (-s) to decode data manually
+#			* Added simulate function (-x) to decode data manually
 #
 #	v0.1e	28-JUL-2012
 #			* Fixed MySQL issue, if password is wrong
@@ -48,6 +48,9 @@
 #			* Corrected protocol printout in status
 #			* New switch (-a) to choose action LISTEN or STATUS
 #			
+#	v0.1g	09-SEP-2012
+#			* Added process for Humidity Sensors (0x51)
+#			* Added process for Wind Sensors (0x56)
 #
 #	NOTES
 #	
@@ -69,7 +72,7 @@ except ImportError:
 	sys.exit(1)
 
 sw_name = "RFXCMD"
-sw_version = "0.1f"
+sw_version = "0.1g"
 		
 # ----------------------------------------------------------------------------
 # Read x amount of bytes from serial port
@@ -373,6 +376,88 @@ def decodePacket( message ):
 					db.close()
 
 	# ---------------------------------------
+	# 0x51 - Humidity sensors
+	# ---------------------------------------
+	
+	#22.7.2012 6:32:35= 08510204D8004F0379
+	#Packettype    = HUM
+	#subtype       = HUM2 - LaCrosse WS2300
+	#Sequence nbr  = 4
+	#ID            = 55296
+	#Humidity      = 79
+	#Status        = Wet
+	#Signal level  = 7
+	#Battery       = OK
+
+	# 08 51 02 04 D8 00 4F 03 79
+
+	if packettype == '51':
+		
+		decoded = True
+
+		# Humidity
+		humidity = ByteToHex(message[6])
+		humidity_status = ByteToHex(message[7])
+
+		# Battery & Signal
+		batt_rssi = ByteToHex(message[8])		
+		battery = int(batt_rssi,16) >> 4
+		signal = int(batt_rssi,16) & 0xf
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_51[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id 1 (House)\t\t= " + id1
+			print "Id 2 (Channel)\t\t= " + id2
+			
+			print "Humidity\t\t= " + str(int(humidity,16))
+			
+			if humidity_status == '00':
+				print "Humidity Status\t\t= Dry"
+			elif humidity_status == '01':
+				print "Humidity Status\t\t= Comfort"
+			elif humidity_status == '02':
+				print "Humidity Status\t\t= Normal"
+			elif humidity_status == '03':
+				print "Humidity Status\t\t= Wet"
+			else:
+				print "Humidity Status\t\t= Unknown"
+			
+			print "Battery (0-9)\t\t= " + str(battery)
+			print "Signal level (0-15)\t= " + str(signal)
+		
+		if printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, id1, id2,
+							str(int(humidity,16)), humidity_status, 
+							str(battery), str(signal)) )
+		
+		if options.mysql:
+
+			try:
+				db = MySQLdb.connect(mysql_server, mysql_username, mysql_password, mysql_database)
+				cursor = db.cursor()
+
+				cursor.execute("INSERT INTO weather \
+				(datetime, packettype, subtype, seqnbr, id1, id2, humidity, humidity_status, battery, signal_level) VALUES \
+				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
+				(timestamp, packettype, subtype, seqnbr, id1, id2, int(humidity,16), int(humidity_status,16), \
+				battery, signal))
+				
+				db.commit()
+
+			except MySQLdb.Error, e:
+				print "Error %d: %s" % (e.args[0], e.args[1])
+				sys.exit(1)
+
+			finally:
+				if db:
+					db.close()
+					
+	# 0x51 END
+	# ---------------------------------------
+
+	# ---------------------------------------
 	# 0x52 - Temperature and humidity sensors
 	# ---------------------------------------
 	if packettype == '52':
@@ -453,10 +538,136 @@ def decodePacket( message ):
 			finally:
 				if db:
 					db.close()
-					
+	
+	# ---------------------------------------
 	# 0x52 END
 	# ---------------------------------------
+	
+	# ---------------------------------------
+	# 0x56 - Wind sensors
+	# ---------------------------------------
+	if packettype == '56':
 		
+		decoded = True
+
+		# Direction (6 & 7)
+		direction_high = int(ByteToHex(message[6]), 16)
+		direction_low = int(ByteToHex(message[7]), 16)
+		if direction_high <> 0:
+			direction_high = direction_high + 255
+		direction = direction_high + direction_low
+		direction_str = str(direction)
+		
+		# AV Speed (8 & 9) (not used in WIND5)
+		if subtype <> "05":
+			av_high = ByteToHex(message[8])
+			av_low = ByteToHex(message[9])
+			av = ( int(av_high,16) + int(av_low,16) ) * 0.1
+			av_str = str(av)
+		else:
+			av_str = "0";
+			
+		# Gust (10 & 11)
+		gust_high = ByteToHex(message[10])
+		gust_low = ByteToHex(message[11])
+		gust = ( int(gust_high,16) + int(gust_low,16) ) * 0.1
+		gust_str = str(gust)
+		
+		# Temperature
+		if subtype == "04":
+			temp_high = ByteToHex(message[12])
+			temp_low = ByteToHex(message[13])
+			polarity = testBit(int(temp_high,16),12)
+		
+			if polarity == 1:
+				polarity_sign = "-"
+			else:
+				polarity_sign = ""
+
+			temp_high = clearBit(int(temp_high,16),7)
+			temp_high = temp_high << 8
+			temperature = ( temp_high + int(temp_low,16) ) * 0.1
+			temperature_str = polarity_sign + str(temperature)
+		else:
+			temperature_str = "0"
+
+		# Chill factor (15,16,17)
+		if subtype == "04":
+			chill_high = ByteToHex(message[15])
+			chill_low = ByteToHex(message[16])
+			chill_pol = testBit(int(chill_high,16),15)
+		
+			if chill_pol == 1:
+				chill_pol_sign = "-"
+			else:
+				chill_pol_sign = ""
+
+			chill_high = clearBit(int(temp_high,16),7)
+			chill_high = chill_high << 8
+			windchill = ( int(chill_high,16) + int(chill_low,16) ) * 0.1
+			windchill_str = chill_pol_sign + str(windchill)
+		else:
+			windchill_str = "0"
+		
+		# Battery & Signal
+		batt_rssi = ByteToHex(message[16])
+		battery = int(batt_rssi,16) >> 4
+		signal = int(batt_rssi,16) & 0xf
+	
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_56[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id 1 (House)\t\t= " + id1
+			print "Id 2 (Channel)\t\t= " + id2
+			
+			print "Wind direction\t\t= " + direction_str + " degrees"
+			
+			if subtype <> "05":
+				print "Average wind\t\t= " + av_str + " mtr/sec"
+			
+			if subtype == "04":
+				print "Temperature\t\t= " + temperature_str + " C"
+				print "Wind chill\t\t= " + windchill_str + " C" 
+			
+			print "Windgust\t\t= " + gust_str + " mtr/sec"
+			
+			print "Battery (0-9)\t\t= " + str(battery)
+			print "Signal level (0-15)\t= " + str(signal)
+
+		if printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, id1, id2,
+							direction_str, av_str, gust_str,
+							temperature_str, windchill_str, 
+							str(battery), str(signal)) )
+		
+		if options.mysql:
+
+			try:
+				db = MySQLdb.connect(mysql_server, mysql_username, mysql_password, mysql_database)
+				cursor = db.cursor()
+
+				cursor.execute("INSERT INTO weather \
+				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, winddirection, av_speed, \
+				windchill, gust, battery, signal_level) VALUES \
+				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
+				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, direction, av, \
+				windchill, gust, battery, signal))
+				
+				db.commit()
+
+			except MySQLdb.Error, e:
+				print "Error %d: %s" % (e.args[0], e.args[1])
+				sys.exit(1)
+
+			finally:
+				if db:
+					db.close()
+	
+	# ---------------------------------------
+	# 0x52 END
+	# ---------------------------------------	
+	
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
 		print timestamp + " " + ByteToHex(message)
