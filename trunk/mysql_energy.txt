@@ -11,6 +11,10 @@
 	
 	R1A 06-AUG-2012, Sebastian Sjoholm
 		* Created
+
+	R1C 15-SEP-2012, Sebastian Sjoholm
+		* Checked for SDK 4.31 compability
+		* ELEC3 added to energy group
 	
 */
 
@@ -25,7 +29,7 @@ USE `rfxcmd`
 	CREATE table for 0x59-0x5A data
 	
 	* 0x59 Current sensors (ELEC1)
-	* 0x5A Energy usage sensors (ELEC2)
+	* 0x5A Energy usage sensors (ELEC2/ELEC3)
 	
 */
 
