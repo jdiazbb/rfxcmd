@@ -43,7 +43,7 @@
 #			
 #	v0.1f	06-SEP-2012
 #			* Handle exception if serial lib does not exist
-#			* Compatible with RFXtrx SDK version 4.30
+#			* Compatible with RFX SDK version 4.30
 #			* Added all missing receive subgroups
 #			* Corrected protocol printout in status
 #			* New switch (-a) to choose action LISTEN or STATUS
@@ -51,6 +51,8 @@
 #	v0.1g	09-SEP-2012
 #			* Added process for Humidity Sensors (0x51)
 #			* Added process for Wind Sensors (0x56)
+#			* Compatible with RFX SDK version 4.31
+#			* Added CM180/ELEC3 (v4.31)
 #
 #	NOTES
 #	
@@ -883,7 +885,8 @@ rfx_subtype_58 = {"01":"RTGR328N (DT1)"}
 
 rfx_subtype_59 = {"01":"CM113, Electrisave (ELEC1)"}
 
-rfx_subtype_5A = {"01":"CM119/160 (ELEC2)"}
+rfx_subtype_5A = {"01":"CM119/160 (ELEC2)",
+					"02":"CM180 (ELEC3)"}
 
 rfx_subtype_5D = {"01":"BWR101/102 (WEIGHT1)",
 					"02":"GR101 (WEIGHT2)"}
