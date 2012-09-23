@@ -54,6 +54,16 @@
 #			* Compatible with RFX SDK version 4.31
 #			* Added CM180/ELEC3 (v4.31)
 #
+#	v0.1h	22-SEP-2012
+#			* Added possibility for enable all RF
+#			* Added possibility for enable undecoded messages
+#			* Fix for "Issue 1:	Error when trying to store to MySql"
+#			* Added 0x12 Lighting3
+#			* Added 0x13 Lighting4
+#			* Updated to support FW version 433_50 (14-9-2012)
+#			* Added configuration file (config.xml)
+#			* Added to send raw messages
+#
 #	NOTES
 #	
 #	RFXCOM is a Trademark of RFSmartLink.
@@ -62,6 +72,7 @@
 
 import string
 import sys
+import os
 import time
 import binascii
 from optparse import OptionParser
@@ -74,11 +85,26 @@ except ImportError:
 	sys.exit(1)
 
 sw_name = "RFXCMD"
-sw_version = "0.1g"
-		
+sw_version = "0.1h"
+
+# ----------------------------------------------------------------------------
+# DEFAULT CONFIGURATION PARAMETERS
+# ----------------------------------------------------------------------------
+
+# If the config.xml does not exist, or can not be loaded, this is the
+# default configuration which will be used
+
+_config_enableallrf = False
+_config_undecoded = False
+_config_mysql_server = ""
+_config_mysql_database = ""
+_config_mysql_username = ""
+_config_mysql_password = ""
+	
 # ----------------------------------------------------------------------------
 # Read x amount of bytes from serial port
 # Boris Smus http://smus.com
+# ----------------------------------------------------------------------------
 
 def readbytes(number):
 	buf = ''
@@ -93,6 +119,7 @@ def readbytes(number):
 # http://code.activestate.com/recipes/510399-byte-to-hex-and-hex-to-byte-string-conversion/
 #
 # * added str() to byteStr in case input data is in integer
+# ----------------------------------------------------------------------------
 
 def ByteToHex( byteStr ):
 	return ''.join( [ "%02X " % ord( x ) for x in str(byteStr) ] ).strip()
@@ -101,6 +128,7 @@ def ByteToHex( byteStr ):
 # Return the binary representation of dec_num
 # http://code.activestate.com/recipes/425080-easy-binary2decimal-and-decimal2binary/
 # Guyon Mor�e http://gumuz.looze.net/
+# ----------------------------------------------------------------------------
 
 def Decimal2Binary(dec_num):
 	if dec_num == 0: return '0'
@@ -109,6 +137,7 @@ def Decimal2Binary(dec_num):
 # ----------------------------------------------------------------------------
 # testBit() returns a nonzero result, 2**offset, if the bit at 'offset' is one.
 # http://wiki.python.org/moin/BitManipulation
+# ----------------------------------------------------------------------------
 
 def testBit(int_type, offset):
 	mask = 1 << offset
@@ -117,6 +146,7 @@ def testBit(int_type, offset):
 # ----------------------------------------------------------------------------
 # clearBit() returns an integer with the bit at 'offset' cleared.
 # http://wiki.python.org/moin/BitManipulation
+# ----------------------------------------------------------------------------
 
 def clearBit(int_type, offset):
 	mask = ~(1 << offset)
@@ -124,15 +154,22 @@ def clearBit(int_type, offset):
 
 # ----------------------------------------------------------------------------
 # split_len, split string into specified chunks
+# ----------------------------------------------------------------------------
 
 def split_len(seq, length):
 	return [seq[i:i+length] for i in range(0, len(seq), length)]
 
 # ----------------------------------------------------------------------------
 # Decode packet
+# ----------------------------------------------------------------------------
 
 def decodePacket( message ):
+		
+	global _config_printout_csv, _config_printout_complete
+	global _config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database
 	
+	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+		
 	decoded = False
 	db = ""
 	
@@ -140,10 +177,18 @@ def decodePacket( message ):
 	subtype = ByteToHex(message[2])
 	seqnbr = ByteToHex(message[3])
 	id1 = ByteToHex(message[4])
-	id2 = ByteToHex(message[5])
+	
+	if len(message) > 5:
+		id2 = ByteToHex(message[5])
 	
 	if printout_complete == True:
 		print "Packettype\t\t= " + rfx_packettype[packettype]
+
+	# ---------------------------------------
+	# 0x0 - Interface Control
+	# ---------------------------------------
+	if packettype == '00':
+		decoded = True
 	
 	# ---------------------------------------
 	# 0x01 - Interface Message
@@ -312,6 +357,199 @@ def decodePacket( message ):
 			else:
 				print "Disabled\t\t" + rfx_subtype_01_msg5['128']
 		
+	# ---------------------------------------
+	# 0x02 - Receiver/Transmitter Message
+	# ---------------------------------------
+	if packettype == '02':
+		
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_02[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Message\t\t\t= " + rfx_subtype_02_msg1[id1]
+		
+		if printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;\n" %
+							(timestamp, packettype, subtype, seqnbr, id1 ) )
+
+	# ---------------------------------------
+	# 0x10 Lighting1
+	# ---------------------------------------
+	if packettype == '10':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_11[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Housecode\t\t= " + ByteToHex(message[4])
+			print "Unitcode\t\t= " + ByteToHex(message[5])
+			print "Command\t\t\t= " + ByteToHex(message[6])
+			# TODO
+			
+	# ---------------------------------------
+	# 0x11 Lighting2
+	# ---------------------------------------
+	if packettype == '11':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_11[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id\t\t\t= " + ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6]) + ByteToHex(message[7])
+			print "Unitcode\t\t= " + ByteToHex(message[8])
+			print "Command\t\t\t= " + rfx_subtype_11_cmnd[ByteToHex(message[9])]
+			print "Level\t\t\t= " + ByteToHex(message[10])
+			
+			rssi = str(int(ByteToHex(message[11]),16) & 0xf)
+			print "RSSI\t\t\t= " + ByteToHex(message[10])
+			
+	# ---------------------------------------
+	# 0x12 Lighting3
+	# ---------------------------------------
+	if packettype == '12':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_12[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "System\t\t\t= " + ByteToHex(message[4])
+			# TODO
+
+	# ---------------------------------------
+	# 0x13 Lighting4
+	# ---------------------------------------
+	if packettype == '13':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_13[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x14 Lighting5
+	# ---------------------------------------
+	if packettype == '14':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_14[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x15 Lighting6
+	# ---------------------------------------
+	if packettype == '15':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_15[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x18 Curtain1
+	# ---------------------------------------
+	if packettype == '18':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_18[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x19 Blinds1
+	# ---------------------------------------
+	if packettype == '19':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_19[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x20 Security1
+	# ---------------------------------------
+	if packettype == '20':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_20[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x28 Curtain1
+	# ---------------------------------------
+	if packettype == '28':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_28[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x30 Remote control and IR
+	# ---------------------------------------
+	if packettype == '30':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_30[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x40 Thermostat1
+	# ---------------------------------------
+	if packettype == '40':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_40[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x41 Thermostat2
+	# ---------------------------------------
+	if packettype == '41':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_41[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
+
+	# ---------------------------------------
+	# 0x42 Thermostat3
+	# ---------------------------------------
+	if packettype == '42':
+
+		decoded = True
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_42[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			# TODO
 
 	# ---------------------------------------
 	# 0x50 - Temperature sensors
@@ -357,7 +595,7 @@ def decodePacket( message ):
 
 			try:
 
-				db = MySQLdb.connect(mysql_server, mysql_username, mysql_password, mysql_database)
+				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
@@ -380,18 +618,6 @@ def decodePacket( message ):
 	# ---------------------------------------
 	# 0x51 - Humidity sensors
 	# ---------------------------------------
-	
-	#22.7.2012 6:32:35= 08510204D8004F0379
-	#Packettype    = HUM
-	#subtype       = HUM2 - LaCrosse WS2300
-	#Sequence nbr  = 4
-	#ID            = 55296
-	#Humidity      = 79
-	#Status        = Wet
-	#Signal level  = 7
-	#Battery       = OK
-
-	# 08 51 02 04 D8 00 4F 03 79
 
 	if packettype == '51':
 		
@@ -437,7 +663,7 @@ def decodePacket( message ):
 		if options.mysql:
 
 			try:
-				db = MySQLdb.connect(mysql_server, mysql_username, mysql_password, mysql_database)
+				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
@@ -456,9 +682,6 @@ def decodePacket( message ):
 				if db:
 					db.close()
 					
-	# 0x51 END
-	# ---------------------------------------
-
 	# ---------------------------------------
 	# 0x52 - Temperature and humidity sensors
 	# ---------------------------------------
@@ -514,6 +737,7 @@ def decodePacket( message ):
 			print "Signal level (0-15)\t= " + str(signal)
 		
 		if printout_csv == True:
+		
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							temperature_str, str(int(humidity,16)), humidity_status, 
@@ -522,7 +746,7 @@ def decodePacket( message ):
 		if options.mysql:
 
 			try:
-				db = MySQLdb.connect(mysql_server, mysql_username, mysql_password, mysql_database)
+				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
@@ -540,10 +764,6 @@ def decodePacket( message ):
 			finally:
 				if db:
 					db.close()
-	
-	# ---------------------------------------
-	# 0x52 END
-	# ---------------------------------------
 	
 	# ---------------------------------------
 	# 0x56 - Wind sensors
@@ -646,14 +866,14 @@ def decodePacket( message ):
 		if options.mysql:
 
 			try:
-				db = MySQLdb.connect(mysql_server, mysql_username, mysql_password, mysql_database)
+				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
 				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, winddirection, av_speed, \
 				windchill, gust, battery, signal_level) VALUES \
 				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, direction, av, \
+				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, direction, av, \
 				windchill, gust, battery, signal))
 				
 				db.commit()
@@ -667,19 +887,84 @@ def decodePacket( message ):
 					db.close()
 	
 	# ---------------------------------------
-	# 0x52 END
+	# Not decoded message
 	# ---------------------------------------	
 	
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
 		print timestamp + " " + ByteToHex(message)
-		print "RFXCMD does not handle this message, see readme.txt for more information."
+		print "RFXCMD cannot decode message, see readme.txt for more information."
 
 	# decodePackage END
 	return
 
 # ----------------------------------------------------------------------------
-# Responses
+# DECODE THE MESSAGE AND SEND TO RFX
+# ----------------------------------------------------------------------------
+
+def send_rfx( message ):
+	
+	global printout_complete, printout_csv
+	
+	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+	
+	if printout_complete == True:
+		print "------------------------------------------------"
+		print "Send\t\t\t= " + ByteToHex( message )
+		print "Date/Time\t\t= " + timestamp
+		print "Packet Length\t\t= " + ByteToHex( message[0] )
+		decodePacket( message )
+	
+	serialport.write( message )
+	time.sleep(1)
+
+# ----------------------------------------------------------------------------
+# READ DATA FROM RFX AND DECODE THE MESSAGE
+# ----------------------------------------------------------------------------
+
+def read_rfx():
+
+	global printout_complete, printout_csv
+	
+	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+
+	byte = serialport.read()
+	if byte:
+		message = byte + readbytes( ord(byte) )
+			
+		if ByteToHex(message[0]) <> "00":
+			if printout_complete == True:
+				print "------------------------------------------------"
+				print "Received\t\t= " + ByteToHex( message )
+				print "Date/Time\t\t= " + timestamp
+				print "Packet Length\t\t= " + ByteToHex( message[0] )
+				
+			decodePacket( message )
+
+# ----------------------------------------------------------------------------
+# READ ITEM FROM THE CONFIGURATION FILE
+# ----------------------------------------------------------------------------
+
+def read_config( configFile, configItem):
+
+	#import easy to use xml parser called minidom:
+	from xml.dom.minidom import parseString
+ 
+	#open the xml file for reading:
+	file = open( configFile,'r')
+	data = file.read()
+	file.close()
+	dom = parseString(data)
+	
+	# Get config item
+	xmlTag = dom.getElementsByTagName( configItem )[0].toxml()
+	xmlData=xmlTag.replace('<' + configItem + '>','').replace('</' + configItem + '>','')
+	return xmlData
+
+
+# ----------------------------------------------------------------------------
+# RESPONSES
+# ----------------------------------------------------------------------------
 
 rfx_cmnd = {"00":"Reset the receiver/transceiver. No answer is transmitted!",
 			"01":"Not used.",
@@ -693,11 +978,14 @@ rfx_cmnd = {"00":"Reset the receiver/transceiver. No answer is transmitted!",
 			"09":"T2 - for internal use by RFXCOM"}
 
 rfx_packettype = {
+				"00":"Interface Control",
 				"01":"Interface Message",
 				"02":"Receiver/Transmitter Message",
 				"03":"Undecoded RF Message",
 				"10":"Lighting1",
 				"11":"Lighting2",
+				"12":"Lighting3",
+				"13":"Lighting4",
 				"14":"Lighting5",
 				"15":"Lighting6",
 				"18":"Curtain1",
@@ -770,10 +1058,10 @@ rfx_subtype_01_msg5 = {"128":"Visonic (315/868.95)",
 rfx_subtype_02 = {"00":"Error, receiver did not lock",
 					"01":"Transmitter response"}
 					
-rfx_subtype_02_msg1 = {"00":"",
-						"01":"",
-						"02":"",
-						"03":""}
+rfx_subtype_02_msg1 = {"00":"ACK, transmit OK",
+						"01":"ACK, but transmit started after 3 seconds delay anyway with RF receive data",
+						"02":"NAK, transmitter did not lock on the requested transmit frequency",
+						"03":"NAK, AC address zero in id1-id4 not allowed"}
 
 rfx_subtype_03 = {"00":"AC",
 					"01":"ARC",
@@ -795,14 +1083,29 @@ rfx_subtype_03 = {"00":"AC",
 					"11":"AE",
 					"12":"Fineoffset"}
 
+rfx_subtype_10 = {"00":"lighting1"}
+
 rfx_subtype_11 = {"00":"AC",
 					"01":"HomeEasy EU",
 					"02":"Anslut"}
+					
+rfx_subtype_11_cmnd = {"00":"Off",
+						"01":"On",
+						"02":"Set level",
+						"03":"Group Off",
+						"04":"Group On",
+						"05":"Set Group Level"}
+
+rfx_subtype_12 = {"00":"Ikea Koppla"}
+
+rfx_subtype_13 = {"00":"PT2262"}
 
 rfx_subtype_14 = {"00":"LightwaveRF, Siemens",
 					"01":"EMW100 GAO/Everflourish"}
 					
 rfx_subtype_15 = {"00":"Blyss"}
+
+rfx_subtype_18 = {"00":"Harrison Curtain"}
 
 rfx_subtype_19 = {"00":"BlindsT0 / Rollertrol, Hasta new",
 					"01":"BlindsT1 / Hasta old"}
@@ -835,61 +1138,61 @@ rfx_subtype_41 = {"00":"HE105",
 rfx_subtype_42 = {"00":"Mertik G6R-H4T1",
 					"01":"Mertik G6R-H4TB"}
 
-rfx_subtype_50 = {"01":"THR128/138, THC138 (TEMP1)",
-					"02":"THC238/268,THN132,THWR288,THRN122,THN122,AW129/131 (TEMP1)",
-					"03":"THWR800 (TEMP3)",
-					"04":"RTHN318 (TEMP4)",
-					"05":"La Crosse TX3, TX4, TX17 (TEMP5)",
-					"06":"TS15C (TEMP6)",
-					"07":"Viking 02811 (TEMP7)",
-					"08":"La Crosse WS2300 (TEMP8)",
-					"09":"RUBiCSON (TEMP9)",
-					"0A":"TFA 30.3133 (TEMP10)"}
+rfx_subtype_50 = {"01":"THR128/138, THC138",
+					"02":"THC238/268,THN132,THWR288,THRN122,THN122,AW129/131",
+					"03":"THWR800",
+					"04":"RTHN318",
+					"05":"La Crosse TX3, TX4, TX17",
+					"06":"TS15C",
+					"07":"Viking 02811",
+					"08":"La Crosse WS2300",
+					"09":"RUBiCSON",
+					"0A":"TFA 30.3133"}
 
-rfx_subtype_51 = {"01":"LaCrosse TX3 (HUM1)",
-					"02":"LaCrosse WS2300 (HUM2)"}
+rfx_subtype_51 = {"01":"LaCrosse TX3",
+					"02":"LaCrosse WS2300"}
 
-rfx_subtype_52 = {"01":"THGN122/123, THGN132, THGR122/228/238/268 (TH1)",
-					"02":"THGR810, THGN800 (TH2)",
-					"03":"RTGR328 (TH3)",
-					"04":"THGR328 (TH4)",
-					"05":"WTGR800 (TH5)",
-					"06":"THGR918, THGRN228, THGN500 (TH6)",
-					"07":"TFA TS34C, Cresta (TH7)",
-					"08":"WT260,WT260H,WT440H,WT450,WT450H (TH8)",
-					"09":"Viking 02035, 02038 (TH9)"}
+rfx_subtype_52 = {"01":"THGN122/123, THGN132, THGR122/228/238/268",
+					"02":"THGR810, THGN800",
+					"03":"RTGR328",
+					"04":"THGR328",
+					"05":"WTGR800",
+					"06":"THGR918, THGRN228, THGN50",
+					"07":"TFA TS34C, Cresta",
+					"08":"WT260,WT260H,WT440H,WT450,WT450H",
+					"09":"Viking 02035, 02038"}
 
 rfx_subtype_53 = {"01":"Reserved for future use"}
 
-rfx_subtype_54 = {"01":"BTHR918 (THB1)",
+rfx_subtype_54 = {"01":"BTHR918",
 					"02":"BTHR918N, BTHR968"}
 					
-rfx_subtype_55 = {"01":"RGR126/682/918 (RAIN1)",
-					"02":"PCR800 (RAIN2)",
-					"03":"TFA (RAIN3)",
-					"04":"UPM RG700 (RAIN4)",
-					"05":"WS2300 (RAIN5)"}
+rfx_subtype_55 = {"01":"RGR126/682/918",
+					"02":"PCR800",
+					"03":"TFA",
+					"04":"UPM RG700",
+					"05":"WS2300"}
 					
-rfx_subtype_56 = {"01":"WTGR800 (WIND1)",
-					"02":"WGR800 (WIND2)",
-					"03":"STR918, WGR918 (WIND3)",
+rfx_subtype_56 = {"01":"WTGR800",
+					"02":"WGR800",
+					"03":"STR918, WGR918",
 					"04":"TFA (WIND4)",
-					"05":"UPM WDS500 (WIND5)",
-					"06":"WS2300 (WIND6)"}
+					"05":"UPM WDS500",
+					"06":"WS2300"}
 
-rfx_subtype_57 = {"01":"UVN128, UV138 (UV1)",
-					"02":"UVN800 (UV2)",
-					"03":"TFA (UV3)"}
+rfx_subtype_57 = {"01":"UVN128, UV138",
+					"02":"UVN800",
+					"03":"TFA"}
 					
-rfx_subtype_58 = {"01":"RTGR328N (DT1)"}
+rfx_subtype_58 = {"01":"RTGR328N"}
 
-rfx_subtype_59 = {"01":"CM113, Electrisave (ELEC1)"}
+rfx_subtype_59 = {"01":"CM113, Electrisave"}
 
-rfx_subtype_5A = {"01":"CM119/160 (ELEC2)",
-					"02":"CM180 (ELEC3)"}
+rfx_subtype_5A = {"01":"CM119/160",
+					"02":"CM180"}
 
-rfx_subtype_5D = {"01":"BWR101/102 (WEIGHT1)",
-					"02":"GR101 (WEIGHT2)"}
+rfx_subtype_5D = {"01":"BWR101/102",
+					"02":"GR101"}
 					
 rfx_subtype_70 = {"00":"RFXSensor temperature",
 					"01":"RFXSensor A/S",
@@ -911,13 +1214,15 @@ rfx_subtype_72 = {"00":"FS20",
 					"01":"FHT8V valve",
 					"02":"FHT80 door/window sensor"}
 	
-
-
 # ----------------------------------------------------------------------------
-# Commands
+# RFX COMMANDS
+# ----------------------------------------------------------------------------
 
 rfx_reset="0d00000000000000000000000000"
-rfx_getstatus="0d00000002000000000000000000"
+rfx_status="0d00000002000000000000000000"
+rfx_enableallrf="0d00000004000000000000000000"
+rfx_undecoded="0d00000005000000000000000000"
+rfx_save="0d00000006000000000000000000"
 
 # ----------------------------------------------------------------------------
 # Printout types
@@ -930,17 +1235,18 @@ if sys.hexversion < 0x02060000:
 	print "Error: Your Python need to be 2.6 or newer, please upgrade."
 	exit()
 
-# Parse command line arguments
+# ----------------------------------------------------------------------------
+# PARSE COMMAND LINE ARGUMENT
+# ----------------------------------------------------------------------------
+
 parser = OptionParser()
 parser.add_option("-d", "--device", action="store", type="string", dest="device", help="The serial device of the RFXCOM, example /dev/ttyUSB0")
-parser.add_option("-a", "--action", action="store", type="string", dest="action", help="Specify which action: LISTEN (default), STATUS")
-parser.add_option("-x", "--simulate", action="store", type="string", dest="indata", help="Simulate one incoming data string")
+parser.add_option("-a", "--action", action="store", type="string", dest="action", help="Specify which action: LISTEN (default), STATUS, SEND")
+parser.add_option("-o", "--config", action="store", type="string", dest="config", help="Specify the configuration file")
+parser.add_option("-x", "--simulate", action="store", type="string", dest="simulate", help="Simulate one incoming data message")
+parser.add_option("-r", "--rawcmd", action="store", type="string", dest="rawcmd", help="Send raw message (need action SEND)")
 parser.add_option("-c", "--csv", action="store_true", dest="csv", default=False, help="Output data in CSV format")
 parser.add_option("-m", "--mysql", action="store_true", dest="mysql", default=False, help="Insert data to MySQL database")
-parser.add_option("-s", "--server", action="store", type="string", dest="server", help="MySQL server address, default : localhost")
-parser.add_option("-b", "--database", action="store", type="string", dest="database", help="MySQL database, default : rfxcmd")
-parser.add_option("-u", "--username", action="store", type="string", dest="username", help="MySQL username")
-parser.add_option("-p", "--password", action="store", type="string", dest="password", help="MySQL password")
 
 (options, args) = parser.parse_args()
 
@@ -955,6 +1261,11 @@ if options.mysql:
 if printout_complete == True:
 	print sw_name + " version " + sw_version
 
+if options.config:
+	configFile = options.config
+else:
+	configFile = "config.xml"
+
 if options.mysql == True:
 
 	# Import MySQLdb
@@ -963,55 +1274,51 @@ if options.mysql == True:
 	except ImportError:
 		print "Error: You need to install MySQL extension for Python"
 		sys.exit(1)
-		
-	# MySQL Server
-	if options.server:
-		mysql_server = options.server
-	else:
-		mysql_server = "localhost"
 
-	# MySQL Database
-	if options.database:
-		mysql_database = options.database
-	else:
-		mysql_database = "rfxcmd"
-	
-	# MySQL Username
-	if options.username:
-		mysql_username = options.username
-	else:
-		parser.error('MySQL Username is missing')
-
-	# MySQL Password
-	if options.password:
-		mysql_password = options.password
-	else:
-		parser.error('MySQL Password is missing')
-		
-else:
-
-	if options.server:
-		parser.error('The -m argument is missing')
-	if options.database:
-		parser.error('The -m argument is missing')
-	if options.username:
-		parser.error('The -m argument is missing')
-	if options.password:
-		parser.error('The -m argument is missing')
+if options.action == "send":
+	rfxcmd_rawcmd = options.rawcmd
+	if not rfxcmd_rawcmd:
+		print "Error: You need to specify message to send with -r <rawcmd>"
+		sys.exit(1)
 
 if options.action:
 	rfxcmd_action = options.action.lower()
-	if not (rfxcmd_action == "listen" or rfxcmd_action == "status"):
+	if not (rfxcmd_action == "listen" or 
+		rfxcmd_action == "send" or
+		rfxcmd_action == "status"):
 		parser.error('Invalid action')
 else:
 	rfxcmd_action = "listen"
 
 # ----------------------------------------------------------------------------
+# READ CONFIGURATION FILE
+# ----------------------------------------------------------------------------
+
+if os.path.exists( configFile ):
+
+	# RFX configuration
+	if ( read_config( configFile, "enableallrf") == "yes"):
+		_config_enableallrf = True
+	else:
+		_config_enableallrf = False
+
+	if ( read_config( configFile, "undecoded") == "yes"):
+		_config_undecoded = True
+	else:
+		_config_undecoded = False
+
+	# MySQL configuration
+	_config_mysql_server = read_config( configFile, "mysql_server")
+	_config_mysql_database = read_config( configFile, "mysql_database")
+	_config_mysql_username = read_config( configFile, "mysql_username")
+	_config_mysql_password = read_config( configFile, "mysql_password")
+
+# ----------------------------------------------------------------------------
 # SIMULATE
 # ----------------------------------------------------------------------------
 
-if options.indata:
-	indata=options.indata
+if options.simulate:
+	indata = options.simulate
 	print "------------------------------------------------"
 	
 	# remove all spaces
@@ -1040,7 +1347,7 @@ if options.indata:
 	# decode it
 	decodePacket( message )
 	
-	exit()
+	sys.exit(0)
 
 # ----------------------------------------------------------------------------
 # OPEN SERIAL CONNECTION
@@ -1063,7 +1370,7 @@ if not already_open:
 	serialport.open()
 
 # ----------------------------------------------------------------------------
-# LISTEN TO RFXCOM
+# LISTEN TO RFX, EXIT WITH CTRL+C
 # ----------------------------------------------------------------------------
 
 if rfxcmd_action == "listen":
@@ -1080,33 +1387,30 @@ if rfxcmd_action == "listen":
 	serialport.flushOutput()
 	serialport.flushInput()
 
-	# Send GET STATUS
-	serialport.write( rfx_getstatus.decode('hex') )
+	if _config_undecoded:
+		send_rfx( rfx_undecoded.decode('hex') )
+		time.sleep(1)
+		read_rfx()
+		
+	if _config_enableallrf:
+		send_rfx( rfx_enableallrf.decode('hex') )
+		time.sleep(1)
+		read_rfx()
+
+	# Send STATUS
+	serialport.write( rfx_status.decode('hex') )
 	time.sleep(1)
 
 	try:
 		while 1:
-			byte = serialport.read()
-			if byte:
-				message = byte + readbytes( ord(byte) )
-			
-				if ByteToHex(message[0]) <> "00":
-			
-					timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-					if printout_complete == True:
-						print "------------------------------------------------"
-						print "Received\t\t= " + ByteToHex(message)
-						print "Date/Time\t\t= " + timestamp
-						print "Packet Length\t\t= " + ByteToHex(message[0])
-				
-					decodePacket( message )
-			
+			read_rfx()
+
 	except KeyboardInterrupt:
 		print "\nExit..."
 		pass
 
 # ----------------------------------------------------------------------------
-# GET RFXCOM STATUS
+# STATUS
 # ----------------------------------------------------------------------------
 
 if rfxcmd_action == "status":
@@ -1123,24 +1427,82 @@ if rfxcmd_action == "status":
 	serialport.flushOutput()
 	serialport.flushInput()
 
-	# Send GET STATUS
-	serialport.write( rfx_getstatus.decode('hex') )
+	if _config_undecoded:
+		send_rfx( rfx_undecoded.decode('hex') )
+		time.sleep(1)
+		read_rfx()
+		
+	if _config_enableallrf:
+		send_rfx( rfx_enableallrf.decode('hex') )
+		time.sleep(1)
+		read_rfx()
+
+	# Send STATUS
+	send_rfx( rfx_status.decode('hex') )
+	time.sleep(1)
+	read_rfx()
+
+# ----------------------------------------------------------------------------
+# SEND
+# ----------------------------------------------------------------------------
+
+if rfxcmd_action == "send":
+
+	# Remove any whitespaces	
+	rfxcmd_rawcmd = rfxcmd_rawcmd.replace(' ', '')
+	
+	# Test the string if it is hex format
+	try:
+		int(rfxcmd_rawcmd,16)
+	except ValueError:
+		print "Error: invalid rawcmd, not hex format"
+		sys.exit(1)		
+	
+	# Check that first byte is not 00
+	if ByteToHex(rfxcmd_rawcmd.decode('hex')[0]) == "00":
+		print "Error: invalid rawcmd, first byte is zero"
+		sys.exit(1)
+	
+	# Check if string is the length that it reports to be
+	cmd_len = int( ByteToHex(rfxcmd_rawcmd.decode('hex')[0]),16 )
+	if not len(rfxcmd_rawcmd.decode('hex')) == (cmd_len + 1):
+		print "Error: invalid rawcmd, invalid length"
+		sys.exit(1)
+
+	# Flush buffer
+	serialport.flushOutput()
+	serialport.flushInput()
+
+	# Send RESET
+	serialport.write( rfx_reset.decode('hex') )
 	time.sleep(1)
 
-	byte = serialport.read()
-	if byte:
-		message = byte + readbytes( ord(byte) )
+	# Flush buffer
+	serialport.flushOutput()
+	serialport.flushInput()
+
+	if _config_undecoded:
+		send_rfx( rfx_undecoded.decode('hex') )
+		time.sleep(1)
+		read_rfx()
+		
+	if _config_enableallrf:
+		send_rfx( rfx_enableallrf.decode('hex') )
+		time.sleep(1)
+		read_rfx()
+
+	if rfxcmd_rawcmd:
+		timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+		if printout_complete == True:
+			print "------------------------------------------------"
+			print "Send\t\t\t= " + ByteToHex( rfxcmd_rawcmd.decode('hex') )
+			print "Date/Time\t\t= " + timestamp
+			print "Packet Length\t\t= " + ByteToHex(rfxcmd_rawcmd.decode('hex')[0])
+			decodePacket( rfxcmd_rawcmd.decode('hex') )
 			
-		if ByteToHex(message[0]) <> "00":
-			
-			timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-			if printout_complete == True:
-				print "------------------------------------------------"
-				print "Received\t\t= " + ByteToHex(message)
-				print "Date/Time\t\t= " + timestamp
-				print "Packet Length\t\t= " + ByteToHex(message[0])
-				
-				decodePacket( message )
+		serialport.write( rfxcmd_rawcmd.decode('hex') )
+		time.sleep(1)
+		read_rfx()
 
 # ----------------------------------------------------------------------------
 # CLOSE SERIAL CONNECTION
