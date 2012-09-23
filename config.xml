@@ -1,0 +1,9 @@
+<config>
+	<version>1</version>
+	<undecoded>no</undecoded>
+	<enableallrf>no</enableallrf>
+	<mysql_server>localhost</mysql_server>
+	<mysql_database>rfxcmd</mysql_database>
+	<mysql_username>user</mysql_username>
+	<mysql_password>pass</mysql_password>
+</config>

@@ -44,15 +44,11 @@ RFXCMD.PY
 
 Options;
 
--d		serial device of the RFXtrx433-USB
--a		Action: LISTEN, STATUS
--c		output data in CSV format, one line per device data
--m		Insert all data to a MySQL database
--s		MySQL server address (default : localhost) (option -m mandantory)
--b		MySQL database (default : rfxcmd) (option -m mandantory)
--u		MySQL username (option -m mandantory)
--p		MySQL password (option -m mandantory)
-
+	-d		serial device of the RFXtrx433-USB
+	-a		Action: LISTEN, STATUS, SEND
+	-r		Send raw message
+	-c		output data in CSV format, one line per device data
+	-m		Insert all received sensor data to a MySQL database
 
 	option -d
 	----------
@@ -65,16 +61,34 @@ Options;
 	
 	Specify the action you want the script to do.
 	
-	LISTEN - The script will start listen to the incoming data from the RFX device, this is also
+	LISTEN
+	
+	The script will start listen to the incoming data from the RFX device, this is also
 	the default option if the switch -a is not specified.
 	
-	STATUS - The script will send the status request and print the current status of the RFX
-	device to the screen
+	You need to specify device (-d) and you can optionally get the output data in CSV format with
+	option -c
+	
+	STATUS
+	
+	The script will send the status request and print the current status of the RFX
+	device to the screen.
+	
+	SEND
+	
+	SEND action is used when you want to send a command, you need to us the rawcmd option (-r) to
+	specify which command you want to send.
+	
+	Best way to know which message to send is to use the RFXmngr (windows) software and do one send
+	action, then it will printout the message that you need to use with the RFXCMD.
 	
 	option -m
 	---------
 	
-	Activate the MySQL function for the script, it will require switches to specify MySQL details.
+	The MySQL tables are still under work, and not all sensors are supported yet.
+	
+	Activate the MySQL function for the script, it will require proper settings in the configuration
+	file for the MySQL details.
 	
 	To be able to use the MySQL function you need to have the MySQL python extension installed, more
 	information can be found here; http://mysql-python.sourceforge.net/
@@ -103,15 +117,7 @@ Options;
 	To import the table to MySQL from command line;
 	
 	$ mysql -u <user> -p < mysql_weather.txt
-	
-	option -s, -b, -u, -p
-	---------------------
-	
-	All these options are used for MySQL only, and are needed when the MySQL function is used.
-	The -s (server) and -b (database) has default values and are not mandantory.
-	
-	The default value for server is localhost and the default value for database is rfxcmd
-		
+			
 
 EXAMPLES
 --------
@@ -128,6 +134,10 @@ $ ./rfxcmd.py -d /dev/ttyUSB0 -a listen -m -u testuser -p testpassword
 Get current status of the RFX device
 
 $ ./rfxcmd.py -d /dev/ttyUSB0 -a status
+
+Send an command to sensor
+
+$ ./rfxcmd.py -d /dev/ttyUSB0 -a send -r 0B1100020011BE2A0D010600
 
 OTHER
 -----
