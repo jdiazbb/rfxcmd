@@ -54,7 +54,7 @@
 #			* Compatible with RFX SDK version 4.31
 #			* Added CM180/ELEC3 (v4.31)
 #
-#	v0.1h	22-SEP-2012
+#	v0.1h	23-SEP-2012
 #			* Added possibility for enable all RF
 #			* Added possibility for enable undecoded messages
 #			* Fix for "Issue 1:	Error when trying to store to MySql"
@@ -63,6 +63,7 @@
 #			* Updated to support FW version 433_50 (14-9-2012)
 #			* Added configuration file (config.xml)
 #			* Added to send raw messages
+#			* Handle exception in serialport.read()
 #
 #	NOTES
 #	
@@ -75,6 +76,7 @@ import sys
 import os
 import time
 import binascii
+import traceback
 from optparse import OptionParser
 
 # Import Serial
@@ -928,18 +930,23 @@ def read_rfx():
 	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 
-	byte = serialport.read()
-	if byte:
-		message = byte + readbytes( ord(byte) )
+	try:
+		byte = serialport.read()
+		
+		if byte:
+			message = byte + readbytes( ord(byte) )
 			
-		if ByteToHex(message[0]) <> "00":
-			if printout_complete == True:
-				print "------------------------------------------------"
-				print "Received\t\t= " + ByteToHex( message )
-				print "Date/Time\t\t= " + timestamp
-				print "Packet Length\t\t= " + ByteToHex( message[0] )
+			if ByteToHex(message[0]) <> "00":
+				if printout_complete == True:
+					print "------------------------------------------------"
+					print "Received\t\t= " + ByteToHex( message )
+					print "Date/Time\t\t= " + timestamp
+					print "Packet Length\t\t= " + ByteToHex( message[0] )
 				
-			decodePacket( message )
+				decodePacket( message )
+	
+	except OSError, e:
+		traceback.print_exc()
 
 # ----------------------------------------------------------------------------
 # READ ITEM FROM THE CONFIGURATION FILE
