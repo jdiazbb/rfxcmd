@@ -46,7 +46,6 @@ CREATE TABLE `energy` (
   `count` int(11) DEFAULT NULL,
   `instant` float(5,2) DEFAULT NULL,
   `total` float(5,2) DEFAULT NULL,
-  `barometric` float(5,2) DEFAULT NULL,
   `ch1` float(5,2) DEFAULT NULL,
   `ch2` float(5,2) DEFAULT NULL,
   `ch3` float(5,2) DEFAULT NULL,
