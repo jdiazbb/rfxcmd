@@ -14,6 +14,10 @@
 	
 	R1B 01-AUG-2012, Sebastian Sjoholm
 		* Added data for Rain, Wind and UV (0x55, 0x56, 0x57)
+
+	R1C	06-OCT-2012, Sebastian Sjoholm
+		* Corrected barometric to int(11). Credit: Jean-Baptiste Bodart
+
 	
 */
 
@@ -51,7 +55,7 @@ CREATE TABLE `weather` (
   `temperature` float(5,2) DEFAULT NULL,
   `humidity` int(11) DEFAULT NULL,
   `humidity_status` int(11) DEFAULT NULL,
-  `barometric` float(5,2) DEFAULT NULL,
+  `barometric` int(11) DEFAULT NULL,
   `forecast` int(11) DEFAULT NULL,
   `rainrate` int(11) DEFAULT NULL,
   `raintotal` int(11) DEFAULT NULL,
