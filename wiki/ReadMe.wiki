@@ -111,7 +111,7 @@ database.
 	
 At current moment there are tables made for following messages
 	
-File mysql_weather.txt
+File mysql_weather.txt\\
 	
 ||0x50||Temperature sensors||
 ||0x51||Humidity sensors||
