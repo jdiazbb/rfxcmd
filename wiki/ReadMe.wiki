@@ -75,7 +75,7 @@ message, it should be decoded anyway. The sensor has to be implemented in rfxcmd
 $ ./rfxcmd.py -x "0A5201000A01006A390269"
 RFXCMD version 0.1j
 ------------------------------------------------
-Received			= 0A5201000A01006A390269
+Received		= 0A5201000A01006A390269
 Date/Time		= 2012-10-11 18:58:41
 Packettype		= Temperature and humidity sensors
 Subtype			= THGN122/123, THGN132, THGR122/228/238/268
