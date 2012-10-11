@@ -9,8 +9,6 @@ RFXCMD is Python script that interfaces the RFX USB devices from RFXcom [www.rfx
  * Tested on Mac OSX 10.8.2 with Python 2.7.2
  * Tested with RFXCOM device RFXtrx433-USB (v2.1)
 
-=NOTE, THIS README CONTAINS FUNCTIONS THAT UPCOMING VERSION WILL HAVE, IT WILL BE DOWNLOADABLE SHORTLY=
-
 ==RFXCMD.PY==
 
 Options;
@@ -257,6 +255,8 @@ I can accurately integrate the message to RFXCMD.
 Thanks to following users who have helped with testing, patches, ideas, bug reports, and so on (in no special order).
 
 Anders, Dimitri, Patrik, Ludwig, Jean-Michel, Jean-Baptiste, Robert, Fabien, Bert
+
+and to [http://www.rfxcom.com RFXCOM] for their support.
 
 ----
 ==NOTES==
