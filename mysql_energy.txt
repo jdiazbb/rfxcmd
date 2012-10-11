@@ -9,12 +9,15 @@
 	
 	Version;
 	
-	R1A 06-AUG-2012, Sebastian Sjoholm
+	R1A 06-AUG-2012
 		* Created
 
-	R1C 15-SEP-2012, Sebastian Sjoholm
+	R1C 15-SEP-2012
 		* Checked for SDK 4.31 compability
 		* ELEC3 added to energy group
+	
+	R1D 11-OCT-2012
+		* Corrected 'instant' and 'total' to int(11). (Thanks: Dimitri)
 	
 */
 
@@ -44,8 +47,8 @@ CREATE TABLE `energy` (
   `id1` varchar(2) DEFAULT NULL,
   `id2` varchar(2) DEFAULT NULL,
   `count` int(11) DEFAULT NULL,
-  `instant` float(5,2) DEFAULT NULL,
-  `total` float(5,2) DEFAULT NULL,
+  `instant` int(11) DEFAULT NULL,
+  `total` int(11) DEFAULT NULL,
   `ch1` float(5,2) DEFAULT NULL,
   `ch2` float(5,2) DEFAULT NULL,
   `ch3` float(5,2) DEFAULT NULL,
