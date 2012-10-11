@@ -54,7 +54,7 @@
 #			* Compatible with RFX SDK version 4.31
 #			* Added CM180/ELEC3 (v4.31)
 #
-#	v0.1h	23-SEP-2012
+#	v0.1h	06-SEP-2012
 #			* Added possibility for enable all RF
 #			* Added possibility for enable undecoded messages
 #			* Fix for "Issue 1:	Error when trying to store to MySql"
@@ -64,6 +64,17 @@
 #			* Added configuration file (config.xml)
 #			* Added to send raw messages
 #			* Handle exception in serialport.read()
+#			* Trigger on specific messages
+#			* Added support for 0x54 (Credit: Jean-Baptiste Bodart)
+#			* Added support for 0x5A (Credit: Jean-Michel ROY)
+#			* Corrected singnal/battery (Thanks: Jean-Baptiste Bodart)
+#
+#	v0.1j	08-OCT-2012
+#			* Added regex in the trigger function (Thanks: Robert F)
+#			* If config file not found, print error and set default values
+#			* Verify message length with reported length before decode
+#			* Fix for "Issue #2: Problem with temperatures below 0 degrees Celsius"
+#			* Corrected MySQL statement in 0x5A (Thanks: Dimitri)
 #
 #	NOTES
 #	
@@ -77,6 +88,11 @@ import os
 import time
 import binascii
 import traceback
+import subprocess
+import re
+
+from xml.dom.minidom import parseString
+import xml.dom.minidom as minidom
 from optparse import OptionParser
 
 # Import Serial
@@ -87,7 +103,7 @@ except ImportError:
 	sys.exit(1)
 
 sw_name = "RFXCMD"
-sw_version = "0.1h"
+sw_version = "0.1j"
 
 # ----------------------------------------------------------------------------
 # DEFAULT CONFIGURATION PARAMETERS
@@ -563,7 +579,8 @@ def decodePacket( message ):
 		temp_low = ByteToHex(message[7])
 		
 		polarity = testBit(int(temp_high,16),7)
-		if polarity == 1:
+
+		if polarity == 128:
 			polarity_sign = "-"
 		else:
 			polarity_sign = ""
@@ -574,8 +591,8 @@ def decodePacket( message ):
 		temperature_str = polarity_sign + str(temperature)
 
 		batt_rssi = ByteToHex(message[8])		
-		battery = int(batt_rssi,16) >> 4
-		signal = int(batt_rssi,16) & 0xf
+		signal = int(batt_rssi,16) >> 4
+		battery = int(batt_rssi,16) & 0xf
 		
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_50[subtype]
@@ -631,8 +648,8 @@ def decodePacket( message ):
 
 		# Battery & Signal
 		batt_rssi = ByteToHex(message[8])		
-		battery = int(batt_rssi,16) >> 4
-		signal = int(batt_rssi,16) & 0xf
+		signal = int(batt_rssi,16) >> 4
+		battery = int(batt_rssi,16) & 0xf
 		
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_51[subtype]
@@ -696,7 +713,7 @@ def decodePacket( message ):
 		temp_low = ByteToHex(message[7])
 		polarity = testBit(int(temp_high,16),7)
 		
-		if polarity == 1:
+		if polarity == 128:
 			polarity_sign = "-"
 		else:
 			polarity_sign = ""
@@ -712,8 +729,8 @@ def decodePacket( message ):
 
 		# Battery & Signal
 		batt_rssi = ByteToHex(message[10])		
-		battery = int(batt_rssi,16) >> 4
-		signal = int(batt_rssi,16) & 0xf
+		signal = int(batt_rssi,16) >> 4
+		battery = int(batt_rssi,16) & 0xf
 		
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_52[subtype]
@@ -766,7 +783,113 @@ def decodePacket( message ):
 			finally:
 				if db:
 					db.close()
-	
+
+	# ---------------------------------------
+	# 0x54 - Temperature, humidity and barometric sensors
+	# Credit: Jean-Baptiste Bodart
+	# ---------------------------------------
+	if packettype == '54':
+		
+		decoded = True
+
+		# Temperature
+		temp_high = ByteToHex(message[6])
+		temp_low = ByteToHex(message[7])
+		polarity = testBit(int(temp_high,16),7)
+		
+		if polarity == 128:
+			polarity_sign = "-"
+		else:
+			polarity_sign = ""
+			
+		temp_high = clearBit(int(temp_high,16),7)
+		temp_high = temp_high << 8
+		temperature = ( temp_high + int(temp_low,16) ) * 0.1
+		temperature_str = polarity_sign + str(temperature)
+		
+		# Humidity
+		humidity = ByteToHex(message[8])
+		humidity_status = ByteToHex(message[9])
+
+		# Barometric pressure
+		barometric_high = ByteToHex(message[10])
+		barometric_low = ByteToHex(message[11])
+		barometric_high = clearBit(int(barometric_high,16),7)
+		barometric_high = barometric_high << 8
+		barometric = ( barometric_high + int(barometric_low,16) )
+		
+		# Forecast
+		forecast_status = ByteToHex(message[12])
+		
+		# Battery & Signal
+		batt_rssi = ByteToHex(message[13])		
+		signal = int(batt_rssi,16) >> 4
+		battery = int(batt_rssi,16) & 0xf
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_54[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id 1 (House)\t\t= " + id1
+			print "Id 2 (Channel)\t\t= " + id2
+			
+			print "Temperature\t\t= " + temperature_str + " C"
+			print "Humidity\t\t= " + str(int(humidity,16))
+			
+			if humidity_status == '00':
+				print "Humidity Status\t\t= Dry"
+			elif humidity_status == '01':
+				print "Humidity Status\t\t= Comfort"
+			elif humidity_status == '02':
+				print "Humidity Status\t\t= Normal"
+			elif humidity_status == '03':
+				print "Humidity Status\t\t= Wet"
+			else:
+				print "Humidity Status\t\t= Unknown"
+			
+			print "Barometric pressure\t= " + str(barometric)
+			
+			if forecast_status == '01':
+				print "Forecast Status\t\t= Sunny"
+			elif forecast_status == '02':
+				print "Forecast Status\t\t= Partly cloudy"
+			elif forecast_status == '03':
+				print "Forecast Status\t\t= Cloudy"
+			elif forecast_status == '04':
+				print "Forecast Status\t\t= Rainy"
+			else:
+				print "Forecast Status\t\t= Unknown"
+			
+			print "Battery (0-9)\t\t= " + str(battery)
+			print "Signal level (0-15)\t= " + str(signal)
+		
+		if printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, id1, id2,
+							temperature_str, str(int(humidity,16)), humidity_status, 
+							str(barometric), forecast_status, str(battery), str(signal)) )
+		
+		if options.mysql:
+
+			try:
+				db = MySQLdb.connect(mysql_server, mysql_username, mysql_password, mysql_database)
+				cursor = db.cursor()
+
+				cursor.execute("INSERT INTO weather \
+				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, humidity, humidity_status, barometric, forecast, battery, signal_level) VALUES \
+				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s','%s');" % \
+				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, int(humidity,16), int(humidity_status,16), \
+				barometric, int(forecast_status,16), battery, signal))
+				
+				db.commit()
+
+			except MySQLdb.Error, e:
+				print "Error %d: %s" % (e.args[0], e.args[1])
+				sys.exit(1)
+
+			finally:
+				if db:
+					db.close()
+
 	# ---------------------------------------
 	# 0x56 - Wind sensors
 	# ---------------------------------------
@@ -803,7 +926,7 @@ def decodePacket( message ):
 			temp_low = ByteToHex(message[13])
 			polarity = testBit(int(temp_high,16),12)
 		
-			if polarity == 1:
+			if polarity == 128:
 				polarity_sign = "-"
 			else:
 				polarity_sign = ""
@@ -835,8 +958,8 @@ def decodePacket( message ):
 		
 		# Battery & Signal
 		batt_rssi = ByteToHex(message[16])
-		battery = int(batt_rssi,16) >> 4
-		signal = int(batt_rssi,16) & 0xf
+		signal = int(batt_rssi,16) >> 4
+		battery = int(batt_rssi,16) & 0xf
 	
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_56[subtype]
@@ -889,6 +1012,63 @@ def decodePacket( message ):
 					db.close()
 	
 	# ---------------------------------------
+	# 0x5A Energy sensor
+	# Credit: Jean-Michel ROY
+	# ---------------------------------------
+	if packettype == '5A':
+
+		decoded = True
+
+		print "Subtype\t\t\t= " + rfx_subtype_5A[subtype]
+
+		# Battery & Signal
+		batt_rssi = ByteToHex(message[17])
+		signal = int(batt_rssi,16) >> 4
+		battery = int(batt_rssi,16) & 0xf
+
+		instant = int(ByteToHex(message[7]), 16) * 0x1000000 + int(ByteToHex(message[8]), 16) * 0x10000 + int(ByteToHex(message[9]), 16) * 0x100  + int(ByteToHex(message[10]), 16)
+		usage = int ((int(ByteToHex(message[11]), 16) * 0x10000000000 + int(ByteToHex(message[12]), 16) * 0x100000000 +int(ByteToHex(message[13]), 16) * 0x1000000 + int(ByteToHex(message[14]), 16) * 0x10000 + int(ByteToHex(message[15]), 16) * 0x100 + int(ByteToHex(message[16]), 16) ) / 223.666)
+
+		if printout_complete == True:
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id 1\t\t\t= " + id1
+			print "Id 2\t\t\t= " + id2
+			print "Instant usage\t\t= " + str(instant) + " Watt"
+			print "Total usage\t\t= " + str(usage) + " Wh"
+			print "Battery (0-9)\t\t= " + str(battery)
+			print "Signal level (0-15)\t= " + str(signal)
+
+		if printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, id1, id2,
+							str(instant), str(battery), str(signal)) )
+
+		if options.mysql:
+
+			try:
+				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
+				cursor = db.cursor()
+
+				cursor.execute("INSERT INTO energy \
+				(datetime, packettype, subtype, seqnbr, id1, id2, instant, total, battery, signal_level) VALUES \
+				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
+				(timestamp, packettype, subtype, seqnbr, id1, id2, instant, usage, battery, signal))
+				
+				db.commit()
+
+			except MySQLdb.Error, e:
+				print "Error %d: %s" % (e.args[0], e.args[1])
+				sys.exit(1)
+
+			finally:
+				if db:
+					db.close()
+
+	# ---------------------------------------
+	# 0x5A END
+	# ---------------------------------------
+
+	# ---------------------------------------
 	# Not decoded message
 	# ---------------------------------------	
 	
@@ -937,15 +1117,33 @@ def read_rfx():
 			message = byte + readbytes( ord(byte) )
 			
 			if ByteToHex(message[0]) <> "00":
-				if printout_complete == True:
-					print "------------------------------------------------"
-					print "Received\t\t= " + ByteToHex( message )
-					print "Date/Time\t\t= " + timestamp
-					print "Packet Length\t\t= " + ByteToHex( message[0] )
+			
+				# Verify length
+				if (len(message) - 1) == ord(message[0]):
 				
-				decodePacket( message )
+					if printout_complete == True:
+						print "------------------------------------------------"
+						print "Received\t\t= " + ByteToHex( message )
+						print "Date/Time\t\t= " + timestamp
+						print "Packet Length\t\t= " + ByteToHex( message[0] )
+				
+					decodePacket( message )
 	
+					rawcmd = ByteToHex ( message )
+					rawcmd = rawcmd.replace(' ', '')
+
+					return rawcmd
+				
+				else:
+				
+					if printout_complete == True:
+						print "------------------------------------------------"
+						print "Received\t\t= " + ByteToHex( message )
+						print "Incoming packet not valid, waiting for next..."
+				
 	except OSError, e:
+		print "------------------------------------------------"
+		print "Received\t\t= " + ByteToHex( message )
 		traceback.print_exc()
 
 # ----------------------------------------------------------------------------
@@ -953,9 +1151,6 @@ def read_rfx():
 # ----------------------------------------------------------------------------
 
 def read_config( configFile, configItem):
-
-	#import easy to use xml parser called minidom:
-	from xml.dom.minidom import parseString
  
 	#open the xml file for reading:
 	file = open( configFile,'r')
@@ -968,7 +1163,29 @@ def read_config( configFile, configItem):
 	xmlData=xmlTag.replace('<' + configItem + '>','').replace('</' + configItem + '>','')
 	return xmlData
 
+# ----------------------------------------------------------------------------
+# TRIGGER
+# ----------------------------------------------------------------------------
 
+def read_trigger():
+ 
+	xmldoc = minidom.parse('trigger.xml')
+	root = xmldoc.documentElement
+
+	triggers = root.getElementsByTagName('trigger')
+
+	triggerlist = []
+	x = 1
+	
+	for trigger in triggers:
+		# print trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+		message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+		# print trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+		action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+ 		triggerlist = [ message, action ]
+ 		# print triggerlist
+ 		return triggerlist
+ 	
 # ----------------------------------------------------------------------------
 # RESPONSES
 # ----------------------------------------------------------------------------
@@ -1248,7 +1465,7 @@ if sys.hexversion < 0x02060000:
 
 parser = OptionParser()
 parser.add_option("-d", "--device", action="store", type="string", dest="device", help="The serial device of the RFXCOM, example /dev/ttyUSB0")
-parser.add_option("-a", "--action", action="store", type="string", dest="action", help="Specify which action: LISTEN (default), STATUS, SEND")
+parser.add_option("-a", "--action", action="store", type="string", dest="action", help="Specify which action: LISTEN (default), STATUS, SEND, BSEND")
 parser.add_option("-o", "--config", action="store", type="string", dest="config", help="Specify the configuration file")
 parser.add_option("-x", "--simulate", action="store", type="string", dest="simulate", help="Simulate one incoming data message")
 parser.add_option("-r", "--rawcmd", action="store", type="string", dest="rawcmd", help="Send raw message (need action SEND)")
@@ -1282,7 +1499,7 @@ if options.mysql == True:
 		print "Error: You need to install MySQL extension for Python"
 		sys.exit(1)
 
-if options.action == "send":
+if options.action == "send" or options.action == "bsend":
 	rfxcmd_rawcmd = options.rawcmd
 	if not rfxcmd_rawcmd:
 		print "Error: You need to specify message to send with -r <rawcmd>"
@@ -1292,6 +1509,7 @@ if options.action:
 	rfxcmd_action = options.action.lower()
 	if not (rfxcmd_action == "listen" or 
 		rfxcmd_action == "send" or
+		rfxcmd_action == "bsend" or
 		rfxcmd_action == "status"):
 		parser.error('Invalid action')
 else:
@@ -1319,12 +1537,49 @@ if os.path.exists( configFile ):
 	_config_mysql_database = read_config( configFile, "mysql_database")
 	_config_mysql_username = read_config( configFile, "mysql_username")
 	_config_mysql_password = read_config( configFile, "mysql_password")
+	
+	if ( read_config( configFile, "trigger") == "yes"):
+		_config_trigger = True
+	else:
+		_config_trigger = False
+
+	_config_triggerfile = read_config( configFile, "triggerfile")	
+
+else:
+
+	# config file not found, set default values
+	print "Error: Configuration file not found (" + configFile + ")"
+	
+	_config_enableallrf = False
+	_config_undecoded = False
+	
+	_config_mysql_server = ""
+	_config_mysql_database = ""
+	_config_mysql_username = ""
+	_config_mysql_password = ""
+
+	_config_trigger = False
 
 # ----------------------------------------------------------------------------
 # SIMULATE
 # ----------------------------------------------------------------------------
 
 if options.simulate:
+
+	# If trigger is activated in config, then read the triggerfile
+	if _config_trigger:
+		xmldoc = minidom.parse( _config_triggerfile )
+		root = xmldoc.documentElement
+
+		triggers = root.getElementsByTagName('trigger')
+
+		triggerlist = []
+	
+		for trigger in triggers:
+			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+ 			triggerlist = [ message, action ]
+
 	indata = options.simulate
 	print "------------------------------------------------"
 	
@@ -1354,6 +1609,16 @@ if options.simulate:
 	# decode it
 	decodePacket( message )
 	
+	if _config_trigger:
+		if message:
+			for trigger in triggers:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					return_code = subprocess.call(action, shell=True)
+	
 	sys.exit(0)
 
 # ----------------------------------------------------------------------------
@@ -1382,6 +1647,20 @@ if not already_open:
 
 if rfxcmd_action == "listen":
 
+	# If trigger is activated in config, then read the triggerfile
+	if _config_trigger:
+		xmldoc = minidom.parse( _config_triggerfile )
+		root = xmldoc.documentElement
+
+		triggers = root.getElementsByTagName('trigger')
+
+		triggerlist = []
+	
+		for trigger in triggers:
+			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+ 			triggerlist = [ message, action ]
+			
 	# Flush buffer
 	serialport.flushOutput()
 	serialport.flushInput()
@@ -1410,7 +1689,15 @@ if rfxcmd_action == "listen":
 
 	try:
 		while 1:
-			read_rfx()
+			rawcmd = read_rfx()
+
+			if _config_trigger:
+				if rawcmd:
+					for trigger in triggers:
+						message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+						action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+						if re.match(message, rawcmd):
+							return_code = subprocess.call(action, shell=True)
 
 	except KeyboardInterrupt:
 		print "\nExit..."
@@ -1511,6 +1798,36 @@ if rfxcmd_action == "send":
 		time.sleep(1)
 		read_rfx()
 
+# ----------------------------------------------------------------------------
+# BSEND
+# ----------------------------------------------------------------------------
+
+if rfxcmd_action == "bsend":
+	
+	# Remove any whitespaces	
+	rfxcmd_rawcmd = rfxcmd_rawcmd.replace(' ', '')
+	
+	# Test the string if it is hex format
+	try:
+		int(rfxcmd_rawcmd,16)
+	except ValueError:
+		print "Error: invalid rawcmd, not hex format"
+		sys.exit(1)		
+	
+	# Check that first byte is not 00
+	if ByteToHex(rfxcmd_rawcmd.decode('hex')[0]) == "00":
+		print "Error: invalid rawcmd, first byte is zero"
+		sys.exit(1)
+	
+	# Check if string is the length that it reports to be
+	cmd_len = int( ByteToHex(rfxcmd_rawcmd.decode('hex')[0]),16 )
+	if not len(rfxcmd_rawcmd.decode('hex')) == (cmd_len + 1):
+		print "Error: invalid rawcmd, invalid length"
+		sys.exit(1)
+
+	if rfxcmd_rawcmd:
+		serialport.write( rfxcmd_rawcmd.decode('hex') )
+	
 # ----------------------------------------------------------------------------
 # CLOSE SERIAL CONNECTION
 # ----------------------------------------------------------------------------
