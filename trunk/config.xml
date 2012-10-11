@@ -6,4 +6,6 @@
 	<mysql_database>rfxcmd</mysql_database>
 	<mysql_username>user</mysql_username>
 	<mysql_password>pass</mysql_password>
+	<trigger>no</trigger>
+	<triggerfile>trigger.xml</triggerfile>
 </config>
