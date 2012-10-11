@@ -109,9 +109,9 @@ information can be found here; http://mysql-python.sourceforge.net/
 You need also to create the compatible tables for RFXCMD to be able to insert the data to the
 database.
 	
-At current moment there are tables made for following messages;
+At current moment there are tables made for following messages
 	
-File: mysql_weather.txt
+File mysql_weather.txt
 	
 ||0x50||Temperature sensors||
 ||0x51||Humidity sensors||
@@ -122,7 +122,7 @@ File: mysql_weather.txt
 ||0x56||Wind sensors||
 ||0x57||UV sensors||
 	
-File: mysql_energy.txt
+File mysql_energy.txt
 	
 ||0x59||Current sensors||
 ||0x5A||Energy usage sensors||
