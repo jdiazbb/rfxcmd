@@ -102,17 +102,21 @@ option -m
 }}}
 	
 Tell rfxcmd to add the incoming sensor data to MySQL database.
+
 	
 To be able to use the MySQL function you need to have the MySQL python extension installed, more
 information can be found here; http://mysql-python.sourceforge.net/
-	
+
+
 You need also to create the compatible tables for RFXCMD to be able to insert the data to the
 database.
+
 	
 At current moment there are tables made for following messages
+
 	
-File mysql_weather.txt\\
-	
+====File mysql_weather.txt====
+
 ||0x50||Temperature sensors||
 ||0x51||Humidity sensors||
 ||0x52||Temperature and humidity sensors||
@@ -121,12 +125,14 @@ File mysql_weather.txt\\
 ||0x55||Rain sensors||
 ||0x56||Wind sensors||
 ||0x57||UV sensors||
-	
-File mysql_energy.txt
+
+====File mysql_energy.txt====
 	
 ||0x59||Current sensors||
 ||0x5A||Energy usage sensors||
-	
+
+
+
 To import the table to MySQL from command line;
 
 {{{	
