@@ -83,8 +83,8 @@ Seqnbr			= 00
 Id 1 (House)		= 0A
 Id 2 (Channel)		= 01
 Temperature		= 10.6 C
-Humidity			= 57
-Humidity Status	= Normal
+Humidity		= 57
+Humidity Status		= Normal
 Battery (0-9)		= 9
 Signal level (0-15)	= 6
 }}}
