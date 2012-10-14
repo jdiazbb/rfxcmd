@@ -76,6 +76,11 @@
 #			* Fix for "Issue #2: Problem with temperatures below 0 degrees Celsius"
 #			* Corrected MySQL statement in 0x5A (Thanks: Dimitri)
 #
+#	v0.1k	14-OCT-2012
+#			* Fix for "Issue #3: MySQL Error for 0x54 Sensors"
+#			* Set variable to 00 in read_rfx()
+#			* Added default value for _config_trigger
+#
 #	NOTES
 #	
 #	RFXCOM is a Trademark of RFSmartLink.
@@ -103,7 +108,7 @@ except ImportError:
 	sys.exit(1)
 
 sw_name = "RFXCMD"
-sw_version = "0.1j"
+sw_version = "0.1k"
 
 # ----------------------------------------------------------------------------
 # DEFAULT CONFIGURATION PARAMETERS
@@ -118,6 +123,7 @@ _config_mysql_server = ""
 _config_mysql_database = ""
 _config_mysql_username = ""
 _config_mysql_password = ""
+_config_trigger = False
 	
 # ----------------------------------------------------------------------------
 # Read x amount of bytes from serial port
@@ -871,7 +877,7 @@ def decodePacket( message ):
 		if options.mysql:
 
 			try:
-				db = MySQLdb.connect(mysql_server, mysql_username, mysql_password, mysql_database)
+				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
@@ -1075,7 +1081,7 @@ def decodePacket( message ):
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
 		print timestamp + " " + ByteToHex(message)
-		print "RFXCMD cannot decode message, see readme.txt for more information."
+		print "RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ReadMe for more information."
 
 	# decodePackage END
 	return
@@ -1109,6 +1115,7 @@ def read_rfx():
 	global printout_complete, printout_csv
 	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+	message = None
 
 	try:
 		byte = serialport.read()
