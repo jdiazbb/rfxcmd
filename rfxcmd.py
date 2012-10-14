@@ -20,66 +20,8 @@
 #	You should have received a copy of the GNU General Public License
 #	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #	
-#	Revision History
-#	
-#	v0.1	06-JUL-2012 
-#			* Created, first working version, Reference : RFXtrx SDK 4.24 
-#			
-#	v0.1b	10-JUL-2012 
-#			* Fixed temperature decoding for (device 0x52) 
-#			* Flush I/O buffer before first command
-#			* Print the polarity sign (device 0x52)
-#			
-#	v0.1c	11-JUL-2012
-#			* Check that Python is 2.6 or newer
-#			* If first receiving byte is 00 then don't start decoding
-#			* Better error handling
-#			
-#	v0.1d	12-JUL-2012
-#			* Added simulate function (-x) to decode data manually
-#
-#	v0.1e	28-JUL-2012
-#			* Fixed MySQL issue, if password is wrong
-#			
-#	v0.1f	06-SEP-2012
-#			* Handle exception if serial lib does not exist
-#			* Compatible with RFX SDK version 4.30
-#			* Added all missing receive subgroups
-#			* Corrected protocol printout in status
-#			* New switch (-a) to choose action LISTEN or STATUS
-#			
-#	v0.1g	09-SEP-2012
-#			* Added process for Humidity Sensors (0x51)
-#			* Added process for Wind Sensors (0x56)
-#			* Compatible with RFX SDK version 4.31
-#			* Added CM180/ELEC3 (v4.31)
-#
-#	v0.1h	06-SEP-2012
-#			* Added possibility for enable all RF
-#			* Added possibility for enable undecoded messages
-#			* Fix for "Issue 1:	Error when trying to store to MySql"
-#			* Added 0x12 Lighting3
-#			* Added 0x13 Lighting4
-#			* Updated to support FW version 433_50 (14-9-2012)
-#			* Added configuration file (config.xml)
-#			* Added to send raw messages
-#			* Handle exception in serialport.read()
-#			* Trigger on specific messages
-#			* Added support for 0x54 (Credit: Jean-Baptiste Bodart)
-#			* Added support for 0x5A (Credit: Jean-Michel ROY)
-#			* Corrected singnal/battery (Thanks: Jean-Baptiste Bodart)
-#
-#	v0.1j	08-OCT-2012
-#			* Added regex in the trigger function (Thanks: Robert F)
-#			* If config file not found, print error and set default values
-#			* Verify message length with reported length before decode
-#			* Fix for "Issue #2: Problem with temperatures below 0 degrees Celsius"
-#			* Corrected MySQL statement in 0x5A (Thanks: Dimitri)
-#
-#	v0.1k	14-OCT-2012
-#			* Fix for "Issue #3: MySQL Error for 0x54 Sensors"
-#			* Set variable to 00 in read_rfx()
-#			* Added default value for _config_trigger
+#	Version history can be found at 
+#	http://code.google.com/p/rfxcmd/wiki/VersionHistory
 #
 #	NOTES
 #	
