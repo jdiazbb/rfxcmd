@@ -33,6 +33,30 @@ Battery (0-9)           = 9
 Signal level (0-15)     = 5
 }}}
 
+== 0x0B - Lightning2 ==
+
+RFXmngr:
+
+{{{
+0B110006007DB0C202010F70
+Packettype    = Lighting2
+subtype       = AC
+Sequence nbr  = 6
+ID            = 07DB0C2
+Unit          = 2
+Command       = On
+Signal level  = 7
+------------------------------------------------
+0B110007007DB0C202000070
+Packettype    = Lighting2
+subtype       = AC
+Sequence nbr  = 7
+ID            = 07DB0C2
+Unit          = 2
+Command       = Off
+Signal level  = 7
+}}}
+
 == 0x40 - Thermostat1 ==
 
 RFXmngr:
