@@ -20,3 +20,4 @@ Sensor specific data fields:
 || 0x52 || id1 || id2 || temperature || humidity || humidity status || - || - ||
 || 0x54 || id1 || id2 || temperature || humidity || humidity status || baro || forecast ||
 || 0x55 || id1 || id2 || rainrate || raintotal || - || - || - ||
+|| 0x56 || id1 || id2 || direction || av_speed || gust || temperature || chill ||
