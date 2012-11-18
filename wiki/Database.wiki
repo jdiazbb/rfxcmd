@@ -16,6 +16,7 @@ Note, that battery is not used for all sensors, this case it will be ff.
 Sensor specific data fields:
 
 || Packettype || data1 || data2 || data3 || data4 || data5 || data6 || data7 ||
+|| 0x02 || response || - || - || - || - || - || - ||
 || 0x10 || housecode || unitcode || cmnd || - || - || - || - ||
 || 0x11 || id1 || id2 || id3 || id4 || unitcode || cmnd || - ||
 || 0x12 || system || channel || cmnd || - || - || - || - ||
@@ -31,6 +32,9 @@ Sensor specific data fields:
 || 0x50 || id1 || id2 || temp || - || - || - || - ||
 || 0x51 || id1 || id2 || humidity || humidity status || - || - || - ||
 || 0x52 || id1 || id2 || temperature || humidity || humidity status || - || - ||
+|| 0x53 || id1 || id2 || baro || forecast || - || - || - ||
 || 0x54 || id1 || id2 || temperature || humidity || humidity status || baro || forecast ||
 || 0x55 || id1 || id2 || rainrate || raintotal || - || - || - ||
 || 0x56 || id1 || id2 || direction || av_speed || gust || temperature || chill ||
+|| 0x57 || id1 || id2 || uv || temp || - || - || - ||
+|| 0x58 || id1 || id2 || id1 || id2 || date || time || - ||
