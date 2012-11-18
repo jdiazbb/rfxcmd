@@ -78,6 +78,21 @@ Signal level  = 7
 }}}
 
 ----
+== 0x50 - Temperature ==
+
+RFXmngr:
+{{{
+0850089D630000FF79
+Packettype    = TEMP
+subtype       = TEMP8 - LaCrosse WS2300
+Sequence nbr  = 157
+ID            = 25344
+Temperature   = 25,5 °C
+Signal level  = 7
+Battery       = OK
+}}}
+
+----
 == 0x51 - Humidity ==
 
 RFXmngr:
