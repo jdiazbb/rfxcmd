@@ -16,6 +16,7 @@ Note, that battery is not used for all sensors, this case it will be ff.
 Sensor specific data fields:
 
 || Sensor || data1 || data2 || data3 || data4 || data5 || data6 || data7 ||
+|| 0x10 || housecode || unitcode || cmnd || - || - || - || - ||
 || 0x51 || id1 || id2 || humidity || humidity status || - || - || - ||
 || 0x52 || id1 || id2 || temperature || humidity || humidity status || - || - ||
 || 0x54 || id1 || id2 || temperature || humidity || humidity status || baro || forecast ||
