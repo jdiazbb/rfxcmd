@@ -15,5 +15,6 @@ Note, that battery is not used for all sensors, this case it will be ff.
 
 Sensor specific data fields:
 
-|| Sensor || data1 || data2 || data3 ||
-|| 0x51 || humidity || humidity status || - ||
+|| Sensor || data1 || data2 || data3 || data4 || data5 ||
+|| 0x51 || humidity || humidity status || - || - || - ||
+|| 0x52 || id1 || id2 || temperature || humidity || humidity status ||
