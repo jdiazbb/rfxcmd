@@ -131,3 +131,20 @@ Total rain    = 7,6 mm
 Signal level  = 8
 Battery       = OK
 }}}
+
+----
+== 0x56 - Wind ==
+
+RFXmngr:
+{{{
+105606A063000000000001FE0000000079
+Packettype    = WIND
+subtype       = WIND6 - LaCrosse WS2300
+Sequence nbr  = 160
+ID            = 25344
+Direction     = 0 degrees  N
+Average speed = 0 mtr/sec = 0 km/hr = 0 mph
+Wind gust     = 51 mtr/sec = 183,6 km/hr = 11,41 mph
+Signal level  = 7
+Battery       = OK
+}}}
