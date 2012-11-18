@@ -25,6 +25,8 @@ Sensor specific data fields:
 || 0x18 || housecode || unitcode || cmnd || - || - || - || - ||
 || 0x19 || id1 || id2 || id3 || unitcode || cmnd || - || - ||
 || 0x20 || id1 || id2 || id3 || status || - || - || - ||
+|| 0x40 || id1 || id2 || temp || set point || mode || status || - ||
+|| 0x41 || unitcode || cmnd || - || - || - || - || - ||
 || 0x51 || id1 || id2 || humidity || humidity status || - || - || - ||
 || 0x52 || id1 || id2 || temperature || humidity || humidity status || - || - ||
 || 0x54 || id1 || id2 || temperature || humidity || humidity status || baro || forecast ||
