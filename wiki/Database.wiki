@@ -32,11 +32,11 @@ Sensor specific data fields:
 || 0x41 || unitcode || cmnd || - || - || - || - || - || - ||
 || 0x42|| unitcode1 || unitcode2 || unitcode3 || cmnd || - || - || - || - ||
 || 0x50||id1 || id2 || temp || - || - || - || - || - ||
-||0x51||id1|| id2 || humidity || humidity status || - || - || - || - ||
-||0x52||id1|| id2 || humidity || humidity status || - || - || - || temp ||
+||0x51||id1||id2||humidity||humidity status||-||-||-||-||
+||0x52||id1||id2||humidity||humidity status||-||-||-||temp||
 ||0x53||id1||id2||-||forecast||-||-||-||baro||
-||0x54||id1||id2|| temperature || humidity || humidity status || baro || forecast || - ||
-||0x55||id1||id2|| rainrate || raintotal || - || - || - || - ||
+||0x54||id1||id2||humidity||humidity status||baro||forecast||-||temp||
+||0x55||id1||id2||rainrate||raintotal||-||-||-||-||
 ||0x56||id1||id2|| direction || av_speed || gust || temperature || chill || - ||
 ||0x57||id1||id2|| uv || temp || - || - || - || - ||
 ||0x58||id1||id2|| id1 || id2 || date || time || - || - ||
