@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Example printouts from different sensors
 
 = Sensor printouts =
 
