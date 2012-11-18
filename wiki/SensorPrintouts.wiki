@@ -76,3 +76,19 @@ Mode          = heating
 Status        = no demand
 Signal level  = 7
 }}}
+
+----
+== 0x51 - Humidity ==
+
+RFXmngr:
+{{{
+0851029C6300290179
+Packettype    = HUM
+subtype       = HUM2 - LaCrosse WS2300
+Sequence nbr  = 156
+ID            = 25344
+Humidity      = 41
+Status        = Comfortable
+Signal level  = 7
+Battery       = OK
+}}}
