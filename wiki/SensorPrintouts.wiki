@@ -61,6 +61,22 @@ rfu           = 99
 Signal level  = 6
 }}}
 
+RFXCMD:
+{{{
+Received		= 0B15000496FD480100046360
+Date/Time		= 2012-11-18 16:34:59
+Packettype		= Lighting6
+Subtype			= Blyss
+Seqnbr			= 04
+ID			= 96FD
+Groupcode		= H
+Unitcode		= 01
+Command			= On
+Command seqnbr		= 04
+RFU			= 99
+Signal level		= 6
+}}}
+
 ----
 == 0x20 - Security1 ==
 
