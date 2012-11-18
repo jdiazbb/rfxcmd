@@ -11,7 +11,7 @@ The fields that all sensors have common:
 || DateTime || PacketType || SubType || SeqNbr || Battery || Signal ||
 || DateTime || varchar(2) || varchar(2) || varchar(2) || byte || byte ||
 
-Note, that battery is not used for all sensors, this case it will be ff.
+Note, that battery is not used for all sensors, this case it will be 255 (dec).
 
 Sensor specific data fields:
 
@@ -26,6 +26,8 @@ Sensor specific data fields:
 || 0x18 || housecode || unitcode || cmnd || - || - || - || - ||
 || 0x19 || id1 || id2 || id3 || unitcode || cmnd || - || - ||
 || 0x20 || id1 || id2 || id3 || status || - || - || - ||
+|| 0x28 || housecode || cmnd || - || - || - || - || - ||
+|| 0x30 || id || cmnd || toggle || cmndtype || - || - || - ||
 || 0x40 || id1 || id2 || temp || set point || mode || status || - ||
 || 0x41 || unitcode || cmnd || - || - || - || - || - ||
 || 0x42 || unitcode1 || unitcode2 || unitcode3 || cmnd || - || - || - ||
@@ -38,3 +40,8 @@ Sensor specific data fields:
 || 0x56 || id1 || id2 || direction || av_speed || gust || temperature || chill ||
 || 0x57 || id1 || id2 || uv || temp || - || - || - ||
 || 0x58 || id1 || id2 || id1 || id2 || date || time || - ||
+|| 0x59 || id1 || id2 || count || ch1 || ch2 || ch3 || - ||
+|| 0x5A || id1 || id2 || count || instant || total || - || - ||
+|| 0x5B || id1 || id2 || count || ch1 || ch2 || ch3 || total || 
+|| 0x5D || id1 || id2 || weight || - || - || - || - ||
+|| 0x72 || housecode1 || housecode2 || address || cmnd1 || cmnd2 || - || - ||
