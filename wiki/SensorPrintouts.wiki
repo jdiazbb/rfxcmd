@@ -3,10 +3,24 @@
 = Sensor printouts =
 
 ----
+== 0x10 - Lightning1 ==
+
+RFXmngr:
+{{{
+0710010041020150
+Packettype    = Lighting1
+subtype       = ARC
+Sequence nbr  = 0
+housecode     = A
+unitcode      = 2
+Command       = On
+Signal level  = 5
+}}}
+
+----
 == 0x11 - Lightning2 ==
 
 RFXmngr:
-
 {{{
 0B110006007DB0C202010F70
 Packettype    = Lighting2
