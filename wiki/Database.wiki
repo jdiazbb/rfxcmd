@@ -8,8 +8,8 @@ This document is under work, the plan is to have a generalized database table th
 
 The fields that all sensors have common:
 
-|| DateTime || PacketType || SubType || SeqNbr || Battery || Signal ||
-|| DateTime || byte || byte || byte || byte || byte ||
+|| Datetime || Packettype || Subtype || Seqnbr || Battery || Signal ||
+|| Datetime || byte || byte || byte || byte || byte ||
 
 Note, that battery is not used for all sensors, this case it will be 255.
 
