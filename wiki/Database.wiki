@@ -20,6 +20,7 @@ Sensor specific data fields:
 || 0x11 || id1 || id2 || id3 || id4 || unitcode || cmnd || - ||
 || 0x12 || system || channel || cmnd || - || - || - || - ||
 || 0x13 || cmd || pulse || - || - || - || - || - ||
+|| 0x14 || id1 || id2 || id3 || unitcode || cmnd || - || - ||
 || 0x51 || id1 || id2 || humidity || humidity status || - || - || - ||
 || 0x52 || id1 || id2 || temperature || humidity || humidity status || - || - ||
 || 0x54 || id1 || id2 || temperature || humidity || humidity status || baro || forecast ||
