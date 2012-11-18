@@ -2,6 +2,39 @@
 
 = Sensor printouts =
 
+== 0x08 - Security1 ==
+
+RFXmngr:
+
+{{{
+0820006CDED1DB0259
+Packettype    = Security1
+subtype       = X10 security
+Sequence nbr  = 108
+id1-3         = DED1DB
+status        = Alarm
+battery level = OK
+Signal level  = 5
+}}}
+
+RFXCMD:
+
+{{{
+Received                = 0820006CDED1DB0259
+Date/Time               = 2012-11-10 16:07:25
+Packettype              = Security1
+Subtype                 = X10 security door/window sensor
+Seqnbr                  = 6C
+Subtype                 = X10 security door/window sensor
+Seqnbr                  = 6C
+id1                     = DE
+id2                     = D1
+id3                     = DB
+Status                  = Alarm
+Battery (0-9)           = 9
+Signal level (0-15)     = 5
+}}}
+
 == 0x40 - Thermostat1 ==
 
 RFXmngr:
