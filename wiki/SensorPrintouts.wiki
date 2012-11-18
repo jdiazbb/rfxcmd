@@ -1,0 +1,18 @@
+#summary One-sentence summary of this page.
+
+= Sensor printouts =
+
+== 0x40 ==
+
+RFXmngr:
+
+09400002E75613120271
+Packettype    = Thermostat1
+subtype       = Digimax
+Sequence nbr  = 2
+ID            = 59222
+Temperature   = 19 °C
+Set           = 18 °C
+Mode          = heating
+Status        = no demand
+Signal level  = 7
