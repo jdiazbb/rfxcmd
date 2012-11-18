@@ -46,8 +46,6 @@ Signal level  = 7
 
 RFXmngr:
 {{{
-Simulate: 0B15000496FD480100046360
-------------------------------------------------
 0B15000496FD480100046360
 Packettype    = Lighting6
 subtype       = Blyss
