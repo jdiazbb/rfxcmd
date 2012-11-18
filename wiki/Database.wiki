@@ -1,0 +1,9 @@
+#summary Under work, a generalized database table for all data
+
+= Introduction =
+
+This document is under work, the plan is to have a generalized database table that fits all sensors.
+
+= Details =
+
+|| test || test2 || test 3
