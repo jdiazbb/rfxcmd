@@ -162,3 +162,20 @@ Wind gust     = 51 mtr/sec = 183,6 km/hr = 11,41 mph
 Signal level  = 7
 Battery       = OK
 }}}
+
+----
+== 0x5A - Energy ==
+
+RFXmngr:
+{{{
+115A020284C2000000012100000F6984F669
+Packettype    = ENERGY
+subtype       = ELEC2 - OWL CM180
+Sequence nbr  = 2
+ID            = 33986
+Count         = 0
+Instant usage = 289 Watt
+total usage   = 1156070.02405372 Wh
+Signal level  = 6
+Battery       = OK
+}}}
