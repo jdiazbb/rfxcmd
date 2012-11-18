@@ -30,20 +30,3 @@ Sensor specific data fields:
 || 0x54 || id1 || id2 || temperature || humidity || humidity status || baro || forecast ||
 || 0x55 || id1 || id2 || rainrate || raintotal || - || - || - ||
 || 0x56 || id1 || id2 || direction || av_speed || gust || temperature || chill ||
-
-
-|| Packettype 	|| data1 		|| data2 		|| data3 		|| data4 			|| data5 			|| data6 		|| data7 	||
-|| 0x10 		|| housecode 	|| unitcode 	|| cmnd 		|| - 				|| - 				|| - 			|| - 		||
-|| 0x11 		|| id1 			|| id2 			|| id3 			|| id4 				|| unitcode 		|| cmnd 		|| - 		||
-|| 0x12 		|| system 		|| channel 		|| cmnd 		|| - 				|| - 				|| - 			|| - 		||
-|| 0x13 		|| cmd 			|| pulse 		|| - 			|| - 				|| - 				|| - 			|| - 		||
-|| 0x14 		|| id1 			|| id2 			|| id3 			|| unitcode 		|| cmnd 			|| - 			|| - 		||
-|| 0x15 		|| id1 			|| id2 			|| groupcode 	|| unitcode 		|| cmnd 			|| cmndseqnbr 	|| rfu 		|| 
-|| 0x18 		|| housecode 	|| unitcode 	|| cmnd 		|| - 				|| - 				|| - 			|| - 		||
-|| 0x19 		|| id1 			|| id2 			|| id3 			|| unitcode 		|| cmnd 			|| - 			|| - 		||
-|| 0x20 		|| id1 			|| id2 			|| id3 			|| status 			|| - 				|| - 			|| - 		||
-|| 0x51 		|| id1 			|| id2 			|| humidity 	|| humidity status 	|| - 				|| - 			|| - 		||
-|| 0x52 		|| id1 			|| id2 			|| temperature 	|| humidity 		|| humidity status 	|| - 			|| - 		||
-|| 0x54 		|| id1 			|| id2 			|| temperature 	|| humidity 		|| humidity status 	|| baro 		|| forecast ||
-|| 0x55 		|| id1 			|| id2 			|| rainrate 	|| raintotal 		|| - 				|| - 			|| - 		||
-|| 0x56 		|| id1 			|| id2 			|| direction 	|| av_speed 		|| gust 			|| temperature 	|| chill 	||
