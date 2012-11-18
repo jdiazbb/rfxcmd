@@ -107,3 +107,18 @@ Status        = Comfortable
 Signal level  = 7
 Battery       = OK
 }}}
+
+----
+== 0x55 - Rain ==
+
+RFXmngr:
+{{{
+0B55059A6300000000004C89
+Packettype    = RAIN
+subtype       = RAIN5 - LaCrosse WS2300
+Sequence nbr  = 154
+ID            = 25344
+Total rain    = 7,6 mm
+Signal level  = 8
+Battery       = OK
+}}}
