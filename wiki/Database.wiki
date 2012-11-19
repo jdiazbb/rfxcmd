@@ -16,24 +16,24 @@ Note, that battery is not used for all sensors, this case it will be 255.
 Sensor specific data fields:
 
 ||Packettype||data1 (byte)||data2 (byte)||data3 (byte)||data4 (byte)||data5 (byte)||data6 (byte)||data7 (byte)||data8 (float)||data9 (float)||data10 (float)||data11 (float)||data12 (float)||
-||0x02||response||-||-||-||-||-||-||-||
-||0x10||housecode||unitcode||cmnd||-||-||-||-||-||
-||0x11||id1||id2||id3||id4||unitcode||cmnd||level||-||
-||0x12||system||channel||cmnd||-||-||-||-||-||
-||0x13||cmd||pulse||-||-||-||-||-||-||
-||0x14||id1||id2||id3||unitcode||cmnd||-||-||-||
-||0x15||id1||id2||groupcode||unitcode||cmnd||cmndseqnbr||rfu||-||
-||0x18||housecode|| unitcode || cmnd || - || - || - || - || - ||
-||0x19||id1 || id2|| id3 || unitcode || cmnd || - || - || - ||
-||0x20||id1 || id2|| id3 || status || - || - || - || - ||
-||0x28||housecode|| cmnd || - || - || - || - || - || - ||
-||0x30||id || cmnd|| toggle || cmndtype || - || - || - || - ||
-||0x40||id1 || id2|| temp || set point || mode || status || - || - ||
-||0x41||unitcode|| cmnd || - || - || - || - || - || - ||
-||0x42||unitcode1|| unitcode2 || unitcode3 || cmnd || - || - || - || - ||
-||0x50||id1 || id2 || temp || - || - || - || - || - ||
-||0x51||id1||id2||humidity||humidity status||-||-||-||-||
-||0x52||id1||id2||humidity||humidity status||-||-||-||temp||
+||0x02||response||-||-||-||-||-||-||-||-||-||-||-||
+||0x10||housecode||unitcode||cmnd||-||-||-||-||-||-||-||-||-||
+||0x11||id1||id2||id3||id4||unitcode||cmnd||level||-||-||-||-||-||
+||0x12||system||channel||cmnd||-||-||-||-||-||-||-||-||-||
+||0x13||cmd||pulse||-||-||-||-||-||-||-||-||-||-||
+||0x14||id1||id2||id3||unitcode||cmnd||-||-||-||-||-||-||-||
+||0x15||id1||id2||groupcode||unitcode||cmnd||cmndseqnbr||rfu||-||-||-||-||-||
+||0x18||housecode|| unitcode || cmnd || - || - || - || - || - ||-||-||-||-||
+||0x19||id1 || id2|| id3 || unitcode || cmnd || - || - || - ||-||-||-||-||
+||0x20||id1 || id2|| id3 || status || - || - || - || - ||-||-||-||-||
+||0x28||housecode|| cmnd || - || - || - || - || - || - ||-||-||-||-||
+||0x30||id || cmnd|| toggle || cmndtype || - || - || - || - ||-||-||-||-||
+||0x40||id1 || id2|| temp || set point || mode || status || - || - ||-||-||-||-||
+||0x41||unitcode|| cmnd || - || - || - || - || - || - ||-||-||-||-||
+||0x42||unitcode1|| unitcode2 || unitcode3 || cmnd || - || - || - || - ||-||-||-||-||
+||0x50||id1 || id2 || temp || - || - || - || - || - ||-||-||-||-||
+||0x51||id1||id2||humidity||humidity status||-||-||-||-||-||-||-||-||
+||0x52||id1||id2||humidity||humidity status||-||-||-||temp||-||-||-||
 ||0x53||id1||id2||-||forecast||-||-||-||baro||
 ||0x54||id1||id2||humidity||humidity status||forecast||-||-||temp||baro||
 ||0x55||id1||id2||-||-||-||-||-||rainrate||raintotal||
