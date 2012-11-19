@@ -15,7 +15,7 @@ Note, that battery is not used for all sensors, this case it will be 255.
 
 Sensor specific data fields:
 
-||Packettype || data1 (byte) || data2 (byte) || data3 (byte) || data4 || data5 || data6 || data7 || data8 (float) ||
+||Packettype||data1 (byte)||data2 (byte)||data3 (byte)||data4 (byte)||data5 (byte)||data6 (byte)||data7 (byte)||data8 (float)||data9 (float)||
 ||0x02||response||-||-||-||-||-||-||-||
 ||0x10||housecode||unitcode||cmnd||-||-||-||-||-||
 ||0x11||id1||id2||id3||id4||unitcode||cmnd||level||-||
