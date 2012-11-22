@@ -1,5 +1,20 @@
 = Version History =
 
+== v0.2 BETA (22-NOV-2012) ==
+ 
+ * Fix for "Issue #5: Crash with wind4 sensor (fix included)"
+ * Added decode for sensor 0x55 (Rain sensor)
+ * Added decode for sensor 0x20 (Security1) (Credit: Dimitri Clatot)
+ * Added decode for sensor 0x15 (Lightning6) (Credit: Dimitri Clatot)
+ * Removed "enable all rf" according to new SDK specifications
+ * Added send to graphite server for sensor 52 (Credit: Frédéric Pégé)
+ * Added SQLite support, supported sensor 0x50 (Credit: Mark Marooth)
+ * Added debug logging via config.xml
+ * Blinds T2/T3 added (SDK v4.34)
+ * Added 0x5B identification (SDK v5.00)
+ * Fixed Lightning1 subtypes
+ * Added possibility to start RFXCMD as daemon (Credit: George Henze)
+
 == v0.1k (14-OCT-2012) ==
 
  * Fix for "Issue #3: MySQL Error for 0x54 Sensors"
