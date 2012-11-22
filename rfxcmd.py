@@ -38,19 +38,132 @@ import traceback
 import subprocess
 import re
 
+# signalhandler
+import signal
+
 from xml.dom.minidom import parseString
 import xml.dom.minidom as minidom
 from optparse import OptionParser
 
-# Import Serial
+# Needed for Graphite communication
+from socket import socket
+
+# ----------------------------------------------------------------------------
+# CONFIG CLASS
+# ----------------------------------------------------------------------------
+
+class config_data:
+	def __init__(
+		self, 
+		mysql_server = '',
+		mysql_database = '',
+		enableall_rf = False,
+		undecoded = False,
+		mysql_username = "",
+		mysql_password = "",
+		trigger = False,
+		triggerfile = "",
+		createpid = False,
+		pidfile = "",
+		configfile = "",
+		rfxcmd_action = "",
+		device = "",
+		serialport = ""):
+        
+		self.enableall_rf = enableall_rf
+		self.undecoded = undecoded
+		self.mysql_server = mysql_server
+		self.mysql_database = mysql_database
+		self.mysql_username = mysql_username
+		self.mysql_password = mysql_password
+		self.trigger = trigger
+		self.createpid = createpid
+		self.pidfile = pidfile
+		self.configfile = configfile
+		self.rfxcmd_action = rfxcmd_action
+		self.device = device
+		self.serialport = serialport
+
+# ----------------------------------------------------------------------------
+# INIT OBJECTS
+# ----------------------------------------------------------------------------
+
+config = config_data()      
+
+# ----------------------------------------------------------------------------
+# LOG DEBUG
+# ----------------------------------------------------------------------------
+
+def logdebug(text):
+	try:
+		logger.debug(text)
+	except NameError:
+		pass
+
+def logerror(text):
+	try:
+		logger.error(text)
+	except NameError:
+		pass
+
+# ----------------------------------------------------------------------------
+# LOGGING
+# ----------------------------------------------------------------------------
+
+import logging
+
+# Default
+loglevel = 'INFO'
+
+if os.path.exists('config.xml'):
+	f = open('config.xml','r')
+	data = f.read()
+	f.close()
+	
+	try:
+		dom = parseString(data)
+	except:
+		print "Error: problem in the config.xml file, cannot process it"
+	
+	try:
+		xmlTag = dom.getElementsByTagName( 'loglevel' )[0].toxml()
+		loglevel = xmlTag.replace('<loglevel>','').replace('</loglevel>','')
+	except:
+		pass
+	
+	loglevel = loglevel.upper()
+	
+	logger = logging.getLogger('rfxcmd')
+
+	if loglevel == 'DEBUG' or loglevel == 'ERROR':
+		hdlr = logging.FileHandler('rfxcmd.log')
+		formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+		hdlr.setFormatter(formatter)
+		logger.addHandler(hdlr) 
+		logger.setLevel(loglevel)
+	
+# ----------------------------------------------------------------------------
+# IMPORT SERIAL
+# ----------------------------------------------------------------------------
+
 try:
+	logdebug("Import serial extension")
 	import serial
+	logdebug("Serial extension version: " + serial.VERSION)
 except ImportError:
 	print "Error: You need to install Serial extension for Python"
+	logdebug("Error: Serial extension for Python could not be loaded")
+	logdebug("Exit 1")
 	sys.exit(1)
 
+# ----------------------------------------------------------------------------
+# NAME & VERSION
+# ----------------------------------------------------------------------------
+
 sw_name = "RFXCMD"
-sw_version = "0.1k"
+sw_version = "0.2 (BETA)"
+
+logdebug(sw_name + ' ' + sw_version)
 
 # ----------------------------------------------------------------------------
 # DEFAULT CONFIGURATION PARAMETERS
@@ -59,14 +172,90 @@ sw_version = "0.1k"
 # If the config.xml does not exist, or can not be loaded, this is the
 # default configuration which will be used
 
-_config_enableallrf = False
-_config_undecoded = False
-_config_mysql_server = ""
-_config_mysql_database = ""
-_config_mysql_username = ""
-_config_mysql_password = ""
-_config_trigger = False
+config.undecoded = False
+config.mysql_server = ""
+config.mysql_database = ""
+config.mysql_username = ""
+config.mysql_password = ""
+config.trigger = False
+config.sqlite_server = ""
+config.sqlite_database = ""
+config.sqlite_username = ""
+config.sqlite_password = ""
+config.graphite_server = ""
+config.graphite_port = ""
+config.createpid = False
+config.pidfile = ""
+
+# ----------------------------------------------------------------------------
+# DEAMONIZE
+# Credit: George Henze
+# ----------------------------------------------------------------------------
+
+def shutdown():
+	# clean up PID file after us
+	logdebug("Daemon shutdown")
+	if config.createpid:
+		logdebug("Removing PID file " + str(config.pidfile))
+		os.remove(config.pidfile)
+    
+	logdebug("Exit 0")
+	os._exit(0)
+    
+def handler(signum=None, frame=None):
+	if type(signum) != type(None):
+		logdebug("Signal %i caught, exiting..." % int(signum))
+		shutdown()
+        
+signal.signal(signal.SIGINT, handler)
+signal.signal(signal.SIGTERM, handler)
+    
+def daemonize():
+
+	try:
+		pid = os.fork()
+		if pid != 0:
+			sys.exit(0)
+	except OSError, e:
+		raise RuntimeError("1st fork failed: %s [%d]" % (e.strerror, e.errno))
+
+	os.setsid() 
+
+	prev = os.umask(0)
+	os.umask(prev and int('077', 8))
+
+	try:
+		pid = os.fork() 
+		if pid != 0:
+			sys.exit(0)
+	except OSError, e:
+		raise RuntimeError("2nd fork failed: %s [%d]" % (e.strerror, e.errno))
+
+	dev_null = file('/dev/null', 'r')
+	os.dup2(dev_null.fileno(), sys.stdin.fileno())
+
+	if config.createpid == True:
+		pid = str(os.getpid())
+		logdebug("Writing PID " + pid + " to " + str(config.pidfile))
+		file(config.pidfile, 'w').write("%s\n" % pid)
+
+# ----------------------------------------------------------------------------
+# Send data to graphite
+# Credit: Frédéric Pégé
+# ----------------------------------------------------------------------------
+
+def send_graphite(CARBON_SERVER, CARBON_PORT, lines):
+
+	sock = socket()
+	try:
+		sock.connect( (CARBON_SERVER,CARBON_PORT) )
+	except:
+		print "Couldn't connect to %(server)s on port %(port)d, is carbon-agent.py running?" % { 'server':CARBON_SERVER, 'port':CARBON_PORT }
+		sys.exit(1)
 	
+	message = '\n'.join(lines) + '\n' #all lines must end in a newline
+	sock.sendall(message)
+
 # ----------------------------------------------------------------------------
 # Read x amount of bytes from serial port
 # Boris Smus http://smus.com
@@ -131,9 +320,6 @@ def split_len(seq, length):
 
 def decodePacket( message ):
 		
-	global _config_printout_csv, _config_printout_complete
-	global _config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database
-	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 		
 	decoded = False
@@ -346,14 +532,16 @@ def decodePacket( message ):
 
 		decoded = True
 		
+		signal = str(int(ByteToHex(message[7]),16) >> 4)
+
 		if printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_11[subtype]
+			print "Subtype\t\t\t= " + rfx_subtype_10[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Housecode\t\t= " + ByteToHex(message[4])
 			print "Unitcode\t\t= " + ByteToHex(message[5])
 			print "Command\t\t\t= " + ByteToHex(message[6])
-			# TODO
-			
+			print "Signal level\t\t= " + signal
+
 	# ---------------------------------------
 	# 0x11 Lighting2
 	# ---------------------------------------
@@ -369,8 +557,8 @@ def decodePacket( message ):
 			print "Command\t\t\t= " + rfx_subtype_11_cmnd[ByteToHex(message[9])]
 			print "Level\t\t\t= " + ByteToHex(message[10])
 			
-			rssi = str(int(ByteToHex(message[11]),16) & 0xf)
-			print "RSSI\t\t\t= " + ByteToHex(message[10])
+			signal_level = str(int(ByteToHex(message[11]),16) & 0xf)
+			print "Signal level\t\t\t= " + signal_level
 			
 	# ---------------------------------------
 	# 0x12 Lighting3
@@ -411,18 +599,38 @@ def decodePacket( message ):
 
 	# ---------------------------------------
 	# 0x15 Lighting6
+	# Credit: Dimitri Clatot
 	# ---------------------------------------
 	if packettype == '15':
 
 		decoded = True
-		
+
+		groupcode = ByteToHex(message[6])
+		unitcode = ByteToHex(message[7])
+		command = ByteToHex(message[8])
+		command_seqnbr = ByteToHex(message[9])
+		rfu = str(int(ByteToHex(message[10]), 16))
+		signal = str(int(ByteToHex(message[11]),16) >> 4)
+
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_15[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			# TODO
+			print "ID\t\t\t= "  + id1 + id2
+			print "Groupcode\t\t= " + rfx_subtype_15_groupcode[groupcode]
+			print "Unitcode\t\t= " + ByteToHex(message[7])
+			print "Command\t\t\t= " + rfx_subtype_15_cmnd[command]
+			print "Command seqnbr\t\t= " + ByteToHex(message[9])
+			print "RFU\t\t\t= " + rfu
+			print "Signal level\t\t= " + signal
+
+		if printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp,
+							packettype, subtype, seqnbr, id1, id2,
+							rfx_subtype_15_groupcode[groupcode], unitcode,
+							rfx_subtype_15_cmnd[command], command_seqnbr, rfu, signal ) )
 
 	# ---------------------------------------
-	# 0x18 Curtain1
+	# 0x18 Curtain1 (Transmitter only)
 	# ---------------------------------------
 	if packettype == '18':
 
@@ -447,15 +655,31 @@ def decodePacket( message ):
 
 	# ---------------------------------------
 	# 0x20 Security1
+	# Credit: Dimitri Clatot
 	# ---------------------------------------
 	if packettype == '20':
 
 		decoded = True
 		
+		id3 = ByteToHex(message[6])
+		status = ByteToHex(message[7])
+		signal = int(ByteToHex(message[8]),16) >> 4
+		battery = int(ByteToHex(message[8]),16) & 0xf
+
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_20[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			# TODO
+			print "ID1\t\t\t= "  + id1
+			print "ID2\t\t\t= "  + id2
+			print "ID3\t\t\t= "  + id3
+			print "Status\t\t\t= " + rfx_subtype_20_status[status]
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
+
+		if printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, id1, id2, id3,
+							rfx_subtype_20_status[status], str(battery), str(signal) ) )
 
 	# ---------------------------------------
 	# 0x28 Curtain1
@@ -482,16 +706,69 @@ def decodePacket( message ):
 			# TODO
 
 	# ---------------------------------------
-	# 0x40 Thermostat1
+	# 0x40 - Thermostat1
 	# ---------------------------------------
 	if packettype == '40':
 
 		decoded = True
-		
+
+		temp = ByteToHex(message[6])
+		temp_set = ByteToHex(message[7])
+		temp_status = ByteToHex(message[8])
+
+		temperature = int(temp,16)
+		temperature_set = int(temp_set,16)
+
+		if temp_status == '0D' or temp_status == '01':
+			status = "Demand"
+		elif temp_status == '0E' or temp_status == '02':
+			status = "No Demand"
+		elif temp_status == '0F' or temp_status == '03':
+			status = "Initializing"
+		else:
+			status = "Unknown"
+
+		signal = int(ByteToHex(message[9]),16) >> 4
+		battery = int(ByteToHex(message[9]),16) & 0xf
+
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_40[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			# TODO
+			print "Id 1\t\t\t= " + id1
+			print "Id 2\t\t\t= " + id2
+
+			print "Temperature\t\t= " + str(temperature) + " C"
+			print "Temperature set\t\t= " + str(temperature_set) + " C"
+			print "Status\t\t\t= " + status
+
+			print "Battery (0-15)\t\t= " + str(battery)
+			print "Signal level (0-7)\t= " + str(signal)
+
+			if printout_csv == True:
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+				(timestamp, packettype, subtype, seqnbr, id1, id2,
+				temperature, temperature_set, status, str(battery), str(signal) ) )
+
+			if options.mysql:
+				try:
+					db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
+					cursor = db.cursor()
+
+					cursor.execute("INSERT INTO thermostat \
+					(datetime, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, status, battery, signal_level) VALUES \
+					('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
+					(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, status, battery, signal))
+
+					db.commit()
+
+				except MySQLdb.Error, e:
+					print "Error %d: %s" % (e.args[0], e.args[1])
+					sys.exit(1)
+
+				finally:
+					if db:
+						db.close()
+
 
 	# ---------------------------------------
 	# 0x41 Thermostat2
@@ -538,9 +815,8 @@ def decodePacket( message ):
 		temperature = ( temp_high + int(temp_low,16) ) * 0.1
 		temperature_str = polarity_sign + str(temperature)
 
-		batt_rssi = ByteToHex(message[8])		
-		signal = int(batt_rssi,16) >> 4
-		battery = int(batt_rssi,16) & 0xf
+		signal = int(ByteToHex(message[8]),16) >> 4
+		battery = int(ByteToHex(message[8]),16) & 0xf
 		
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_50[subtype]
@@ -562,7 +838,7 @@ def decodePacket( message ):
 
 			try:
 
-				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
+				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
@@ -574,13 +850,33 @@ def decodePacket( message ):
 
 			except MySQLdb.Error, e:
 
-				print "Error %d: %s" % (e.args[0], e.args[1])
+				print "Error: (MySQL Query) %d: %s" % (e.args[0], e.args[1])
 				sys.exit(1)
 
 			finally:
 
 				if db:
 					db.close()
+
+		if options.sqlite:
+			try:
+				cx = sqlite3.connect(config.sqlite_database)
+				cu = cx.cursor()
+				sql = """
+					INSERT INTO weather (datetime, packettype, subtype, seqnbr, id1, id2, temperature, battery, signal_level)
+					VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s')
+					""" % (timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, battery, signal)
+
+				cu.execute(sql)
+				cx.commit()
+				
+			except sqlite3.Error, e:
+			
+				print "Error: (SQLite Query) " + str(e)
+				sys.exit(1)
+			
+			finally:
+				cx.close()
 
 	# ---------------------------------------
 	# 0x51 - Humidity sensors
@@ -618,8 +914,8 @@ def decodePacket( message ):
 			else:
 				print "Humidity Status\t\t= Unknown"
 			
-			print "Battery (0-9)\t\t= " + str(battery)
-			print "Signal level (0-15)\t= " + str(signal)
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
 		
 		if printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
@@ -630,7 +926,7 @@ def decodePacket( message ):
 		if options.mysql:
 
 			try:
-				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
+				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
@@ -710,10 +1006,19 @@ def decodePacket( message ):
 							temperature_str, str(int(humidity,16)), humidity_status, 
 							str(battery), str(signal)) )
 		
+		if options.graphite == True:
+			now = int( time.time() )
+			linesg=[]
+			linesg.append("%s.%s.temperature %s %d" % ( id1, id2, temperature_str,now))
+			linesg.append("%s.%s.humidity %s %d" % ( id1, id2, humidity,now))
+			linesg.append("%s.%s.battery %s %d" % ( id1, id2, battery,now))
+			linesg.append("%s.%s.signal %s %d"% ( id1, id2, signal,now))
+			send_graphite(config.graphite_server, config.graphite_port, linesg)
+
 		if options.mysql:
 
 			try:
-				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
+				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
@@ -819,7 +1124,7 @@ def decodePacket( message ):
 		if options.mysql:
 
 			try:
-				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
+				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
@@ -827,6 +1132,74 @@ def decodePacket( message ):
 				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s','%s');" % \
 				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, int(humidity,16), int(humidity_status,16), \
 				barometric, int(forecast_status,16), battery, signal))
+				
+				db.commit()
+
+			except MySQLdb.Error, e:
+				print "Error %d: %s" % (e.args[0], e.args[1])
+				sys.exit(1)
+
+			finally:
+				if db:
+					db.close()
+
+	# ---------------------------------------
+	# 0x55 - Rain sensors
+	# ---------------------------------------
+	
+	if packettype == '55':
+		
+		decoded = True
+
+		# Rain rate
+		rainrate_high = ByteToHex(message[6])
+		rainrate_low = ByteToHex(message[7])
+
+		# Rain total
+		raintotal1 = ByteToHex(message[8])
+		raintotal2 = ByteToHex(message[9])
+		raintotal3 = ByteToHex(message[10])
+		
+		# Battery & Signal	
+		signal = int(ByteToHex(message[11]),16) >> 4
+		battery = int(ByteToHex(message[11]),16) & 0xf
+		
+		if printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_55[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id 1 (House)\t\t= " + id1
+			print "Id 2 (Channel)\t\t= " + id2
+			
+			if subtype == '1':
+				print "Rain rate\t\t= Not implemented in rfxcmd, need example"
+			elif subtype == '2':
+				print "Rain rate\t\t= Not implemented in rfxcmd, need example"
+			else:
+				print "Rain rate\t\t= Not supported"
+
+			print "Raintotal:\t\t= " + str(int(raintotal1,16))
+			print "Raintotal:\t\t= " + str(int(raintotal2,16))
+			print "Raintotal:\t\t= " + str(int(raintotal3,16))
+				
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
+		
+		if printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							( timestamp, packettype, subtype, seqnbr, id1, id2,
+							str(int(rainrate_high,16)), str(int(raintotal1,16)), 
+							str(battery), str(signal) ) )
+
+		if options.mysql:
+			try:
+				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
+				cursor = db.cursor()
+
+				cursor.execute("INSERT INTO weather \
+				(datetime, packettype, subtype, seqnbr, id1, id2, rainrate, raintotal, battery, signal_level) VALUES \
+				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
+				(timestamp, packettype, subtype, seqnbr, id1, id2, int(rainrate_high,16), int(raintotal1,16), \
+				battery, signal))
 				
 				db.commit()
 
@@ -886,20 +1259,20 @@ def decodePacket( message ):
 		else:
 			temperature_str = "0"
 
-		# Chill factor (15,16,17)
+		# Chill factor (14,15)
 		if subtype == "04":
-			chill_high = ByteToHex(message[15])
-			chill_low = ByteToHex(message[16])
-			chill_pol = testBit(int(chill_high,16),15)
+			chill_high = ByteToHex(message[14])
+			chill_low = ByteToHex(message[15])
+			chill_pol = testBit(int(chill_high,16),14)
 		
 			if chill_pol == 1:
 				chill_pol_sign = "-"
 			else:
 				chill_pol_sign = ""
 
-			chill_high = clearBit(int(temp_high,16),7)
+			chill_high = clearBit(int(chill_high,16),7)
 			chill_high = chill_high << 8
-			windchill = ( int(chill_high,16) + int(chill_low,16) ) * 0.1
+			windchill = ( chill_high + int(chill_low,16) ) * 0.1
 			windchill_str = chill_pol_sign + str(windchill)
 		else:
 			windchill_str = "0"
@@ -934,12 +1307,12 @@ def decodePacket( message ):
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							direction_str, av_str, gust_str,
 							temperature_str, windchill_str, 
-							str(battery), str(signal)) )
+							str(battery), str(signal) ) )
 		
 		if options.mysql:
 
 			try:
-				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
+				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO weather \
@@ -967,13 +1340,11 @@ def decodePacket( message ):
 
 		decoded = True
 
-		print "Subtype\t\t\t= " + rfx_subtype_5A[subtype]
-
 		# Battery & Signal
-		batt_rssi = ByteToHex(message[17])
-		signal = int(batt_rssi,16) >> 4
-		battery = int(batt_rssi,16) & 0xf
+		signal = int(ByteToHex(message[17]),16) >> 4
+		battery = int(ByteToHex(message[17]),16) & 0xf
 
+		# Power
 		instant = int(ByteToHex(message[7]), 16) * 0x1000000 + int(ByteToHex(message[8]), 16) * 0x10000 + int(ByteToHex(message[9]), 16) * 0x100  + int(ByteToHex(message[10]), 16)
 		usage = int ((int(ByteToHex(message[11]), 16) * 0x10000000000 + int(ByteToHex(message[12]), 16) * 0x100000000 +int(ByteToHex(message[13]), 16) * 0x1000000 + int(ByteToHex(message[14]), 16) * 0x10000 + int(ByteToHex(message[15]), 16) * 0x100 + int(ByteToHex(message[16]), 16) ) / 223.666)
 
@@ -994,7 +1365,7 @@ def decodePacket( message ):
 		if options.mysql:
 
 			try:
-				db = MySQLdb.connect(_config_mysql_server, _config_mysql_username, _config_mysql_password, _config_mysql_database)
+				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
 				cursor = db.cursor()
 
 				cursor.execute("INSERT INTO energy \
@@ -1013,9 +1384,11 @@ def decodePacket( message ):
 					db.close()
 
 	# ---------------------------------------
-	# 0x5A END
+	# 0x5B Current + Energy sensor
 	# ---------------------------------------
-
+	
+	# TODO
+	
 	# ---------------------------------------
 	# Not decoded message
 	# ---------------------------------------	
@@ -1057,25 +1430,31 @@ def read_rfx():
 	global printout_complete, printout_csv
 	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+	logdebug('Timestamp: ' + timestamp)
 	message = None
 
 	try:
 		byte = serialport.read()
+		logdebug('Byte: ' + str(ByteToHex(byte)))
 		
 		if byte:
 			message = byte + readbytes( ord(byte) )
+			logdebug('Message: ' + str(ByteToHex(message)))
 			
 			if ByteToHex(message[0]) <> "00":
 			
 				# Verify length
+				logdebug('Verify length')
 				if (len(message) - 1) == ord(message[0]):
 				
+					logdebug('Length OK')
 					if printout_complete == True:
 						print "------------------------------------------------"
 						print "Received\t\t= " + ByteToHex( message )
 						print "Date/Time\t\t= " + timestamp
 						print "Packet Length\t\t= " + ByteToHex( message[0] )
-				
+					
+					logdebug('Decode packet')
 					decodePacket( message )
 	
 					rawcmd = ByteToHex ( message )
@@ -1086,11 +1465,14 @@ def read_rfx():
 				else:
 				
 					if printout_complete == True:
+						logdebug('Incoming packet not valid')
 						print "------------------------------------------------"
 						print "Received\t\t= " + ByteToHex( message )
 						print "Incoming packet not valid, waiting for next..."
 				
 	except OSError, e:
+		logdebug('Error in message: ' + str(ByteToHex(message)))
+		logdebug('Traceback: ' + traceback.print_exc())
 		print "------------------------------------------------"
 		print "Received\t\t= " + ByteToHex( message )
 		traceback.print_exc()
@@ -1101,15 +1483,41 @@ def read_rfx():
 
 def read_config( configFile, configItem):
  
-	#open the xml file for reading:
-	file = open( configFile,'r')
-	data = file.read()
-	file.close()
-	dom = parseString(data)
+ 	logdebug('Open configuration file')
+ 	logdebug('File: ' + configFile)
 	
-	# Get config item
-	xmlTag = dom.getElementsByTagName( configItem )[0].toxml()
-	xmlData=xmlTag.replace('<' + configItem + '>','').replace('</' + configItem + '>','')
+	if os.path.exists( configFile ):
+
+		#open the xml file for reading:
+		f = open( configFile,'r')
+		data = f.read()
+		f.close()
+	
+		# xml parse file data
+ 		logdebug('Parse config XML data')
+		try:
+			dom = parseString(data)
+		except:
+			print "Error: problem in the config.xml file, cannot process it"
+			logdebug('Error in config.xml file')
+			
+		# Get config item
+	 	logdebug('Get the configuration item: ' + configItem)
+		
+		try:
+			xmlTag = dom.getElementsByTagName( configItem )[0].toxml()
+			logdebug('Found: ' + xmlTag)
+			xmlData = xmlTag.replace('<' + configItem + '>','').replace('</' + configItem + '>','')
+			logdebug('--> ' + xmlData)
+		except:
+			logdebug('The item tag not found in the config file')
+			xmlData = ""
+			
+ 		logdebug('Return')
+ 		
+ 	else:
+ 		logdebug('Config file does not exists')
+ 		
 	return xmlData
 
 # ----------------------------------------------------------------------------
@@ -1127,12 +1535,9 @@ def read_trigger():
 	x = 1
 	
 	for trigger in triggers:
-		# print trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 		message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-		# print trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
 		action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
  		triggerlist = [ message, action ]
- 		# print triggerlist
  		return triggerlist
  	
 # ----------------------------------------------------------------------------
@@ -1210,7 +1615,7 @@ rfx_subtype_01_msg3 = {"128":"Display of undecoded packets",
 						"2":"Rubicson (433.92)",
 						"1":"AE (433.92)"}
 						
-rfx_subtype_01_msg4 = {"128":"BlindsT1 (433.92)",
+rfx_subtype_01_msg4 = {"128":"BlindsT1/T2/T3 (433.92)",
 						"64":"BlindsT0 (433.92)",
 						"32":"ProGuard (868.35 FSK)",
 						"16":"FS20 (868.35)",
@@ -1256,7 +1661,23 @@ rfx_subtype_03 = {"00":"AC",
 					"11":"AE",
 					"12":"Fineoffset"}
 
-rfx_subtype_10 = {"00":"lighting1"}
+rfx_subtype_10 = {"00":"X10 Lightning",
+					"01":"ARC",
+					"02":"ELRO AB400D (Flamingo)",
+					"03":"Waveman",
+					"04":"Chacon EMW200",
+					"05":"IMPULS",
+					"06":"RisingSun",
+					"07":"Philips SBC"}
+
+rfx_subtype_10_cmnd = {"00":"Off",
+						"01":"On",
+						"02":"Dim",
+						"03":"Bright",
+						"04":"All/Group Off",
+						"05":"All/Group On",
+						"07":"Chime",
+						"ff":"Illegal cmnd received"}
 
 rfx_subtype_11 = {"00":"AC",
 					"01":"HomeEasy EU",
@@ -1278,10 +1699,26 @@ rfx_subtype_14 = {"00":"LightwaveRF, Siemens",
 					
 rfx_subtype_15 = {"00":"Blyss"}
 
+rfx_subtype_15_groupcode = {"41":"A",
+							"42":"B",
+							"43":"C",
+							"44":"D",
+							"45":"E",
+							"46":"F",
+							"47":"G",
+							"48":"H"}
+
+rfx_subtype_15_cmnd = {"00":"On",
+						"01":"Off",
+						"02":"group On",
+						"03":"group Off"}
+
 rfx_subtype_18 = {"00":"Harrison Curtain"}
 
 rfx_subtype_19 = {"00":"BlindsT0 / Rollertrol, Hasta new",
-					"01":"BlindsT1 / Hasta old"}
+					"01":"BlindsT1 / Hasta old",
+					"02":"BlindsT2 / A-OK RF01",
+					"03":"BlindsT3 / A-OK AC114"}
 
 rfx_subtype_20 = {"00":"X10 security door/window sensor",
 					"01":"X10 security motion sensor",
@@ -1292,6 +1729,35 @@ rfx_subtype_20 = {"00":"X10 security door/window sensor",
 					"06":"Visonic CodeSecure (no alive packets)",
 					"07":"Visonic PowerCode door/window sensor - auxiliary contact (no alive packets)",
 					"08":"Meiantech"}
+
+rfx_subtype_20_status = {"00":"Normal",
+						"01":"Normal delayed",
+						"02":"Alarm",
+						"03":"Alarm delayed",
+						"04":"Motion",
+						"05":"No motion",
+						"06":"Panic",
+						"07":"End panic",
+						"08":"IR",
+						"09":"Arm away",
+						"0A":"Arm away delayed",
+						"0B":"Arm home",
+						"0C":"Arm home delayed",
+						"0D":"Disarm",
+						"10":"Light 1 off",
+						"11":"Light 1 on",
+						"12":"Light 2 off",
+						"13":"Light 2 on",
+						"14":"Dark detected",
+						"15":"Light detected",
+						"16":"Batlow (SD18, CO18)",
+						"17":"Pair (KD101)",
+						"80":"Normal + tamper",
+						"81":"Normal delayed + tamper",
+						"82":"Alarm + tamper",
+						"83":"Normal delayed + tamper",
+						"84":"Motion + tamper",
+						"85":"No motion + tamper"}
 
 rfx_subtype_28 = {"00":"X10 Ninja"}
 
@@ -1364,6 +1830,8 @@ rfx_subtype_59 = {"01":"CM113, Electrisave"}
 rfx_subtype_5A = {"01":"CM119/160",
 					"02":"CM180"}
 
+rfx_subtype_5B = {"01":"CM180i"}
+
 rfx_subtype_5D = {"01":"BWR101/102",
 					"02":"GR101"}
 					
@@ -1393,7 +1861,6 @@ rfx_subtype_72 = {"00":"FS20",
 
 rfx_reset="0d00000000000000000000000000"
 rfx_status="0d00000002000000000000000000"
-rfx_enableallrf="0d00000004000000000000000000"
 rfx_undecoded="0d00000005000000000000000000"
 rfx_save="0d00000006000000000000000000"
 
@@ -1412,6 +1879,8 @@ if sys.hexversion < 0x02060000:
 # PARSE COMMAND LINE ARGUMENT
 # ----------------------------------------------------------------------------
 
+logdebug("Parse command line")
+
 parser = OptionParser()
 parser.add_option("-d", "--device", action="store", type="string", dest="device", help="The serial device of the RFXCOM, example /dev/ttyUSB0")
 parser.add_option("-a", "--action", action="store", type="string", dest="action", help="Specify which action: LISTEN (default), STATUS, SEND, BSEND")
@@ -1420,32 +1889,96 @@ parser.add_option("-x", "--simulate", action="store", type="string", dest="simul
 parser.add_option("-r", "--rawcmd", action="store", type="string", dest="rawcmd", help="Send raw message (need action SEND)")
 parser.add_option("-c", "--csv", action="store_true", dest="csv", default=False, help="Output data in CSV format")
 parser.add_option("-m", "--mysql", action="store_true", dest="mysql", default=False, help="Insert data to MySQL database")
+parser.add_option("-s", "--sqlite", action="store_true", dest="sqlite", default=False, help="Insert data to SQLite database")
+parser.add_option("-g", "--graphite", action="store_true", dest="graphite", default=False, help="Send data to graphite server")
+parser.add_option("-z", "--daemonize", action="store_true", dest="daemon", default=False, help="Daemonize RFXCMD")
+parser.add_option("-p", "--pidfile", action="store", type="string", dest="pidfile", help="PID File location and name")
 
 (options, args) = parser.parse_args()
 
 if options.csv:
+	logdebug("Option: CSV chosen")
 	printout_complete = False
 	printout_csv = True
 
 if options.mysql:
+	logdebug("Option: MySQL chosen")
+	printout_complete = False
+	printout_csv = False
+
+if options.sqlite:
+	logdebug("Option: SqLite chosen")
 	printout_complete = False
 	printout_csv = False
 
 if printout_complete == True:
-	print sw_name + " version " + sw_version
+	if not options.daemon:
+		print sw_name + " version " + sw_version
 
 if options.config:
 	configFile = options.config
 else:
 	configFile = "config.xml"
 
-if options.mysql == True:
+logdebug("Configfile: " + configFile)
 
-	# Import MySQLdb
+# Deamon
+if options.daemon:
+
+	logdebug("Check PID file")
+	if options.pidfile:
+		config.pidfile = options.pidfile
+		config.createpid = True
+
+		logdebug("PID file '" + config.pidfile + "'")
+		if os.path.exists(config.pidfile):
+			print("PID file '" + config.pidfile + "' already exists. Exiting.")
+			logdebug("PID file '" + config.pidfile + "' already exists. Exiting.")
+			sys.exit(1)
+		else:
+			logdebug("PID file does not exists")
+
+	else:
+		print("You need to set the --pidfile parameter at the startup")
+		logdebug("Command argument --pidfile missing")
+		sys.exit(1)
+
+	logdebug("Check platform")
+	if sys.platform == 'win32':
+		print "Daemonize not supported under Windows."
+		logdebug("Daemonize not supported under Windows.")
+		sys.exit()
+	else:
+		logdebug("Platform: " + sys.platform)
+		try:
+			logdebug("Write PID file")
+			file(config.pidfile, 'w').write("pid\n")
+		except IOError, e:
+			logdebug("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
+			raise SystemExit("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
+
+		logdebug("Deactivate screen printouts")
+		printout_complete = False
+
+		logdebug("Start daemon")
+		daemonize()
+
+# MySQL
+if options.mysql == True:
 	try:
+		logdebug("Import MySQLdb")
 		import MySQLdb
 	except ImportError:
 		print "Error: You need to install MySQL extension for Python"
+		logdebug("Error: Could not find MySQL extension for Python")
+		sys.exit(1)
+
+# SqLite
+if options.sqlite == True:
+	try:
+		import sqlite3
+	except ImportError:
+		print "Error: You need to install SQLite extension for Python"
 		sys.exit(1)
 
 if options.action == "send" or options.action == "bsend":
@@ -1464,6 +1997,8 @@ if options.action:
 else:
 	rfxcmd_action = "listen"
 
+logdebug("Action chosen: " + rfxcmd_action)
+
 # ----------------------------------------------------------------------------
 # READ CONFIGURATION FILE
 # ----------------------------------------------------------------------------
@@ -1471,43 +2006,57 @@ else:
 if os.path.exists( configFile ):
 
 	# RFX configuration
-	if ( read_config( configFile, "enableallrf") == "yes"):
-		_config_enableallrf = True
-	else:
-		_config_enableallrf = False
-
 	if ( read_config( configFile, "undecoded") == "yes"):
-		_config_undecoded = True
+		config.undecoded = True
 	else:
-		_config_undecoded = False
+		config.undecoded = False
 
 	# MySQL configuration
-	_config_mysql_server = read_config( configFile, "mysql_server")
-	_config_mysql_database = read_config( configFile, "mysql_database")
-	_config_mysql_username = read_config( configFile, "mysql_username")
-	_config_mysql_password = read_config( configFile, "mysql_password")
+	config.mysql_server = read_config( configFile, "mysql_server")
+	config.mysql_database = read_config( configFile, "mysql_database")
+	config.mysql_username = read_config( configFile, "mysql_username")
+	config.mysql_password = read_config( configFile, "mysql_password")
 	
 	if ( read_config( configFile, "trigger") == "yes"):
-		_config_trigger = True
+		config.trigger = True
 	else:
-		_config_trigger = False
+		config.trigger = False
 
-	_config_triggerfile = read_config( configFile, "triggerfile")	
+	config.triggerfile = read_config( configFile, "triggerfile")	
+
+	# SQLite configuration
+	config.sqlite_server = read_config( configFile, "sqlite_server")
+	config.sqlite_database = read_config( configFile, "sqlite_database")
+	config.sqlite_username = read_config( configFile, "sqlite_username")
+	config.sqlite_password = read_config( configFile, "sqlite_password")
+	
+	# Configuration for Graphite server
+	config.graphite_server = read_config( configFile, "graphite_server")
+	config.graphite_port = read_config( configFile, "graphite_port")
 
 else:
 
 	# config file not found, set default values
 	print "Error: Configuration file not found (" + configFile + ")"
-	
-	_config_enableallrf = False
-	_config_undecoded = False
-	
-	_config_mysql_server = ""
-	_config_mysql_database = ""
-	_config_mysql_username = ""
-	_config_mysql_password = ""
 
-	_config_trigger = False
+	logerror('Error: Configuration file not found (' + configFile + ')')
+
+	config.undecoded = False
+	
+	config.mysql_server = ""
+	config.mysql_database = ""
+	config.mysql_username = ""
+	config.mysql_password = ""
+
+	config.trigger = False
+
+	config.sqlite_server = ""
+	config.sqlite_database = ""
+	config.sqlite_username = ""
+	config.sqlite_password = ""
+	
+	config.graphite_server = ""
+	config.graphite_port = ""
 
 # ----------------------------------------------------------------------------
 # SIMULATE
@@ -1516,8 +2065,8 @@ else:
 if options.simulate:
 
 	# If trigger is activated in config, then read the triggerfile
-	if _config_trigger:
-		xmldoc = minidom.parse( _config_triggerfile )
+	if config.trigger:
+		xmldoc = minidom.parse( config.triggerfile )
 		root = xmldoc.documentElement
 
 		triggers = root.getElementsByTagName('trigger')
@@ -1558,7 +2107,7 @@ if options.simulate:
 	# decode it
 	decodePacket( message )
 	
-	if _config_trigger:
+	if config.trigger:
 		if message:
 			for trigger in triggers:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
@@ -1568,6 +2117,7 @@ if options.simulate:
 				if re.match(trigger_message, rawcmd):
 					return_code = subprocess.call(action, shell=True)
 	
+	logdebug('Exit 0')
 	sys.exit(0)
 
 # ----------------------------------------------------------------------------
@@ -1577,6 +2127,7 @@ if options.simulate:
 if options.device:
 	device=options.device
 else:
+	logerror('Device name missing')
 	parser.error('Device name missing')
 
 # Open serial port
@@ -1584,7 +2135,8 @@ try:
 	serialport = serial.Serial(device, 38400, timeout=9)
 except:  
 	print "Error: Failed to connect on " + device
-	exit()
+	logdebug('sys.exit(1)')
+	sys.exit(1)
 
 already_open = serialport.isOpen()
 if not already_open:
@@ -1596,9 +2148,11 @@ if not already_open:
 
 if rfxcmd_action == "listen":
 
+	logdebug('Action: Listen')
+
 	# If trigger is activated in config, then read the triggerfile
-	if _config_trigger:
-		xmldoc = minidom.parse( _config_triggerfile )
+	if config.trigger:
+		xmldoc = minidom.parse( config.triggerfile )
 		root = xmldoc.documentElement
 
 		triggers = root.getElementsByTagName('trigger')
@@ -1611,36 +2165,43 @@ if rfxcmd_action == "listen":
  			triggerlist = [ message, action ]
 			
 	# Flush buffer
+	logdebug('Serialport flush output')
 	serialport.flushOutput()
+	logdebug('Serialport flush input')
 	serialport.flushInput()
 
 	# Send RESET
+	logdebug('Send rfx_reset (' + rfx_reset + ')')
 	serialport.write( rfx_reset.decode('hex') )
+	logdebug('Sleep 1 sec')
 	time.sleep(1)
 
 	# Flush buffer
+	logdebug('Serialport flush output')
 	serialport.flushOutput()
+	logdebug('Serialport flush input')
 	serialport.flushInput()
 
-	if _config_undecoded:
+	if config.undecoded:
+		logdebug('Send rfx_undecoded (' + rfx_undecoded + ')')
 		send_rfx( rfx_undecoded.decode('hex') )
+		logdebug('Sleep 1 sec')
 		time.sleep(1)
+		logdebug('Read_rfx')
 		read_rfx()
 		
-	if _config_enableallrf:
-		send_rfx( rfx_enableallrf.decode('hex') )
-		time.sleep(1)
-		read_rfx()
-
 	# Send STATUS
+	logdebug('Send rfx_status (' + rfx_status + ')')
 	serialport.write( rfx_status.decode('hex') )
+	logdebug('Sleep 1 sec')
 	time.sleep(1)
 
 	try:
 		while 1:
 			rawcmd = read_rfx()
+			logdebug('Received: ' + str(rawcmd))
 
-			if _config_trigger:
+			if config.trigger:
 				if rawcmd:
 					for trigger in triggers:
 						message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
@@ -1649,6 +2210,7 @@ if rfxcmd_action == "listen":
 							return_code = subprocess.call(action, shell=True)
 
 	except KeyboardInterrupt:
+		logdebug('Received keyboard interrupt')
 		print "\nExit..."
 		pass
 
@@ -1670,16 +2232,11 @@ if rfxcmd_action == "status":
 	serialport.flushOutput()
 	serialport.flushInput()
 
-	if _config_undecoded:
+	if config.undecoded:
 		send_rfx( rfx_undecoded.decode('hex') )
 		time.sleep(1)
 		read_rfx()
 		
-	if _config_enableallrf:
-		send_rfx( rfx_enableallrf.decode('hex') )
-		time.sleep(1)
-		read_rfx()
-
 	# Send STATUS
 	send_rfx( rfx_status.decode('hex') )
 	time.sleep(1)
@@ -1724,16 +2281,11 @@ if rfxcmd_action == "send":
 	serialport.flushOutput()
 	serialport.flushInput()
 
-	if _config_undecoded:
+	if config.undecoded:
 		send_rfx( rfx_undecoded.decode('hex') )
 		time.sleep(1)
 		read_rfx()
 		
-	if _config_enableallrf:
-		send_rfx( rfx_enableallrf.decode('hex') )
-		time.sleep(1)
-		read_rfx()
-
 	if rfxcmd_rawcmd:
 		timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 		if printout_complete == True:
@@ -1753,8 +2305,11 @@ if rfxcmd_action == "send":
 
 if rfxcmd_action == "bsend":
 	
-	# Remove any whitespaces	
+	logdebug('Action: bsend')
+	
+	# Remove any whitespaces
 	rfxcmd_rawcmd = rfxcmd_rawcmd.replace(' ', '')
+	logdebug('rawcmd: ' + rfxcmd_rawcmd)
 	
 	# Test the string if it is hex format
 	try:
@@ -1781,9 +2336,14 @@ if rfxcmd_action == "bsend":
 # CLOSE SERIAL CONNECTION
 # ----------------------------------------------------------------------------
 
+logdebug('Close serial port')
 try:
 	serialport.close()
 except:
+	logdebug("Failed to close the serial port '" + device + "'")
 	print "Error: Failed to close the port " + device
-
-exit()
+	logdebug("Exit 1")
+	sys.exit(1)
+	
+logdebug("Exit 0")
+sys.exit(0)
