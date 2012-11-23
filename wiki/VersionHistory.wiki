@@ -1,3 +1,4 @@
+#summary RFXCMD version history
 = Version History =
 
 == v0.2 BETA (22-NOV-2012) ==
