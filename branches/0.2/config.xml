@@ -1,0 +1,17 @@
+<config>
+	<version>1</version>
+	<undecoded>no</undecoded>
+	<mysql_server>localhost</mysql_server>
+	<mysql_database>rfxcmd</mysql_database>
+	<mysql_username>user</mysql_username>
+	<mysql_password>pass</mysql_password>
+	<trigger>no</trigger>
+	<triggerfile>trigger.xml</triggerfile>
+	<sqlite_server>localhost</sqlite_server>
+	<sqlite_database>rfxcmd</sqlite_database>
+	<sqlite_username>user</sqlite_username>
+	<sqlite_password>pass</sqlite_password>
+	<loglevel>info</loglevel>
+	<graphite_server>127.0.0.1</graphite_server>
+	<graphite_port>2003</graphite_port>
+</config>
