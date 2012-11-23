@@ -1,3 +1,4 @@
+#summary Instructions for RFXCMD
 ==DESCRIPTION==
 
 RFXCMD is Python script that interfaces the RFX USB devices from RFXcom [www.rfxcom.com].
