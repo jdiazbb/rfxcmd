@@ -1,0 +1,59 @@
+/*
+	
+	MYSQL_ENERGY.TXT
+	
+	MySQL database/table configuration for RFXCMD / Energy data
+	
+	Usage;
+	$ mysql -u <user> -p < mysql_weather.txt
+	
+	Version;
+	
+	R1A 06-AUG-2012
+		* Created
+
+	R1C 15-SEP-2012
+		* Checked for SDK 4.31 compability
+		* ELEC3 added to energy group
+	
+	R1D 11-OCT-2012
+		* Corrected 'instant' and 'total' to int(11). (Thanks: Dimitri)
+	
+*/
+
+# If the database RFXCMD exists, then don't re-create it
+CREATE DATABASE IF NOT EXISTS `rfxcmd`;
+
+# Use RFXCMD
+USE `rfxcmd`
+
+/*
+	
+	CREATE table for 0x59-0x5A data
+	
+	* 0x59 Current sensors (ELEC1)
+	* 0x5A Energy usage sensors (ELEC2/ELEC3)
+	
+*/
+
+DROP TABLE IF EXISTS `energy`;
+
+CREATE TABLE `energy` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `datetime` datetime DEFAULT NULL,
+  `packettype` varchar(2) DEFAULT NULL,
+  `subtype` varchar(2) DEFAULT NULL,
+  `seqnbr` varchar(2) DEFAULT NULL,
+  `id1` varchar(2) DEFAULT NULL,
+  `id2` varchar(2) DEFAULT NULL,
+  `count` int(11) DEFAULT NULL,
+  `instant` int(11) DEFAULT NULL,
+  `total` int(11) DEFAULT NULL,
+  `ch1` float(5,2) DEFAULT NULL,
+  `ch2` float(5,2) DEFAULT NULL,
+  `ch3` float(5,2) DEFAULT NULL,
+  `battery` int(11) DEFAULT NULL,
+  `signal_level` int(11) DEFAULT NULL,
+  `processed` int(1) DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
