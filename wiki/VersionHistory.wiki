@@ -8,7 +8,7 @@
  * Added decode for sensor 0x20 (Security1) (Credit: Dimitri Clatot)
  * Added decode for sensor 0x15 (Lightning6) (Credit: Dimitri Clatot)
  * Removed "enable all rf" according to new SDK specifications
- * Added send to graphite server for sensor 52 (Credit: Frédéric Pégé)
+ * Added send to graphite server for sensor 0x52 (Credit: Frédéric Pégé)
  * Added SQLite support, supported sensor 0x50 (Credit: Mark Marooth)
  * Added debug logging via config.xml
  * Blinds T2/T3 added (SDK v4.34)
@@ -21,7 +21,7 @@
 
  * Fix for "Issue #3: MySQL Error for 0x54 Sensors"
  * Set variable to 00 in read_rfx()
- * Added default value for _config_trigger
+ * Added default value for config_trigger
  
 == v0.1j (08-OCT-2012) ==
 
