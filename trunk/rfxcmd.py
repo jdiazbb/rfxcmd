@@ -1911,7 +1911,7 @@ parser.add_option("-s", "--sqlite", action="store_true", dest="sqlite", default=
 parser.add_option("-g", "--graphite", action="store_true", dest="graphite", default=False, help="Send data to graphite server")
 parser.add_option("-z", "--daemonize", action="store_true", dest="daemon", default=False, help="Daemonize RFXCMD")
 parser.add_option("-p", "--pidfile", action="store", type="string", dest="pidfile", help="PID File location and name")
-parser.add_option("-v", "--version", action="store_true", type="string", dest="version", help="Print rfxcmd version information")
+parser.add_option("-v", "--version", action="store_true", dest="version", help="Print rfxcmd version information")
 
 (options, args) = parser.parse_args()
 
