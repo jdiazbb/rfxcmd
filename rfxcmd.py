@@ -23,8 +23,8 @@
 #	Version history can be found at 
 #	http://code.google.com/p/rfxcmd/wiki/VersionHistory
 #
-#	Revision: $Rev$
-#	Date: $Date$
+#	$Rev$
+#	$Date$
 #
 #	NOTES
 #	
@@ -1547,7 +1547,17 @@ def read_trigger():
 		action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
  		triggerlist = [ message, action ]
  		return triggerlist
- 	
+
+# ----------------------------------------------------------------------------
+# PRINT RFXCMD VERSION
+# ----------------------------------------------------------------------------
+
+def print_version():
+ 	print sw_name + " Version: " + sw_version
+ 	print "$Date$"
+ 	print "$Rev$"
+ 	sys.exit(0)
+
 # ----------------------------------------------------------------------------
 # RESPONSES
 # ----------------------------------------------------------------------------
@@ -1901,8 +1911,12 @@ parser.add_option("-s", "--sqlite", action="store_true", dest="sqlite", default=
 parser.add_option("-g", "--graphite", action="store_true", dest="graphite", default=False, help="Send data to graphite server")
 parser.add_option("-z", "--daemonize", action="store_true", dest="daemon", default=False, help="Daemonize RFXCMD")
 parser.add_option("-p", "--pidfile", action="store", type="string", dest="pidfile", help="PID File location and name")
+parser.add_option("-v", "--version", action="store_true", type="string", dest="version", help="Print rfxcmd version information")
 
 (options, args) = parser.parse_args()
+
+if options.version:
+	print_version()
 
 if options.csv:
 	logdebug("Option: CSV chosen")
