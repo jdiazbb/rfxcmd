@@ -37,6 +37,7 @@ import binascii
 import traceback
 import subprocess
 import re
+import logging
 
 # signalhandler
 import signal
@@ -110,8 +111,6 @@ def logerror(text):
 # LOGGING
 # ----------------------------------------------------------------------------
 
-import logging
-
 # Default
 loglevel = 'INFO'
 
@@ -133,9 +132,8 @@ if os.path.exists('config.xml'):
 	
 	loglevel = loglevel.upper()
 	
-	logger = logging.getLogger('rfxcmd')
-
 	if loglevel == 'DEBUG' or loglevel == 'ERROR':
+		logger = logging.getLogger('rfxcmd')
 		hdlr = logging.FileHandler('rfxcmd.log')
 		formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 		hdlr.setFormatter(formatter)
