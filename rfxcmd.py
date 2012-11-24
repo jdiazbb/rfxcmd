@@ -23,6 +23,9 @@
 #	Version history can be found at 
 #	http://code.google.com/p/rfxcmd/wiki/VersionHistory
 #
+#	Revision: $Rev$
+#	Date: $Date$
+#
 #	NOTES
 #	
 #	RFXCOM is a Trademark of RFSmartLink.
