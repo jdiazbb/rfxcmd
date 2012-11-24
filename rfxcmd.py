@@ -1416,7 +1416,10 @@ def send_rfx( message ):
 		print "Send\t\t\t= " + ByteToHex( message )
 		print "Date/Time\t\t= " + timestamp
 		print "Packet Length\t\t= " + ByteToHex( message[0] )
-		decodePacket( message )
+		try:
+			decodePacket( message )
+		except KeyError:
+			print "Error: unrecognizable packet"
 	
 	serialport.write( message )
 	time.sleep(1)
@@ -1455,8 +1458,12 @@ def read_rfx():
 						print "Packet Length\t\t= " + ByteToHex( message[0] )
 					
 					logdebug('Decode packet')
-					decodePacket( message )
-	
+					try:
+						decodePacket( message )
+					except KeyError:
+						logdebug('Error: unrecognizable packet')
+						print "Error: unrecognizable packet"
+
 					rawcmd = ByteToHex ( message )
 					rawcmd = rawcmd.replace(' ', '')
 
@@ -2105,8 +2112,11 @@ if options.simulate:
 		exit()
 	
 	# decode it
-	decodePacket( message )
-	
+	try:
+		decodePacket( message )
+	except KeyError:
+		print "Error: unrecognizable packet"
+
 	if config.trigger:
 		if message:
 			for trigger in triggers:
@@ -2293,8 +2303,11 @@ if rfxcmd_action == "send":
 			print "Send\t\t\t= " + ByteToHex( rfxcmd_rawcmd.decode('hex') )
 			print "Date/Time\t\t= " + timestamp
 			print "Packet Length\t\t= " + ByteToHex(rfxcmd_rawcmd.decode('hex')[0])
-			decodePacket( rfxcmd_rawcmd.decode('hex') )
-			
+			try:
+				decodePacket( rfxcmd_rawcmd.decode('hex') )
+			except KeyError:
+				print "Error: unrecognizable packet"
+
 		serialport.write( rfxcmd_rawcmd.decode('hex') )
 		time.sleep(1)
 		read_rfx()
