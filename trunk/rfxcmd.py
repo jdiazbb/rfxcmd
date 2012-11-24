@@ -165,6 +165,8 @@ sw_name = "RFXCMD"
 sw_version = "0.2 (BETA)"
 
 logdebug(sw_name + ' ' + sw_version)
+logdebug("$Date$")
+logdebug("$Rev$")
 
 # ----------------------------------------------------------------------------
 # DEFAULT CONFIGURATION PARAMETERS
@@ -316,6 +318,22 @@ def split_len(seq, length):
 	return [seq[i:i+length] for i in range(0, len(seq), length)]
 
 # ----------------------------------------------------------------------------
+# Decode signal byte
+# ----------------------------------------------------------------------------
+
+def decodeSignal(message):
+	signal = int(ByteToHex(message),16) >> 4
+	return signal
+
+# ----------------------------------------------------------------------------
+# Decode battery byte
+# ----------------------------------------------------------------------------
+
+def decodeBattery(message):
+	battery = int(ByteToHex(message),16) & 0xf
+	return battery
+
+# ----------------------------------------------------------------------------
 # Decode packet
 # ----------------------------------------------------------------------------
 
@@ -350,6 +368,7 @@ def decodePacket( message ):
 		decoded = True
 		
 		if printout_complete == True:
+			
 			data = {
 			'packetlen' : ByteToHex(message[0]),
 			'packettype' : ByteToHex(message[1]),
@@ -533,7 +552,8 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		signal = str(int(ByteToHex(message[7]),16) >> 4)
+		# Signal		
+		signal = decodeSignal(message[7])
 
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_10[subtype]
@@ -541,7 +561,7 @@ def decodePacket( message ):
 			print "Housecode\t\t= " + ByteToHex(message[4])
 			print "Unitcode\t\t= " + ByteToHex(message[5])
 			print "Command\t\t\t= " + ByteToHex(message[6])
-			print "Signal level\t\t= " + signal
+			print "Signal level\t\t= " + str(signal)
 
 	# ---------------------------------------
 	# 0x11 Lighting2
@@ -550,16 +570,17 @@ def decodePacket( message ):
 
 		decoded = True
 		
+		# Signal		
+		signal = decodeSignal(message[11])
+
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_11[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6]) + ByteToHex(message[7])
 			print "Unitcode\t\t= " + ByteToHex(message[8])
 			print "Command\t\t\t= " + rfx_subtype_11_cmnd[ByteToHex(message[9])]
-			print "Level\t\t\t= " + ByteToHex(message[10])
-			
-			signal_level = str(int(ByteToHex(message[11]),16) & 0xf)
-			print "Signal level\t\t\t= " + signal_level
+			print "Dim level\t\t\t= " + ByteToHex(message[10])
+			print "Signal level\t\t\t= " + str(signal)
 			
 	# ---------------------------------------
 	# 0x12 Lighting3
@@ -568,11 +589,53 @@ def decodePacket( message ):
 
 		decoded = True
 		
+		# System
+		system = ByteToHex(message[4])
+
+		# Channel
+		if testBit(int(ByteToHex(message[5]),16),0) == 1:
+			channel = 1
+		elif testBit(int(ByteToHex(message[5]),16),1) == 2:
+			channel = 2
+		elif testBit(int(ByteToHex(message[5]),16),2) == 4:
+			channel = 3
+		elif testBit(int(ByteToHex(message[5]),16),3) == 8:
+			channel = 4
+		elif testBit(int(ByteToHex(message[5]),16),4) == 16:
+			channel = 5
+		elif testBit(int(ByteToHex(message[5]),16),5) == 32:
+			channel = 6
+		elif testBit(int(ByteToHex(message[5]),16),6) == 64:
+			channel = 7
+		elif testBit(int(ByteToHex(message[5]),16),7) == 128:
+			channel = 8
+		elif testBit(int(ByteToHex(message[6]),16),0) == 1:
+			channel = 9
+		elif testBit(int(ByteToHex(message[6]),16),1) == 2:
+			channel = 10
+
+		# Command
+		command = rfx_subtype_12_cmnd[ByteToHex(message[7])]
+
+		# Battery & Signal
+		battery = decodeBattery(message[8])
+		signal = decodeSignal(message[8])
+
+		# Printout to screen
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_12[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "System\t\t\t= " + ByteToHex(message[4])
-			# TODO
+			print "System\t\t\t= " + str(system)
+			print "Channel\t\t\t= " + str(channel)
+			print "Command\t\t\t= " + command
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
+
+		# CSV output
+		if printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;\n" %(timestamp,
+				packettype, subtype, seqnbr, str(system), str(channel), 
+				command, str(battery), str(signal) ))
 
 	# ---------------------------------------
 	# 0x13 Lighting4
@@ -611,7 +674,9 @@ def decodePacket( message ):
 		command = ByteToHex(message[8])
 		command_seqnbr = ByteToHex(message[9])
 		rfu = str(int(ByteToHex(message[10]), 16))
-		signal = str(int(ByteToHex(message[11]),16) >> 4)
+
+		# Signal
+		signal = decodeSignal(message[11])
 
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_15[subtype]
@@ -664,8 +729,10 @@ def decodePacket( message ):
 		
 		id3 = ByteToHex(message[6])
 		status = ByteToHex(message[7])
-		signal = int(ByteToHex(message[8]),16) >> 4
-		battery = int(ByteToHex(message[8]),16) & 0xf
+
+		# Battery & Signal
+		signal = decodeSignal(message[8])
+		battery = decodeBattery(message[8])
 
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_20[subtype]
@@ -708,6 +775,7 @@ def decodePacket( message ):
 
 	# ---------------------------------------
 	# 0x40 - Thermostat1
+	# Credit: Jean-François Pucheu
 	# ---------------------------------------
 	if packettype == '40':
 
@@ -729,8 +797,9 @@ def decodePacket( message ):
 		else:
 			status = "Unknown"
 
-		signal = int(ByteToHex(message[9]),16) >> 4
-		battery = int(ByteToHex(message[9]),16) & 0xf
+		# Battery & Signal
+		signal = decodeSignal(message[9])
+		battery = decodeBattery(message[9])
 
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_40[subtype]
@@ -742,8 +811,8 @@ def decodePacket( message ):
 			print "Temperature set\t\t= " + str(temperature_set) + " C"
 			print "Status\t\t\t= " + status
 
-			print "Battery (0-15)\t\t= " + str(battery)
-			print "Signal level (0-7)\t= " + str(signal)
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
 
 			if printout_csv == True:
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
@@ -769,7 +838,6 @@ def decodePacket( message ):
 				finally:
 					if db:
 						db.close()
-
 
 	# ---------------------------------------
 	# 0x41 Thermostat2
@@ -816,8 +884,9 @@ def decodePacket( message ):
 		temperature = ( temp_high + int(temp_low,16) ) * 0.1
 		temperature_str = polarity_sign + str(temperature)
 
-		signal = int(ByteToHex(message[8]),16) >> 4
-		battery = int(ByteToHex(message[8]),16) & 0xf
+		# Battery & Signal
+		signal = decodeSignal(message[8])
+		battery = decodeBattery(message[8])
 		
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_50[subtype]
@@ -827,8 +896,8 @@ def decodePacket( message ):
 			
 			print "Temperature\t\t= " + temperature_str + " C"
 			
-			print "Battery (0-9)\t\t= " + str(battery)
-			print "Signal level (0-15)\t= " + str(signal)
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
 
 		if printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
@@ -892,9 +961,8 @@ def decodePacket( message ):
 		humidity_status = ByteToHex(message[7])
 
 		# Battery & Signal
-		batt_rssi = ByteToHex(message[8])		
-		signal = int(batt_rssi,16) >> 4
-		battery = int(batt_rssi,16) & 0xf
+		signal = decodeSignal(message[8])
+		battery = decodeBattery(message[8])
 		
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_51[subtype]
@@ -973,9 +1041,8 @@ def decodePacket( message ):
 		humidity_status = ByteToHex(message[9])
 
 		# Battery & Signal
-		batt_rssi = ByteToHex(message[10])		
-		signal = int(batt_rssi,16) >> 4
-		battery = int(batt_rssi,16) & 0xf
+		signal = decodeSignal(message[10])
+		battery = decodeBattery(message[10])
 		
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_52[subtype]
@@ -997,8 +1064,8 @@ def decodePacket( message ):
 			else:
 				print "Humidity Status\t\t= Unknown"
 			
-			print "Battery (0-9)\t\t= " + str(battery)
-			print "Signal level (0-15)\t= " + str(signal)
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
 		
 		if printout_csv == True:
 		
@@ -1076,9 +1143,8 @@ def decodePacket( message ):
 		forecast_status = ByteToHex(message[12])
 		
 		# Battery & Signal
-		batt_rssi = ByteToHex(message[13])		
-		signal = int(batt_rssi,16) >> 4
-		battery = int(batt_rssi,16) & 0xf
+		signal = decodeSignal(message[13])
+		battery = decodeBattery(message[13])
 		
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_54[subtype]
@@ -1113,8 +1179,8 @@ def decodePacket( message ):
 			else:
 				print "Forecast Status\t\t= Unknown"
 			
-			print "Battery (0-9)\t\t= " + str(battery)
-			print "Signal level (0-15)\t= " + str(signal)
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
 		
 		if printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
@@ -1162,8 +1228,8 @@ def decodePacket( message ):
 		raintotal3 = ByteToHex(message[10])
 		
 		# Battery & Signal	
-		signal = int(ByteToHex(message[11]),16) >> 4
-		battery = int(ByteToHex(message[11]),16) & 0xf
+		signal = decodeSignal(message[11])
+		battery = decodeBattery(message[11])
 		
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_55[subtype]
@@ -1279,10 +1345,9 @@ def decodePacket( message ):
 			windchill_str = "0"
 		
 		# Battery & Signal
-		batt_rssi = ByteToHex(message[16])
-		signal = int(batt_rssi,16) >> 4
-		battery = int(batt_rssi,16) & 0xf
-	
+		signal = decodeSignal(message[16])
+		battery = decodeBattery(message[16])
+
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_56[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -1300,8 +1365,8 @@ def decodePacket( message ):
 			
 			print "Windgust\t\t= " + gust_str + " mtr/sec"
 			
-			print "Battery (0-9)\t\t= " + str(battery)
-			print "Signal level (0-15)\t= " + str(signal)
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
 
 		if printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
@@ -1342,8 +1407,8 @@ def decodePacket( message ):
 		decoded = True
 
 		# Battery & Signal
-		signal = int(ByteToHex(message[17]),16) >> 4
-		battery = int(ByteToHex(message[17]),16) & 0xf
+		signal = decodeSignal(message[17])
+		battery = decodeBattery(message[17])
 
 		# Power
 		instant = int(ByteToHex(message[7]), 16) * 0x1000000 + int(ByteToHex(message[8]), 16) * 0x10000 + int(ByteToHex(message[9]), 16) * 0x100  + int(ByteToHex(message[10]), 16)
@@ -1355,8 +1420,8 @@ def decodePacket( message ):
 			print "Id 2\t\t\t= " + id2
 			print "Instant usage\t\t= " + str(instant) + " Watt"
 			print "Total usage\t\t= " + str(usage) + " Wh"
-			print "Battery (0-9)\t\t= " + str(battery)
-			print "Signal level (0-15)\t= " + str(signal)
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
 
 		if printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
@@ -1709,6 +1774,21 @@ rfx_subtype_11_cmnd = {"00":"Off",
 						"05":"Set Group Level"}
 
 rfx_subtype_12 = {"00":"Ikea Koppla"}
+
+rfx_subtype_12_cmnd = {"00":"Bright",
+						"08":"Dim",
+						"10":"On",
+						"11":"Level 1",
+						"12":"Level 2",
+						"13":"Level 3",
+						"14":"Level 4",
+						"15":"Level 5",
+						"16":"Level 6",
+						"17":"Level 7",
+						"18":"Level 8",
+						"19":"Level 9",
+						"1A":"Off",
+						"1C":"Program"}
 
 rfx_subtype_13 = {"00":"PT2262"}
 
