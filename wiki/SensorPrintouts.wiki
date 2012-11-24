@@ -5,7 +5,7 @@
 ----
 == 0x10 - Lightning1 ==
 
-RFXmngr:
+ARC:
 {{{
 0710010041020150
 Packettype    = Lighting1
@@ -20,7 +20,7 @@ Signal level  = 5
 ----
 == 0x11 - Lightning2 ==
 
-RFXmngr:
+AC:
 {{{
 0B110006007DB0C202010F70
 Packettype    = Lighting2
@@ -30,21 +30,12 @@ ID            = 07DB0C2
 Unit          = 2
 Command       = On
 Signal level  = 7
-------------------------------------------------
-0B110007007DB0C202000070
-Packettype    = Lighting2
-subtype       = AC
-Sequence nbr  = 7
-ID            = 07DB0C2
-Unit          = 2
-Command       = Off
-Signal level  = 7
 }}}
 
 ----
 == 0x15 - Lightning6 ==
 
-RFXmngr:
+Blyss:
 {{{
 0B15000496FD480100046360
 Packettype    = Lighting6
@@ -59,27 +50,10 @@ rfu           = 99
 Signal level  = 6
 }}}
 
-RFXCMD:
-{{{
-Received		= 0B15000496FD480100046360
-Date/Time		= 2012-11-18 16:34:59
-Packettype		= Lighting6
-Subtype			= Blyss
-Seqnbr			= 04
-ID			= 96FD
-Groupcode		= H
-Unitcode		= 01
-Command			= On
-Command seqnbr		= 04
-RFU			= 99
-Signal level		= 6
-}}}
-
 ----
 == 0x20 - Security1 ==
 
-RFXmngr:
-
+Security1:
 {{{
 0820006CDED1DB0259
 Packettype    = Security1
@@ -91,27 +65,10 @@ battery level = OK
 Signal level  = 5
 }}}
 
-RFXCMD:
-
-{{{
-Received		= 0820006CDED1DB0259
-Date/Time		= 2012-11-18 16:40:24
-Packettype		= Security1
-Subtype			= X10 security door/window sensor
-Seqnbr			= 6C
-ID1			= DE
-ID2			= D1
-ID3			= DB
-Status			= Alarm
-Battery			= 9
-Signal level		= 5
-}}}
-
 ----
 == 0x40 - Thermostat1 ==
 
-RFXmngr:
-
+Thermostat1:
 {{{
 09400002E75613120271
 Packettype    = Thermostat1
@@ -128,7 +85,20 @@ Signal level  = 7
 ----
 == 0x50 - Temperature ==
 
-RFXmngr:
+TEMP2
+{{{
+085002071F0100E489
+Packettype    = TEMP
+subtype       = TEMP2 - THC238/268,THN132,THWR288,THRN122,THN122,AW129/131
+                channel 1
+Sequence nbr  = 7
+ID            = 7937
+Temperature   = 22.8 °C
+Signal level  = 8
+Battery       = OK
+}}}
+
+TEMP8
 {{{
 0850089D630000FF79
 Packettype    = TEMP
@@ -143,7 +113,7 @@ Battery       = OK
 ----
 == 0x51 - Humidity ==
 
-RFXmngr:
+HUM2:
 {{{
 0851029C6300290179
 Packettype    = HUM
@@ -159,6 +129,20 @@ Battery       = OK
 ----
 == 0x52 ==
 
+TH1:
+{{{
+0A520106580100D9360159
+Packettype    = TEMP_HUM
+subtype       = TH1 - THGN122/123,/THGN132,THGR122/228/238/268
+                channel 1
+Sequence nbr  = 6
+ID            = 22529
+Temperature   = 21.7 °C
+Humidity      = 54
+Status        = Comfortable
+Signal level  = 5
+Battery       = OK
+}}}
 ----
 == 0x53 ==
 
@@ -168,7 +152,7 @@ Battery       = OK
 ----
 == 0x55 - Rain ==
 
-RFXmngr:
+RAIN5:
 {{{
 0B55059A6300000000004C89
 Packettype    = RAIN
@@ -183,7 +167,7 @@ Battery       = OK
 ----
 == 0x56 - Wind ==
 
-RFXmngr:
+WIND6:
 {{{
 105606A063000000000001FE0000000079
 Packettype    = WIND
@@ -200,7 +184,7 @@ Battery       = OK
 ----
 == 0x5A - Energy ==
 
-RFXmngr:
+ELEC2:
 {{{
 115A020284C2000000012100000F6984F669
 Packettype    = ENERGY
