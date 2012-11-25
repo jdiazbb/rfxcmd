@@ -61,7 +61,6 @@ class config_data:
 		self, 
 		mysql_server = '',
 		mysql_database = '',
-		enableall_rf = False,
 		undecoded = False,
 		mysql_username = "",
 		mysql_password = "",
@@ -74,7 +73,6 @@ class config_data:
 		device = "",
 		serialport = ""):
         
-		self.enableall_rf = enableall_rf
 		self.undecoded = undecoded
 		self.mysql_server = mysql_server
 		self.mysql_database = mysql_database
@@ -92,7 +90,7 @@ class config_data:
 # INIT OBJECTS
 # ----------------------------------------------------------------------------
 
-config = config_data()      
+config = config_data()
 
 # ----------------------------------------------------------------------------
 # LOG DEBUG
@@ -316,6 +314,28 @@ def clearBit(int_type, offset):
 
 def split_len(seq, length):
 	return [seq[i:i+length] for i in range(0, len(seq), length)]
+
+# ----------------------------------------------------------------------------
+# Decode temperature bytes
+# ----------------------------------------------------------------------------
+
+def decodeTemperature(message_high, message_low):
+	
+	temp_high = ByteToHex(message_high)
+	temp_low = ByteToHex(message_low)
+	polarity = testBit(int(temp_high,16),7)
+		
+	if polarity == 128:
+		polarity_sign = "-"
+	else:
+		polarity_sign = ""
+			
+	temp_high = clearBit(int(temp_high,16),7)
+	temp_high = temp_high << 8
+	temperature = ( temp_high + int(temp_low,16) ) * 0.1
+	temperature_str = polarity_sign + str(temperature)
+
+	return temperature_str
 
 # ----------------------------------------------------------------------------
 # Decode signal byte
@@ -1022,23 +1042,11 @@ def decodePacket( message ):
 		decoded = True
 
 		# Temperature
-		temp_high = ByteToHex(message[6])
-		temp_low = ByteToHex(message[7])
-		polarity = testBit(int(temp_high,16),7)
-		
-		if polarity == 128:
-			polarity_sign = "-"
-		else:
-			polarity_sign = ""
-			
-		temp_high = clearBit(int(temp_high,16),7)
-		temp_high = temp_high << 8
-		temperature = ( temp_high + int(temp_low,16) ) * 0.1
-		temperature_str = polarity_sign + str(temperature)
-		
+		temperature = decodeTemperature(message[6], message[7])
+
 		# Humidity
-		humidity = ByteToHex(message[8])
-		humidity_status = ByteToHex(message[9])
+		humidity = int(ByteToHex(message[8]),16)
+		humidity_status = int(ByteToHex(message[9]),16)
 
 		# Battery & Signal
 		signal = decodeSignal(message[10])
@@ -1050,8 +1058,8 @@ def decodePacket( message ):
 			print "Id 1 (House)\t\t= " + id1
 			print "Id 2 (Channel)\t\t= " + id2
 			
-			print "Temperature\t\t= " + temperature_str + " C"
-			print "Humidity\t\t= " + str(int(humidity,16))
+			print "Temperature\t\t= " + temperature + " C"
+			print "Humidity\t\t= " + str(humidity)
 			
 			if humidity_status == '00':
 				print "Humidity Status\t\t= Dry"
@@ -1071,13 +1079,13 @@ def decodePacket( message ):
 		
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
-							temperature_str, str(int(humidity,16)), humidity_status, 
+							temperature, str(humidity), humidity_status, 
 							str(battery), str(signal)) )
 		
 		if options.graphite == True:
 			now = int( time.time() )
 			linesg=[]
-			linesg.append("%s.%s.temperature %s %d" % ( id1, id2, temperature_str,now))
+			linesg.append("%s.%s.temperature %s %d" % ( id1, id2, temperature,now))
 			linesg.append("%s.%s.humidity %s %d" % ( id1, id2, humidity,now))
 			linesg.append("%s.%s.battery %s %d" % ( id1, id2, battery,now))
 			linesg.append("%s.%s.signal %s %d"% ( id1, id2, signal,now))
@@ -1092,8 +1100,7 @@ def decodePacket( message ):
 				cursor.execute("INSERT INTO weather \
 				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, humidity, humidity_status, battery, signal_level) VALUES \
 				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, int(humidity,16), int(humidity_status,16), \
-				battery, signal))
+				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, humidity, humidity_status, battery, signal ))
 				
 				db.commit()
 
@@ -1964,6 +1971,7 @@ rfx_save="0d00000006000000000000000000"
 
 # ----------------------------------------------------------------------------
 # Printout types
+# ----------------------------------------------------------------------------
 
 printout_complete = True
 printout_csv = False
@@ -2140,7 +2148,6 @@ else:
 
 	# config file not found, set default values
 	print "Error: Configuration file not found (" + configFile + ")"
-
 	logerror('Error: Configuration file not found (' + configFile + ')')
 
 	config.undecoded = False
