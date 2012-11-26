@@ -804,40 +804,49 @@ def decodePacket( message ):
 		temp = ByteToHex(message[6])
 		temp_set = ByteToHex(message[7])
 		temp_status = ByteToHex(message[8])
-
+		status1 = testBit(int(temp_status,16),0)
+		status2 = testBit(int(temp_status,16),1)
+		
+		if status2 == 0:
+			if status1 == 0:
+				status = "No status available"
+			else:
+				status = "Demand"
+		elif status2 == 2:
+			if status1 == 0:
+				status = "No Demand"
+			else:
+				status = "Initializing"
+		else:
+			status = "Unknown"
+		
+		temp_mode = testBit(int(temp_status,16),7)
+		
+		if temp_mode == 128:
+			mode = "coolling"
+		else:
+			mode = "heating"
+		
 		temperature = int(temp,16)
 		temperature_set = int(temp_set,16)
 
-		if temp_status == '0D' or temp_status == '01':
-			status = "Demand"
-		elif temp_status == '0E' or temp_status == '02':
-			status = "No Demand"
-		elif temp_status == '0F' or temp_status == '03':
-			status = "Initializing"
-		else:
-			status = "Unknown"
-
-		# Battery & Signal
+		#  Signal
 		signal = decodeSignal(message[9])
-		battery = decodeBattery(message[9])
 
 		if printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_40[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1\t\t\t= " + id1
 			print "Id 2\t\t\t= " + id2
-
 			print "Temperature\t\t= " + str(temperature) + " C"
 			print "Temperature set\t\t= " + str(temperature_set) + " C"
-			print "Status\t\t\t= " + status
-
-			print "Battery\t\t\t= " + str(battery)
+            print "Mode\t\t\t= " + mode
 			print "Signal level\t\t= " + str(signal)
 
 			if printout_csv == True:
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 				(timestamp, packettype, subtype, seqnbr, id1, id2,
-				temperature, temperature_set, status, str(battery), str(signal) ) )
+				temperature, temperature_set, mode, str(battery), str(signal) ) )
 
 			if options.mysql:
 				try:
@@ -845,9 +854,9 @@ def decodePacket( message ):
 					cursor = db.cursor()
 
 					cursor.execute("INSERT INTO thermostat \
-					(datetime, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, status, battery, signal_level) VALUES \
-					('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-					(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, status, battery, signal))
+					(datetime, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, mode, signal_level) VALUES \
+					('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
+					(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, mode, signal))
 
 					db.commit()
 
