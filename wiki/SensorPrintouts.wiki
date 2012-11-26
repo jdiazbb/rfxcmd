@@ -80,6 +80,17 @@ Set           = 18 °C
 Mode          = heating
 Status        = no demand
 Signal level  = 7
+
+09400001D05617148172
+Packettype    = Thermostat1
+subtype       = Digimax
+Sequence nbr  = 1
+ID            = 53334
+Temperature   = 23 °C
+Set           = 20 °C
+Mode          = Cooling
+Status        = demand
+Signal level  = 7
 }}}
 
 ----
