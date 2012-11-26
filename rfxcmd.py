@@ -247,15 +247,29 @@ def daemonize():
 
 def send_graphite(CARBON_SERVER, CARBON_PORT, lines):
 
-	sock = socket()
-	try:
-		sock.connect( (CARBON_SERVER,CARBON_PORT) )
-	except:
-		print "Couldn't connect to %(server)s on port %(port)d, is carbon-agent.py running?" % { 'server':CARBON_SERVER, 'port':CARBON_PORT }
+	sock = None
+	for res in socket.getaddrinfo(CARBON_SERVER,int(CARBON_PORT), socket.AF_UNSPEC, socket.SOCK_STREAM):
+		af, socktype, proto, canonname, sa = res
+		try:
+			sock = socket.socket(af, socktype, proto)
+		except socket.error as msg:
+			sock = None
+			continue
+		try:
+			sock.connect(sa)
+		except socket.error as msg:
+			sock.close()
+			sock = None
+			continue
+		break
+
+	if sock is None:
+		print 'could not open socket'
 		sys.exit(1)
 	
 	message = '\n'.join(lines) + '\n' #all lines must end in a newline
 	sock.sendall(message)
+	sock.close()
 
 # ----------------------------------------------------------------------------
 # Read x amount of bytes from serial port
@@ -840,7 +854,7 @@ def decodePacket( message ):
 			print "Id 2\t\t\t= " + id2
 			print "Temperature\t\t= " + str(temperature) + " C"
 			print "Temperature set\t\t= " + str(temperature_set) + " C"
-            print "Mode\t\t\t= " + mode
+			print "Mode\t\t\t= " + mode
 			print "Signal level\t\t= " + str(signal)
 
 			if printout_csv == True:
