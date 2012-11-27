@@ -54,10 +54,11 @@ Sensor specific data fields:
 
 = Sqlite =
 
-Create table
+== Create table ==
 
 {{{
-CREATE TABLE 'rfxcmd' ('id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+CREATE TABLE 'rfxcmd' (
+'id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
 'datetime' TEXT, 
 'packettype' INTEGER, 
 'subtype' INTEGER, 
