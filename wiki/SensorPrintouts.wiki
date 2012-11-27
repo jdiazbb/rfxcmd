@@ -208,3 +208,16 @@ total usage   = 1156070.02405372 Wh
 Signal level  = 6
 Battery       = OK
 }}}
+
+---
+== 0x70 - RFXmeter ==
+
+{{{
+077000003F06C950
+Packettype    = RFXSensor
+subtype       = Temperature
+Sequence nbr  = 0
+ID            = 63
+msg           = 17.37 °C
+Signal level  = 5
+}}}
