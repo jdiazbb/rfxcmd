@@ -52,10 +52,30 @@ Sensor specific data fields:
 
 = MySQL =
 
-= SqLite =
+= Sqlite =
 
 Create table
 
 {{{
-CREATE TABLE 'rfxcmd' ('id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'datetime' TEXT, 'packettype' INTEGER, 'subtype' INTEGER, 'seqnbr' INTEGER, 'battery' INTEGER, 'signal' INTEGER, 'processed' INTEGER, 'data1' INTEGER, 'data2' INTEGER, 'data3' INTEGER, 'data4' INTEGER, 'data5' INTEGER, 'data6' INTEGER, 'data7' INTEGER, 'data8' REAL, 'data9' REAL, 'data10' REAL, 'data11' REAL, 'data12' REAL, 'data13' INTEGER)
+CREATE TABLE 'rfxcmd' ('id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+'datetime' TEXT, 
+'packettype' INTEGER, 
+'subtype' INTEGER, 
+'seqnbr' INTEGER, 
+'battery' INTEGER, 
+'signal' INTEGER, 
+'processed' INTEGER, 
+'data1' INTEGER, 
+'data2' INTEGER, 
+'data3' INTEGER, 
+'data4' INTEGER, 
+'data5' INTEGER, 
+'data6' INTEGER, 
+'data7' INTEGER, 
+'data8' REAL, 
+'data9' REAL, 
+'data10' REAL, 
+'data11' REAL, 
+'data12' REAL, 
+'data13' INTEGER)
 }}}
