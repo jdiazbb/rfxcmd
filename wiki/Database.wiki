@@ -54,6 +54,8 @@ Sensor specific data fields:
 
 = Sqlite =
 
+SqLite is a lightweight database. For easy management via web interface the phpliteadmin can be used.
+
 == Create table ==
 
 {{{
