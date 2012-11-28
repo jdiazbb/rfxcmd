@@ -222,19 +222,38 @@ Set 'yes' to activate the trigger function
 
 File with full path to the trigger file
 
+<sqlite_database>
+<sqlite_table>
+
+The location of the database (file) and the table that should be used.
+
+<loglevel>
+
+At the moment only info, error, debug can be used. This is at the moment only used in development and 'info' will not output any information at all. 'debug' will be very detailed.
+The logevents from 'error' and 'debug' will be logged in 'rfxcmd.log' file.
+
+<graphite_server>
+<graphite_port>
+
+The server address and port for the graphite server.
+
 Default config.xml file;
 
 {{{
 <config>
 	<version>1</version>
 	<undecoded>no</undecoded>
-	<enableallrf>no</enableallrf>
 	<mysql_server>localhost</mysql_server>
 	<mysql_database>rfxcmd</mysql_database>
 	<mysql_username>user</mysql_username>
 	<mysql_password>pass</mysql_password>
-	<trigger>yes</trigger>
+	<trigger>no</trigger>
 	<triggerfile>trigger.xml</triggerfile>
+	<sqlite_database>sqlite.db</sqlite_database>
+	<sqlite_table>rfxcmd</sqlite_table>
+	<loglevel>info</loglevel>
+	<graphite_server>127.0.0.1</graphite_server>
+	<graphite_port>2003</graphite_port>
 </config>
 }}}
 
