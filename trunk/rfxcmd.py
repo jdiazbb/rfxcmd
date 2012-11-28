@@ -59,19 +59,19 @@ from socket import socket
 class config_data:
 	def __init__(
 		self, 
+		undecoded = False,
 		mysql_server = '',
 		mysql_database = '',
-		undecoded = False,
 		mysql_username = "",
 		mysql_password = "",
 		trigger = False,
 		triggerfile = "",
-		createpid = False,
-		pidfile = "",
-		configfile = "",
-		rfxcmd_action = "",
-		device = "",
-		serialport = ""):
+		sqlite_database = "",
+		sqlite_table = "",
+		loglevel = "info",
+		graphite_server = "",
+		graphite_port = "",
+		):
         
 		self.undecoded = undecoded
 		self.mysql_server = mysql_server
@@ -79,18 +79,48 @@ class config_data:
 		self.mysql_username = mysql_username
 		self.mysql_password = mysql_password
 		self.trigger = trigger
+		self.triggerfile = triggerfile
+		self.sqlite_database = sqlite_database
+		self.sqlite_table = sqlite_table
+		self.loglevel = loglevel
+		self.graphite_server = graphite_server
+		self.graphite_port = graphite_port
+				
+		
+class cmdarg_data:
+	def __init__(
+		self,
+		configfile = "",
+		action = "",
+		rawcmd = "",
+		device = "",
+		createpid = False,
+		pidfile = "",
+		printout_complete = True,
+		printout_csv = False,
+		mysql = False,
+		sqlite = False,
+		graphite = False
+		):
+
+		self.configfile = configfile
+		self.action = action
+		self.rawcmd = rawcmd
+		self.device = device
 		self.createpid = createpid
 		self.pidfile = pidfile
-		self.configfile = configfile
-		self.rfxcmd_action = rfxcmd_action
-		self.device = device
-		self.serialport = serialport
+		self.printout_complete = printout_complete
+		self.printout_csv = printout_csv
+		self.mysql = mysql
+		self.sqlite = sqlite
+		self.graphite = graphite
 
 # ----------------------------------------------------------------------------
 # INIT OBJECTS
 # ----------------------------------------------------------------------------
 
 config = config_data()
+cmdarg = cmdarg_data()
 
 # ----------------------------------------------------------------------------
 # LOG DEBUG
@@ -172,21 +202,20 @@ logdebug("$Rev$")
 
 # If the config.xml does not exist, or can not be loaded, this is the
 # default configuration which will be used
-
+'''
 config.undecoded = False
 config.mysql_server = ""
 config.mysql_database = ""
 config.mysql_username = ""
 config.mysql_password = ""
-config.trigger = False
-config.sqlite_server = ""
 config.sqlite_database = ""
-config.sqlite_username = ""
-config.sqlite_password = ""
+config.sqlite_table = ""
+config.trigger = False
 config.graphite_server = ""
 config.graphite_port = ""
 config.createpid = False
 config.pidfile = ""
+'''
 
 # ----------------------------------------------------------------------------
 # DEAMONIZE
@@ -195,10 +224,10 @@ config.pidfile = ""
 
 def shutdown():
 	# clean up PID file after us
-	logdebug("Daemon shutdown")
-	if config.createpid:
+	logdebug("Shutdown")
+	if cmdarg.createpid:
 		logdebug("Removing PID file " + str(config.pidfile))
-		os.remove(config.pidfile)
+		os.remove(cmdarg.pidfile)
     
 	logdebug("Exit 0")
 	os._exit(0)
@@ -235,9 +264,9 @@ def daemonize():
 	dev_null = file('/dev/null', 'r')
 	os.dup2(dev_null.fileno(), sys.stdin.fileno())
 
-	if config.createpid == True:
+	if cmdarg.createpid == True:
 		pid = str(os.getpid())
-		logdebug("Writing PID " + pid + " to " + str(config.pidfile))
+		logdebug("Writing PID " + pid + " to " + str(cmdarg.pidfile))
 		file(config.pidfile, 'w').write("%s\n" % pid)
 
 # ----------------------------------------------------------------------------
@@ -330,6 +359,38 @@ def split_len(seq, length):
 	return [seq[i:i+length] for i in range(0, len(seq), length)]
 
 # ----------------------------------------------------------------------------
+# Insert data to SqLite 
+# ----------------------------------------------------------------------------
+
+def insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
+	data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
+
+	try:
+		cx = sqlite3.connect(config.sqlite_database)
+		cu = cx.cursor()
+		sql = """
+			INSERT INTO '%s' (datetime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, data4,
+				data5, data6, data7, data8, data9, data10, data11, data12, data13)
+			VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
+			""" % (config.sqlite_table, timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, \
+				data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
+
+		cu.executescript(sql)
+		cx.commit()
+				
+	except sqlite3.Error, e:	
+		if cx:
+			cx.rollback()
+			
+			logerror("SqLite error: " + str(e))
+			print "SqLite error: " + str(e)
+			sys.exit(1)
+			
+	finally:	
+		if cx:
+			cx.close()
+
+# ----------------------------------------------------------------------------
 # Decode temperature bytes
 # ----------------------------------------------------------------------------
 
@@ -386,7 +447,7 @@ def decodePacket( message ):
 	if len(message) > 5:
 		id2 = ByteToHex(message[5])
 	
-	if printout_complete == True:
+	if cmdarg.printout_complete == True:
 		print "Packettype\t\t= " + rfx_packettype[packettype]
 
 	# ---------------------------------------
@@ -401,7 +462,7 @@ def decodePacket( message ):
 	if packettype == '01':
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			
 			data = {
 			'packetlen' : ByteToHex(message[0]),
@@ -570,12 +631,12 @@ def decodePacket( message ):
 		
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_02[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Message\t\t\t= " + rfx_subtype_02_msg1[id1]
 		
-		if printout_csv == True:
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;\n" %
 							(timestamp, packettype, subtype, seqnbr, id1 ) )
 
@@ -589,7 +650,7 @@ def decodePacket( message ):
 		# Signal		
 		signal = decodeSignal(message[7])
 
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_10[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Housecode\t\t= " + ByteToHex(message[4])
@@ -607,7 +668,7 @@ def decodePacket( message ):
 		# Signal		
 		signal = decodeSignal(message[11])
 
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_11[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6]) + ByteToHex(message[7])
@@ -656,7 +717,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[8])
 
 		# Printout to screen
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_12[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "System\t\t\t= " + str(system)
@@ -666,7 +727,7 @@ def decodePacket( message ):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV output
-		if printout_csv == True:
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;\n" %(timestamp,
 				packettype, subtype, seqnbr, str(system), str(channel), 
 				command, str(battery), str(signal) ))
@@ -678,7 +739,7 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_13[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
@@ -690,7 +751,7 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_14[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
@@ -712,7 +773,7 @@ def decodePacket( message ):
 		# Signal
 		signal = decodeSignal(message[11])
 
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_15[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "ID\t\t\t= "  + id1 + id2
@@ -723,7 +784,8 @@ def decodePacket( message ):
 			print "RFU\t\t\t= " + rfu
 			print "Signal level\t\t= " + signal
 
-		if printout_csv == True:
+		# CSV
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp,
 							packettype, subtype, seqnbr, id1, id2,
 							rfx_subtype_15_groupcode[groupcode], unitcode,
@@ -736,7 +798,7 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_18[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
@@ -748,7 +810,7 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_19[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
@@ -768,7 +830,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
 
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_20[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "ID1\t\t\t= "  + id1
@@ -778,7 +840,8 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
-		if printout_csv == True:
+		# CSV
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2, id3,
 							rfx_subtype_20_status[status], str(battery), str(signal) ) )
@@ -790,7 +853,7 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_28[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
@@ -802,7 +865,7 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_30[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
@@ -847,7 +910,7 @@ def decodePacket( message ):
 		#  Signal
 		signal = decodeSignal(message[9])
 
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_40[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1\t\t\t= " + id1
@@ -889,7 +952,7 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_41[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
@@ -901,7 +964,7 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_42[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
@@ -931,7 +994,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_50[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1\t\t\t= " + id1
@@ -942,12 +1005,12 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
-		if printout_csv == True:
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							temperature_str, str(battery), str(signal) ) )
 
-		if options.mysql:
+		if cmdarg.mysql:
 
 			try:
 
@@ -971,14 +1034,14 @@ def decodePacket( message ):
 				if db:
 					db.close()
 
-		if options.sqlite:
+		if cmdarg.sqlite:
 			try:
 				cx = sqlite3.connect(config.sqlite_database)
 				cu = cx.cursor()
 				sql = """
-					INSERT INTO weather (datetime, packettype, subtype, seqnbr, id1, id2, temperature, battery, signal_level)
+					INSERT INTO rfxcmd (datetime, packettype, subtype, seqnbr, battery, signal, id1, id2, data8)
 					VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s')
-					""" % (timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, battery, signal)
+					""" % (timestamp, packettype, subtype, seqnbr, battery, signal, id1, id2, float(data8))
 
 				cu.execute(sql)
 				cx.commit()
@@ -1007,7 +1070,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_51[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1 (House)\t\t= " + id1
@@ -1029,13 +1092,13 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
-		if printout_csv == True:
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							str(int(humidity,16)), humidity_status, 
 							str(battery), str(signal)) )
 		
-		if options.mysql:
+		if cmdarg.mysql:
 
 			try:
 				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
@@ -1075,7 +1138,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[10])
 		battery = decodeBattery(message[10])
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_52[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1 (House)\t\t= " + id1
@@ -1098,14 +1161,14 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
-		if printout_csv == True:
+		if cmdarg.printout_csv == True:
 		
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							temperature, str(humidity), humidity_status, 
 							str(battery), str(signal)) )
 		
-		if options.graphite == True:
+		if cmdarg.graphite == True:
 			now = int( time.time() )
 			linesg=[]
 			linesg.append("%s.%s.temperature %s %d" % ( id1, id2, temperature,now))
@@ -1114,7 +1177,7 @@ def decodePacket( message ):
 			linesg.append("%s.%s.signal %s %d"% ( id1, id2, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
-		if options.mysql:
+		if cmdarg.mysql:
 
 			try:
 				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
@@ -1134,6 +1197,12 @@ def decodePacket( message ):
 			finally:
 				if db:
 					db.close()
+
+		if cmdarg.sqlite:
+			try:
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, id1, id2, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
 	# ---------------------------------------
 	# 0x54 - Temperature, humidity and barometric sensors
@@ -1176,7 +1245,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[13])
 		battery = decodeBattery(message[13])
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_54[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1 (House)\t\t= " + id1
@@ -1212,13 +1281,13 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
-		if printout_csv == True:
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							temperature_str, str(int(humidity,16)), humidity_status, 
 							str(barometric), forecast_status, str(battery), str(signal)) )
 		
-		if options.mysql:
+		if cmdarg.mysql:
 
 			try:
 				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
@@ -1261,7 +1330,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[11])
 		battery = decodeBattery(message[11])
 		
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_55[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1 (House)\t\t= " + id1
@@ -1281,13 +1350,13 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
-		if printout_csv == True:
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							( timestamp, packettype, subtype, seqnbr, id1, id2,
 							str(int(rainrate_high,16)), str(int(raintotal1,16)), 
 							str(battery), str(signal) ) )
 
-		if options.mysql:
+		if cmdarg.mysql:
 			try:
 				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
 				cursor = db.cursor()
@@ -1378,7 +1447,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[16])
 		battery = decodeBattery(message[16])
 
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_56[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1 (House)\t\t= " + id1
@@ -1398,14 +1467,15 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
-		if printout_csv == True:
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							direction_str, av_str, gust_str,
 							temperature_str, windchill_str, 
 							str(battery), str(signal) ) )
 		
-		if options.mysql:
+		# MySQL
+		if cmdarg.mysql:
 
 			try:
 				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
@@ -1444,7 +1514,8 @@ def decodePacket( message ):
 		instant = int(ByteToHex(message[7]), 16) * 0x1000000 + int(ByteToHex(message[8]), 16) * 0x10000 + int(ByteToHex(message[9]), 16) * 0x100  + int(ByteToHex(message[10]), 16)
 		usage = int ((int(ByteToHex(message[11]), 16) * 0x10000000000 + int(ByteToHex(message[12]), 16) * 0x100000000 +int(ByteToHex(message[13]), 16) * 0x1000000 + int(ByteToHex(message[14]), 16) * 0x10000 + int(ByteToHex(message[15]), 16) * 0x100 + int(ByteToHex(message[16]), 16) ) / 223.666)
 
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_5A[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1\t\t\t= " + id1
 			print "Id 2\t\t\t= " + id2
@@ -1453,12 +1524,14 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
-		if printout_csv == True:
+		# CSV
+		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							str(instant), str(battery), str(signal)) )
 
-		if options.mysql:
+		# MySQL
+		if cmdarg.mysql:
 
 			try:
 				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
@@ -1486,6 +1559,39 @@ def decodePacket( message ):
 	# TODO
 	
 	# ---------------------------------------
+	# 0x70 RFXsensor
+	# ---------------------------------------
+	if packettype == '70':
+
+		decoded = True
+
+		# Temperature
+		if subtype == '00':
+			temperature = float(decodeTemperature(message[5], message[6]))
+			temperature = temperature * 0.1
+
+		# Signal
+		signal = decodeSignal(message[7])
+
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_70[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id 1\t\t\t= " + id1
+
+			if subtype == '00':
+				print "Temperature\t\t= " + str(temperature) + " C"
+
+			if subtype == '01' or subtype == '02':
+				print "Msg1\t\t\t= " + str(int(ByteToHex(message[5]), 16))
+				print "Msg2\t\t\t= " + str(int(ByteToHex(message[6]), 16))
+
+			if subtype == '03':
+				print "Msg1\t\t\t= " + str(int(ByteToHex(message[5]), 16))
+				print "Msg2\t\t\t= " + str(int(ByteToHex(message[6]), 16))
+
+			print "Signal level\t\t= " + str(signal)
+
+	# ---------------------------------------
 	# Not decoded message
 	# ---------------------------------------	
 	
@@ -1503,11 +1609,9 @@ def decodePacket( message ):
 
 def send_rfx( message ):
 	
-	global printout_complete, printout_csv
-	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 	
-	if printout_complete == True:
+	if cmdarg.printout_complete == True:
 		print "------------------------------------------------"
 		print "Send\t\t\t= " + ByteToHex( message )
 		print "Date/Time\t\t= " + timestamp
@@ -1526,8 +1630,6 @@ def send_rfx( message ):
 
 def read_rfx():
 
-	global printout_complete, printout_csv
-	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 	logdebug('Timestamp: ' + timestamp)
 	message = None
@@ -1547,7 +1649,7 @@ def read_rfx():
 				if (len(message) - 1) == ord(message[0]):
 				
 					logdebug('Length OK')
-					if printout_complete == True:
+					if cmdarg.printout_complete == True:
 						print "------------------------------------------------"
 						print "Received\t\t= " + ByteToHex( message )
 						print "Date/Time\t\t= " + timestamp
@@ -1567,7 +1669,7 @@ def read_rfx():
 				
 				else:
 				
-					if printout_complete == True:
+					if cmdarg.printout_complete == True:
 						logdebug('Incoming packet not valid')
 						print "------------------------------------------------"
 						print "Received\t\t= " + ByteToHex( message )
@@ -1993,16 +2095,15 @@ rfx_undecoded="0d00000005000000000000000000"
 rfx_save="0d00000006000000000000000000"
 
 # ----------------------------------------------------------------------------
-# Printout types
+# CHECK CURRENT PYTHON VERSION
 # ----------------------------------------------------------------------------
 
-printout_complete = True
-printout_csv = False
-
-# Check current Python version
+logdebug("Python version: %s.%s.%s" % sys.version_info[:3])
 if sys.hexversion < 0x02060000:
+	logerror("Error: Your Python need to be 2.6 or newer, please upgrade.")
 	print "Error: Your Python need to be 2.6 or newer, please upgrade."
-	exit()
+	logdebug("Exit 1")
+	sys.exit(1)
 
 # ----------------------------------------------------------------------------
 # PARSE COMMAND LINE ARGUMENT
@@ -2031,42 +2132,49 @@ if options.version:
 
 if options.csv:
 	logdebug("Option: CSV chosen")
-	printout_complete = False
-	printout_csv = True
+	cmdarg.printout_complete = False
+	cmdarg.printout_csv = True
 
 if options.mysql:
 	logdebug("Option: MySQL chosen")
-	printout_complete = False
-	printout_csv = False
+	cmdarg.printout_complete = False
+	cmdarg.printout_csv = False
 
 if options.sqlite:
 	logdebug("Option: SqLite chosen")
-	printout_complete = False
-	printout_csv = False
+	cmdarg.printout_complete = False
+	cmdarg.printout_csv = False
 
-if printout_complete == True:
+if cmdarg.printout_complete == True:
 	if not options.daemon:
 		print sw_name + " version " + sw_version
 
+# Config file
 if options.config:
-	configFile = options.config
+	cmdarg.configfile = options.config
 else:
-	configFile = "config.xml"
+	cmdarg.configfile = "config.xml"
 
-logdebug("Configfile: " + configFile)
+logdebug("Configfile: " + cmdarg.configfile)
+
+# Graphite
+if options.graphite:
+	cmdarg.graphite = True
+	logdebug("Option: Graphite chosen")
 
 # Deamon
 if options.daemon:
-
+	logdebug("Option: Daemon chosen")
 	logdebug("Check PID file")
 	if options.pidfile:
-		config.pidfile = options.pidfile
-		config.createpid = True
+		cmdarg.pidfile = options.pidfile
+		cmdarg.createpid = True
 
-		logdebug("PID file '" + config.pidfile + "'")
-		if os.path.exists(config.pidfile):
-			print("PID file '" + config.pidfile + "' already exists. Exiting.")
-			logdebug("PID file '" + config.pidfile + "' already exists. Exiting.")
+		logdebug("PID file '" + cmdarg.pidfile + "'")
+		if os.path.exists(cmdarg.pidfile):
+			print("PID file '" + cmdarg.pidfile + "' already exists. Exiting.")
+			logdebug("PID file '" + cmdarg.pidfile + "' already exists.")
+			logdebug("Exit 1")
 			sys.exit(1)
 		else:
 			logdebug("PID file does not exists")
@@ -2074,104 +2182,113 @@ if options.daemon:
 	else:
 		print("You need to set the --pidfile parameter at the startup")
 		logdebug("Command argument --pidfile missing")
+		logdebug("Exit 1")
 		sys.exit(1)
 
 	logdebug("Check platform")
 	if sys.platform == 'win32':
-		print "Daemonize not supported under Windows."
+		print "Daemonize not supported under Windows. Exiting."
 		logdebug("Daemonize not supported under Windows.")
-		sys.exit()
+		logdebug("Exit 1")
+		sys.exit(1)
 	else:
 		logdebug("Platform: " + sys.platform)
 		try:
 			logdebug("Write PID file")
-			file(config.pidfile, 'w').write("pid\n")
+			file(cmdarg.pidfile, 'w').write("pid\n")
 		except IOError, e:
 			logdebug("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
 			raise SystemExit("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
 
 		logdebug("Deactivate screen printouts")
-		printout_complete = False
+		cmdarg.printout_complete = False
 
 		logdebug("Start daemon")
 		daemonize()
 
 # MySQL
 if options.mysql == True:
+	cmdarg.mysql = True
+	logdebug("Import MySQLdb")
 	try:
-		logdebug("Import MySQLdb")
 		import MySQLdb
 	except ImportError:
 		print "Error: You need to install MySQL extension for Python"
 		logdebug("Error: Could not find MySQL extension for Python")
+		logdebug("Exit 1")
 		sys.exit(1)
 
 # SqLite
 if options.sqlite == True:
+	cmdarg.sqlite = True
+	logdebug("Import sqlite3")
 	try:
 		import sqlite3
 	except ImportError:
 		print "Error: You need to install SQLite extension for Python"
+		logdebug("Exit 1")
 		sys.exit(1)
 
-if options.action == "send" or options.action == "bsend":
-	rfxcmd_rawcmd = options.rawcmd
-	if not rfxcmd_rawcmd:
-		print "Error: You need to specify message to send with -r <rawcmd>"
-		sys.exit(1)
-
+# Action
 if options.action:
-	rfxcmd_action = options.action.lower()
-	if not (rfxcmd_action == "listen" or 
-		rfxcmd_action == "send" or
-		rfxcmd_action == "bsend" or
-		rfxcmd_action == "status"):
+	cmdarg.action = options.action.lower()
+	if not (cmdarg.action == "listen" or cmdarg.action == "send" or
+		cmdarg.action == "bsend" or cmdarg.action == "status"):
+		logerror("Error: Invalid action")
 		parser.error('Invalid action')
 else:
-	rfxcmd_action = "listen"
+	cmdarg.action = "listen"
 
-logdebug("Action chosen: " + rfxcmd_action)
+logdebug("Action chosen: " + cmdarg.action)
+
+# Rawcmd
+if cmdarg.action == "send" or cmdarg.action == "bsend":
+	cmdarg.rawcmd = options.rawcmd
+	logdebug("Rawcmd: " + cmdarg.rawcmd)
+	if not cmdarg.rawcmd:
+		print "Error: You need to specify message to send with -r <rawcmd>. Exiting."
+		logerror("Error: You need to specify message to send with -r <rawcmd>")
+		logdebug("Exit 1")
+		sys.exit(1)
 
 # ----------------------------------------------------------------------------
 # READ CONFIGURATION FILE
 # ----------------------------------------------------------------------------
 
-if os.path.exists( configFile ):
+if os.path.exists( cmdarg.configfile ):
 
 	# RFX configuration
-	if ( read_config( configFile, "undecoded") == "yes"):
+	if ( read_config( cmdarg.configfile, "undecoded") == "yes"):
 		config.undecoded = True
 	else:
 		config.undecoded = False
 
 	# MySQL configuration
-	config.mysql_server = read_config( configFile, "mysql_server")
-	config.mysql_database = read_config( configFile, "mysql_database")
-	config.mysql_username = read_config( configFile, "mysql_username")
-	config.mysql_password = read_config( configFile, "mysql_password")
+	config.mysql_server = read_config( cmdarg.configfile, "mysql_server")
+	config.mysql_database = read_config( cmdarg.configfile, "mysql_database")
+	config.mysql_username = read_config( cmdarg.configfile, "mysql_username")
+	config.mysql_password = read_config( cmdarg.configfile, "mysql_password")
 	
-	if ( read_config( configFile, "trigger") == "yes"):
+	if ( read_config( cmdarg.configfile, "trigger") == "yes"):
 		config.trigger = True
 	else:
 		config.trigger = False
 
-	config.triggerfile = read_config( configFile, "triggerfile")	
+	config.triggerfile = read_config( cmdarg.configfile, "triggerfile")	
 
 	# SQLite configuration
-	config.sqlite_server = read_config( configFile, "sqlite_server")
-	config.sqlite_database = read_config( configFile, "sqlite_database")
-	config.sqlite_username = read_config( configFile, "sqlite_username")
-	config.sqlite_password = read_config( configFile, "sqlite_password")
+	config.sqlite_database = read_config( cmdarg.configfile, "sqlite_database")
+	config.sqlite_table = read_config( cmdarg.configfile, "sqlite_table")
 	
 	# Configuration for Graphite server
-	config.graphite_server = read_config( configFile, "graphite_server")
-	config.graphite_port = read_config( configFile, "graphite_port")
+	config.graphite_server = read_config( cmdarg.configfile, "graphite_server")
+	config.graphite_port = read_config( cmdarg.configfile, "graphite_port")
 
 else:
 
 	# config file not found, set default values
-	print "Error: Configuration file not found (" + configFile + ")"
-	logerror('Error: Configuration file not found (' + configFile + ')')
+	print "Error: Configuration file not found (" + cmdarg.configfile + ")"
+	logerror('Error: Configuration file not found (' + cmdarg.configfile + ')')
 
 	config.undecoded = False
 	
@@ -2182,10 +2299,8 @@ else:
 
 	config.trigger = False
 
-	config.sqlite_server = ""
 	config.sqlite_database = ""
-	config.sqlite_username = ""
-	config.sqlite_password = ""
+	config.sqlite_table = ""
 	
 	config.graphite_server = ""
 	config.graphite_port = ""
@@ -2260,14 +2375,15 @@ if options.simulate:
 # ----------------------------------------------------------------------------
 
 if options.device:
-	device=options.device
+	config.device=options.device
+	logdebug("Device: " + config.device)
 else:
 	logerror('Device name missing')
 	parser.error('Device name missing')
 
 # Open serial port
 try:  
-	serialport = serial.Serial(device, 38400, timeout=9)
+	serialport = serial.Serial(config.device, 38400, timeout=9)
 except:  
 	print "Error: Failed to connect on " + device
 	logdebug('sys.exit(1)')
@@ -2281,7 +2397,7 @@ if not already_open:
 # LISTEN TO RFX, EXIT WITH CTRL+C
 # ----------------------------------------------------------------------------
 
-if rfxcmd_action == "listen":
+if cmdarg.action == "listen":
 
 	logdebug('Action: Listen')
 
@@ -2353,7 +2469,7 @@ if rfxcmd_action == "listen":
 # STATUS
 # ----------------------------------------------------------------------------
 
-if rfxcmd_action == "status":
+if cmdarg.action == "status":
 
 	# Flush buffer
 	serialport.flushOutput()
@@ -2381,26 +2497,29 @@ if rfxcmd_action == "status":
 # SEND
 # ----------------------------------------------------------------------------
 
-if rfxcmd_action == "send":
+if cmdarg.action == "send":
+
+	logdebug('Action: send')
 
 	# Remove any whitespaces	
-	rfxcmd_rawcmd = rfxcmd_rawcmd.replace(' ', '')
-	
+	cmdarg.rawcmd = cmdarg.rawcmd.replace(' ', '')
+	logdebug('rawcmd: ' + cmdarg.rawcmd)
+
 	# Test the string if it is hex format
 	try:
-		int(rfxcmd_rawcmd,16)
+		int(cmdarg.rawcmd,16)
 	except ValueError:
 		print "Error: invalid rawcmd, not hex format"
 		sys.exit(1)		
 	
 	# Check that first byte is not 00
-	if ByteToHex(rfxcmd_rawcmd.decode('hex')[0]) == "00":
+	if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
 		print "Error: invalid rawcmd, first byte is zero"
 		sys.exit(1)
 	
 	# Check if string is the length that it reports to be
-	cmd_len = int( ByteToHex(rfxcmd_rawcmd.decode('hex')[0]),16 )
-	if not len(rfxcmd_rawcmd.decode('hex')) == (cmd_len + 1):
+	cmd_len = int( ByteToHex(cmdarg.rawcmd.decode('hex')[0]),16 )
+	if not len(cmdarg.rawcmd.decode('hex')) == (cmd_len + 1):
 		print "Error: invalid rawcmd, invalid length"
 		sys.exit(1)
 
@@ -2421,19 +2540,19 @@ if rfxcmd_action == "send":
 		time.sleep(1)
 		read_rfx()
 		
-	if rfxcmd_rawcmd:
+	if cmdarg.rawcmd:
 		timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-		if printout_complete == True:
+		if cmdarg.printout_complete == True:
 			print "------------------------------------------------"
-			print "Send\t\t\t= " + ByteToHex( rfxcmd_rawcmd.decode('hex') )
+			print "Send\t\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex') )
 			print "Date/Time\t\t= " + timestamp
-			print "Packet Length\t\t= " + ByteToHex(rfxcmd_rawcmd.decode('hex')[0])
+			print "Packet Length\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex')[0] )
 			try:
-				decodePacket( rfxcmd_rawcmd.decode('hex') )
+				decodePacket( cmdarg.rawcmd.decode('hex') )
 			except KeyError:
 				print "Error: unrecognizable packet"
 
-		serialport.write( rfxcmd_rawcmd.decode('hex') )
+		serialport.write( cmdarg.rawcmd.decode('hex') )
 		time.sleep(1)
 		read_rfx()
 
@@ -2441,34 +2560,34 @@ if rfxcmd_action == "send":
 # BSEND
 # ----------------------------------------------------------------------------
 
-if rfxcmd_action == "bsend":
+if cmdarg.action == "bsend":
 	
 	logdebug('Action: bsend')
 	
 	# Remove any whitespaces
-	rfxcmd_rawcmd = rfxcmd_rawcmd.replace(' ', '')
-	logdebug('rawcmd: ' + rfxcmd_rawcmd)
+	cmdarg.rawcmd = cmdarg.rawcmd.replace(' ', '')
+	logdebug('rawcmd: ' + cmdarg.rawcmd)
 	
 	# Test the string if it is hex format
 	try:
-		int(rfxcmd_rawcmd,16)
+		int(cmdarg.rawcmd,16)
 	except ValueError:
 		print "Error: invalid rawcmd, not hex format"
 		sys.exit(1)		
 	
 	# Check that first byte is not 00
-	if ByteToHex(rfxcmd_rawcmd.decode('hex')[0]) == "00":
+	if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
 		print "Error: invalid rawcmd, first byte is zero"
 		sys.exit(1)
 	
 	# Check if string is the length that it reports to be
-	cmd_len = int( ByteToHex(rfxcmd_rawcmd.decode('hex')[0]),16 )
-	if not len(rfxcmd_rawcmd.decode('hex')) == (cmd_len + 1):
+	cmd_len = int( ByteToHex( cmdarg.rawcmd.decode('hex')[0]),16 )
+	if not len(cmdarg.rawcmd.decode('hex')) == (cmd_len + 1):
 		print "Error: invalid rawcmd, invalid length"
 		sys.exit(1)
 
-	if rfxcmd_rawcmd:
-		serialport.write( rfxcmd_rawcmd.decode('hex') )
+	if cmdarg.rawcmd:
+		serialport.write( cmdarg.rawcmd.decode('hex') )
 	
 # ----------------------------------------------------------------------------
 # CLOSE SERIAL CONNECTION
