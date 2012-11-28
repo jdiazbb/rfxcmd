@@ -136,3 +136,18 @@ sqlite>
 }}}
 
 Now the Sqlite database is ready to use.
+
+== Configuration in RFXCMD ==
+
+To be able to insert data from RFXCMD, the Sqlite has to be configured in the RFXCMD config file, config.xml. There are two XML tags that needs to be filled.
+
+<sqlite_database> and <sqlite_table>
+
+If using the same parameters as the example above, the settings would be following
+
+{{{
+<sqlite_database>/temp/database.sqlite</sqlite_database>
+<sqlite_table>rfxcmd</sqlite_table>
+}}}
+
+Done.
