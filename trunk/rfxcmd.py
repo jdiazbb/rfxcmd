@@ -2290,21 +2290,6 @@ else:
 	print "Error: Configuration file not found (" + cmdarg.configfile + ")"
 	logerror('Error: Configuration file not found (' + cmdarg.configfile + ')')
 
-	config.undecoded = False
-	
-	config.mysql_server = ""
-	config.mysql_database = ""
-	config.mysql_username = ""
-	config.mysql_password = ""
-
-	config.trigger = False
-
-	config.sqlite_database = ""
-	config.sqlite_table = ""
-	
-	config.graphite_server = ""
-	config.graphite_port = ""
-
 # ----------------------------------------------------------------------------
 # SIMULATE
 # ----------------------------------------------------------------------------
