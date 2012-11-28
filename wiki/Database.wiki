@@ -60,6 +60,39 @@ Sensor specific data fields:
 
 Sqlite is a lightweight open source database. For easy management via web interface the [http://code.google.com/p/phpliteadmin/ phpliteadmin] can be used.
 
+== Create database ==
+
+At the command prompt;
+
+{{{
+# sqlite3 database.sqlite
+}}}
+
+At the sqlite command prompt, list the database and then quit
+
+{{{
+sqlite> .databases
+sqlite> .quit
+}}}
+
+Example:
+
+{{{
+$sqlite3 database.sqlite
+SQLite version 3.7.12 2012-04-03 19:43:07
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";"
+sqlite> .databases
+seq  name             file                                                      
+---  ---------------  ----------------------------------------------------------
+0    main             /Users/sebby 1/Projects/GoogleCode/RFXCMD/svn/trunk/databa
+sqlite> .quit
+$}}}
+
+Now the database file should have been created
+
+{{{
+
 == Create table ==
 
 {{{
