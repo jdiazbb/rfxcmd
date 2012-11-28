@@ -65,7 +65,7 @@ Sqlite is a lightweight open source database. For easy management via web interf
 At the command prompt;
 
 {{{
-# sqlite3 database.sqlite
+$ sqlite3 database.sqlite
 }}}
 
 At the sqlite command prompt, list the database and then quit
