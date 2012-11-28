@@ -246,7 +246,7 @@ def daemonize():
 	if cmdarg.createpid == True:
 		pid = str(os.getpid())
 		logdebug("Writing PID " + pid + " to " + str(cmdarg.pidfile))
-		file(config.pidfile, 'w').write("%s\n" % pid)
+		file(cmdarg.pidfile, 'w').write("%s\n" % pid)
 
 # ----------------------------------------------------------------------------
 # Send data to graphite
