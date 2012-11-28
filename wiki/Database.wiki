@@ -87,7 +87,8 @@ seq  name             file
 ---  ---------------  ----------------------------------------------------------
 0    main             /Users/sebby 1/Projects/GoogleCode/RFXCMD/svn/trunk/databa
 sqlite> .quit
-$}}}
+$
+}}}
 
 Now the database file should have been created
 
