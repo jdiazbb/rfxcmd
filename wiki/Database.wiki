@@ -51,6 +51,7 @@ Sensor specific data fields:
 ||0x5A||id1||id2||count||-||-||-||-||instant||total||-||-||-||-||
 ||0x5B||id1||id2||count||-||-||-||-||ch1||ch2||ch3||total||-||-||
 ||0x5D||id1||id2||-||-||-||-||-||weight||-||-||-||-||-||
+||0x70||id1||-||-||-||-||-||-||msg1-msg2||-||-||-||-||-||
 ||0x72||housecode1||housecode2||address||cmnd1||cmnd2||-||-||-||-||-||-||-||-||
 
 = MySQL =
