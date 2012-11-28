@@ -1,7 +1,7 @@
 #summary RFXCMD version history
 = Version History =
 
-== v0.2 BETA (22-NOV-2012) ==
+== v0.2 (28-NOV-2012) ==
  
  * Fix for "Issue #5: Crash with wind4 sensor (fix included)"
  * Added decode for sensor 0x55 (Rain sensor)
@@ -16,6 +16,14 @@
  * Fixed Lightning1 subtypes
  * Added possibility to start RFXCMD as daemon (Credit: George Henze)
  * Fixed decode packet handling for unrecognizable packets, will output error instead of crash
+ * Fixed error "No handlers could be found for logger rfxcmd"
+ * Added revision and date information in source header
+ * Added -v switch for version, revision and date printout
+ * Added decode for sensor 0x12 (Lightning3)
+ * Improved temperature decoding
+ * Fixed decoding of 0x40
+ * Graphite improvements
+ * Removal of most global variables
 
 == v0.1k (14-OCT-2012) ==
 
