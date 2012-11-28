@@ -210,7 +210,7 @@ Battery       = OK
 }}}
 
 ---
-== 0x70 - RFXmeter ==
+== 0x70 - RFXsensor ==
 
 {{{
 077000003F06C950
@@ -219,5 +219,25 @@ subtype       = Temperature
 Sequence nbr  = 0
 ID            = 63
 msg           = 17.37 °C
+Signal level  = 5
+}}}
+
+{{{
+077002003F01F550
+Packettype    = RFXSensor
+subtype       = Voltage
+Sequence nbr  = 0
+ID            = 63
+msg           = 501 mV
+Signal level  = 5
+}}}
+
+{{{
+077001003F001350
+Packettype    = RFXSensor
+subtype       = A/D
+Sequence nbr  = 0
+ID            = 63
+msg           = 19 mV
 Signal level  = 5
 }}}
