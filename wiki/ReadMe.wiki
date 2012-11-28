@@ -105,18 +105,14 @@ option -m
 }}}
 	
 Tell rfxcmd to add the incoming sensor data to MySQL database.
-
 	
 To be able to use the MySQL function you need to have the MySQL python extension installed, more
 information can be found here; http://mysql-python.sourceforge.net/
 
-
 You need also to create the compatible tables for RFXCMD to be able to insert the data to the
 database.
-
 	
 At current moment there are tables made for following messages
-
 	
 ====File mysql_weather.txt====
 
@@ -154,6 +150,12 @@ Example;
 }}}
 
 The default value for server is localhost and the default value for database is rfxcmd
+
+{{{
+option -s
+}}}
+
+
 
 ----
 ==CONFIG.XML==
