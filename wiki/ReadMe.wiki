@@ -14,14 +14,18 @@ RFXCMD is Python script that interfaces the RFX USB devices from RFXcom [www.rfx
 
 Options;
 
-||-d||serial device of the RFX device||
+||-d||Serial device of the RFX device||
 ||-a||Action: LISTEN, STATUS, SEND, BSEND||
 ||-o||Optional path and file for the configuration file||
 ||-x||Simulate||
 ||-r||Message to be sent to RFX||
-||-c||output data in CSV format, one line per device data||
-||-m||Insert all data to a MySQL database||
- 
+||-c||Output data in CSV format, one line per device data||
+||-m||Insert data to a MySQL database||
+||-s||Insert data to a Sqlite database||
+||-v||Print version and date||
+||-g||Send data to graphite server||
+||-z||Start as an daemon||
+||-p||Pidfile||
 
 {{{
 option -d <device>
