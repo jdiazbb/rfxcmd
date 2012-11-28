@@ -23,8 +23,8 @@
 #	Version history can be found at 
 #	http://code.google.com/p/rfxcmd/wiki/VersionHistory
 #
-#	$Rev$
-#	$Date$
+#	$Rev: 153 $
+#	$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $
 #
 #	NOTES
 #	
@@ -193,8 +193,8 @@ sw_name = "RFXCMD"
 sw_version = "0.2"
 
 logdebug(sw_name + ' ' + sw_version)
-logdebug("$Date$")
-logdebug("$Rev$")
+logdebug("$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $")
+logdebug("$Rev: 153 $")
 
 # ----------------------------------------------------------------------------
 # DEAMONIZE
@@ -246,7 +246,7 @@ def daemonize():
 	if cmdarg.createpid == True:
 		pid = str(os.getpid())
 		logdebug("Writing PID " + pid + " to " + str(cmdarg.pidfile))
-		file(cmdarg.pidfile, 'w').write("%s\n" % pid)
+		file(config.pidfile, 'w').write("%s\n" % pid)
 
 # ----------------------------------------------------------------------------
 # Send data to graphite
@@ -1734,8 +1734,8 @@ def read_trigger():
 
 def print_version():
  	print sw_name + " Version: " + sw_version
- 	print "$Date$"
- 	print "$Rev$"
+ 	print "$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $"
+ 	print "$Rev: 153 $"
  	sys.exit(0)
 
 # ----------------------------------------------------------------------------
@@ -2360,10 +2360,9 @@ else:
 # Open serial port
 try:  
 	serialport = serial.Serial(config.device, 38400, timeout=9)
-except:
-	logerror("Error: Failed to connect on device " + config.device)
-	print "Error: Failed to connect on device " + config.device
-	logdebug("Exit 1")
+except:  
+	print "Error: Failed to connect on " + device
+	logdebug('sys.exit(1)')
 	sys.exit(1)
 
 already_open = serialport.isOpen()
