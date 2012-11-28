@@ -97,12 +97,12 @@ $
 
 == Create table ==
 
-In the RFXCMD there is a text file called 'rfxcmd_sqlite.txt' which contains the table setup for Sqlite. To create the table, it can be imported directly from the file.
+In the RFXCMD there is a text file called 'rfxcmd_sqlite.txt' which contains the table setup for Sqlite. To create the table, it can be imported directly from the file, from the Sqlite shell.
 
 Example;
 
 {{{
-sqlite> .read ./rfxcmd_sqlite.txt
+sqlite> .read rfxcmd_sqlite.txt
 sqlite> .tables
 rfxcmd
 sqlite> .schema rfxcmd
@@ -130,3 +130,5 @@ CREATE TABLE 'rfxcmd' (
 'data13' INTEGER);
 sqlite>
 }}}
+
+Now the Sqlite database is ready to use.
