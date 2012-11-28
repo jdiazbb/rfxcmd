@@ -155,7 +155,44 @@ The default value for server is localhost and the default value for database is 
 option -s
 }}}
 
+Tell rfxcmd to add the incoming sensor data to Sqlite database.
 
+This function is still experimental and only works with these sensor 0x50 and 0x52. This will be expanded for version 0.3, and is under work.
+
+{{{
+option -g
+}}}
+
+Send data to graphite server, more about graphite server can be found here [http://graphite.wikidot.com/]. This is only activated for sensor 0x52 but can be expanded.
+
+Configuration for the graphite server can be found in the config.xml file, the server IP address and the port can be configured.
+
+{{{
+<graphite_server>127.0.0.1</graphite_server>
+<graphite_port>2003</graphite_port>
+}}}
+
+{{{
+option -d
+}}}
+
+Start the RFXCDMD as a daemon process, it will run in the background until it is terminated manually.
+
+The switch '-p' for pidfile is mandantory.
+
+{{{
+option -v
+}}}
+
+Print version, revision and date.
+
+Example;
+
+{{{
+RFXCMD Version: 0.2
+$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $
+$Rev: 153 $
+}}}
 
 ----
 ==CONFIG.XML==
