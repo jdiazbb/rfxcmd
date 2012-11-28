@@ -190,7 +190,7 @@ except ImportError:
 # ----------------------------------------------------------------------------
 
 sw_name = "RFXCMD"
-sw_version = "0.2 (BETA)"
+sw_version = "0.2"
 
 logdebug(sw_name + ' ' + sw_version)
 logdebug("$Date$")
