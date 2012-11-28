@@ -75,6 +75,8 @@ sqlite> .databases
 sqlite> .quit
 }}}
 
+Now the database file should have been created
+
 Example:
 
 {{{
@@ -87,10 +89,12 @@ seq  name             file
 ---  ---------------  ----------------------------------------------------------
 0    main             /Users/sebby 1/Projects/GoogleCode/RFXCMD/svn/trunk/databa
 sqlite> .quit
+$ ls -la database.sqlite 
+-rw-r--r--  1 user  staff  0 Nov 28 20:36 database.sqlite
 $
 }}}
 
-Now the database file should have been created
+
 
 {{{
 
