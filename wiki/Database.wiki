@@ -87,7 +87,7 @@ Enter SQL statements terminated with a ";"
 sqlite> .databases
 seq  name             file                                                      
 ---  ---------------  ----------------------------------------------------------
-0    main             /Users/sebby 1/Projects/GoogleCode/RFXCMD/svn/trunk/databa
+0    main             /temp/database.sqlite
 sqlite> .quit
 $ ls -la database.sqlite 
 -rw-r--r--  1 user  staff  0 Nov 28 20:36 database.sqlite
