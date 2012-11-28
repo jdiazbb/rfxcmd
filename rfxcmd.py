@@ -2360,9 +2360,10 @@ else:
 # Open serial port
 try:  
 	serialport = serial.Serial(config.device, 38400, timeout=9)
-except:  
-	print "Error: Failed to connect on " + device
-	logdebug('sys.exit(1)')
+except:
+	logerror("Error: Failed to connect on device " + config.device)
+	print "Error: Failed to connect on device " + config.device
+	logdebug("Exit 1")
 	sys.exit(1)
 
 already_open = serialport.isOpen()
