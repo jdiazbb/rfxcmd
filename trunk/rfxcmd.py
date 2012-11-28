@@ -197,27 +197,6 @@ logdebug("$Date$")
 logdebug("$Rev$")
 
 # ----------------------------------------------------------------------------
-# DEFAULT CONFIGURATION PARAMETERS
-# ----------------------------------------------------------------------------
-
-# If the config.xml does not exist, or can not be loaded, this is the
-# default configuration which will be used
-'''
-config.undecoded = False
-config.mysql_server = ""
-config.mysql_database = ""
-config.mysql_username = ""
-config.mysql_password = ""
-config.sqlite_database = ""
-config.sqlite_table = ""
-config.trigger = False
-config.graphite_server = ""
-config.graphite_port = ""
-config.createpid = False
-config.pidfile = ""
-'''
-
-# ----------------------------------------------------------------------------
 # DEAMONIZE
 # Credit: George Henze
 # ----------------------------------------------------------------------------
@@ -1570,6 +1549,12 @@ def decodePacket( message ):
 			temperature = float(decodeTemperature(message[5], message[6]))
 			temperature = temperature * 0.1
 
+		# Voltage
+		if subtype == '01' or subtype == '02':
+			voltage_hi = int(ByteToHex(message[5]), 16) * 256
+			voltage_lo = int(ByteToHex(message[6]), 16)
+			voltage = voltage_hi + voltage_lo
+
 		# Signal
 		signal = decodeSignal(message[7])
 
@@ -1582,12 +1567,10 @@ def decodePacket( message ):
 				print "Temperature\t\t= " + str(temperature) + " C"
 
 			if subtype == '01' or subtype == '02':
-				print "Msg1\t\t\t= " + str(int(ByteToHex(message[5]), 16))
-				print "Msg2\t\t\t= " + str(int(ByteToHex(message[6]), 16))
+				print "Voltage\t\t\t= " + str(voltage) + " mV"
 
 			if subtype == '03':
-				print "Msg1\t\t\t= " + str(int(ByteToHex(message[5]), 16))
-				print "Msg2\t\t\t= " + str(int(ByteToHex(message[6]), 16))
+				print "Message\t\t\t= " + rfx_subtype_70_msg03[message[6]]
 
 			print "Signal level\t\t= " + str(signal)
 
@@ -2069,6 +2052,14 @@ rfx_subtype_70 = {"00":"RFXSensor temperature",
 					"01":"RFXSensor A/S",
 					"02":"RFXSensor voltage",
 					"03":"RFXSensor message"}
+					
+rfx_subtype_70_msg03 = {"01":"Sensor addresses incremented",
+						"02":"Battery low detected",
+						"81":"No 1-wire device connected",
+						"82":"1-Wire ROM CRC error",
+						"83":"1-Wire device connected is not a DS18B20 or DS2438",
+						"84":"No end of read signal received from 1-Wire device",
+						"85":"1-Wire scratchpad CRC error"}
 					
 rfx_subtype_71 = {"00":"Normal data packet",
 					"01":"New interval time set",
