@@ -56,6 +56,10 @@ Sensor specific data fields:
 
 = MySQL =
 
+{{{
+Coming soon....
+}}}
+
 = Sqlite =
 
 Sqlite is a lightweight open source database. For easy management via web interface the [http://code.google.com/p/phpliteadmin/ phpliteadmin] can be used.
