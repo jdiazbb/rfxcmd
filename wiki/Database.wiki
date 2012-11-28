@@ -64,7 +64,7 @@ Coming soon....
 
 Sqlite is a lightweight open source database. For easy management via web interface the [http://code.google.com/p/phpliteadmin/ phpliteadmin] can be used.
 
-== Create database ==
+=== Create database ===
 
 At the command prompt;
 
@@ -99,7 +99,7 @@ $
 }}}
 
 
-== Create table ==
+=== Create table ===
 
 In the RFXCMD there is a text file called 'rfxcmd_sqlite.txt' which contains the table setup for Sqlite. To create the table, it can be imported directly from the file, from the Sqlite shell.
 
@@ -137,7 +137,7 @@ sqlite>
 
 Now the Sqlite database is ready to use.
 
-== Configuration in RFXCMD ==
+=== Configuration in RFXCMD ===
 
 To be able to insert data from RFXCMD, the Sqlite has to be configured in the RFXCMD config file, config.xml. There are two XML tags that needs to be filled.
 
