@@ -1,0 +1,37 @@
+/*
+	
+	RFXCMD_MYSQL.TXT
+	
+	MySQL table configuration for RFXCMD
+	
+	Version history
+	
+	R1A 29-NOV-2012 Sebastian Sjoholm
+		* Created
+
+*/
+
+CREATE TABLE `rfxcmd` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `datetime` datetime DEFAULT NULL,
+  `packettype` int(11) DEFAULT NULL,
+  `subtype` int(11) DEFAULT NULL,
+  `seqnbr` int(11) DEFAULT NULL,
+  `battery` int(11) DEFAULT NULL,
+  `signal` int(11) DEFAULT NULL,
+  `processed` int(11) DEFAULT NULL,
+  `data1` int(11) DEFAULT NULL,
+  `data2` int(11) DEFAULT NULL,
+  `data3` int(11) DEFAULT NULL,
+  `data4` int(11) DEFAULT NULL,
+  `data5` int(11) DEFAULT NULL,
+  `data6` int(11) DEFAULT NULL,
+  `data7` int(11) DEFAULT NULL,
+  `data8` float(10,2) DEFAULT NULL,
+  `data9` float(10,2) DEFAULT NULL,
+  `data10` float(10,2) DEFAULT NULL,
+  `data11` float(10,2) DEFAULT NULL,
+  `data12` float(10,2) DEFAULT NULL,
+  `data13` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
