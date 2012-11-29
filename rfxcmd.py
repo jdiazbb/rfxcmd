@@ -53,7 +53,7 @@ from optparse import OptionParser
 from socket import socket
 
 # ----------------------------------------------------------------------------
-# CONFIG CLASS
+# VARIABLE CLASSS
 # ----------------------------------------------------------------------------
 
 class config_data:
@@ -954,20 +954,9 @@ def decodePacket( message ):
 	if packettype == '50':
 	
 		decoded = True
-		temp_high = ByteToHex(message[6])
-		temp_low = ByteToHex(message[7])
-		
-		polarity = testBit(int(temp_high,16),7)
 
-		if polarity == 128:
-			polarity_sign = "-"
-		else:
-			polarity_sign = ""
-
-		temp_high = clearBit(int(temp_high,16),7)
-		temp_high = temp_high << 8
-		temperature = ( temp_high + int(temp_low,16) ) * 0.1
-		temperature_str = polarity_sign + str(temperature)
+		# Temperature
+		temperature = decodeTemperature(message[6], message[7])
 
 		# Battery & Signal
 		signal = decodeSignal(message[8])
@@ -979,7 +968,7 @@ def decodePacket( message ):
 			print "Id 1\t\t\t= " + id1
 			print "Id 2\t\t\t= " + id2
 			
-			print "Temperature\t\t= " + temperature_str + " C"
+			print "Temperature\t\t= " + temperature + " C"
 			
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
@@ -987,7 +976,7 @@ def decodePacket( message ):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
-							temperature_str, str(battery), str(signal) ) )
+							temperature, str(battery), str(signal) ) )
 
 		if cmdarg.mysql:
 
@@ -999,7 +988,7 @@ def decodePacket( message ):
 				cursor.execute("INSERT INTO weather \
 				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, battery, signal_level) VALUES \
 				('%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, battery, signal))
+				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, battery, signal))
 				
 				db.commit()
 
@@ -1015,23 +1004,9 @@ def decodePacket( message ):
 
 		if cmdarg.sqlite:
 			try:
-				cx = sqlite3.connect(config.sqlite_database)
-				cu = cx.cursor()
-				sql = """
-					INSERT INTO rfxcmd (datetime, packettype, subtype, seqnbr, battery, signal, id1, id2, data8)
-					VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s')
-					""" % (timestamp, packettype, subtype, seqnbr, battery, signal, id1, id2, float(data8))
-
-				cu.execute(sql)
-				cx.commit()
-				
-			except sqlite3.Error, e:
-			
-				print "Error: (SQLite Query) " + str(e)
-				sys.exit(1)
-			
-			finally:
-				cx.close()
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, id1, id2, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
 	# ---------------------------------------
 	# 0x51 - Humidity sensors
