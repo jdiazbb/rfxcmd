@@ -1,3 +1,16 @@
+/*
+	
+	RFXCMD_SQLITE.TXT
+	
+	SQLITE table configuration for RFXCMD
+	
+	Version history
+	
+	R1A 29-NOV-2012 Sebastian Sjoholm
+		* Created
+
+*/
+
 CREATE TABLE 'rfxcmd' (
 'id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
 'datetime' TEXT, 
@@ -19,4 +32,4 @@ CREATE TABLE 'rfxcmd' (
 'data10' REAL, 
 'data11' REAL, 
 'data12' REAL, 
-'data13' INTEGER);
+'data13' TEXT);
