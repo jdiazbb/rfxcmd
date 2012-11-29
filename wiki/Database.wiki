@@ -13,8 +13,8 @@ Still in development
 The fields that all sensors have common:
 
 ||DB||id||Datetime||Packettype||Subtype||Seqnbr||Battery||Signal||Processed||
-||MySQL||integer||Datetime||integer||integer||integer||integer||integer||integer||
-||Sqlite||integer||text||integer||integer||integer||integer||integer||integer||
+||MySQL||integer||Datetime||varchar(2)||varchar(2)||varchar(2)||varchar(2)||integer||integer||
+||Sqlite||integer||text||text||text||text||text||integer||integer||
 
 Note, that battery is not used for all sensors, this case it will be 255.
 
