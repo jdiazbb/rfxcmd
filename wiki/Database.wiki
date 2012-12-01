@@ -6,7 +6,8 @@ This document is under work, the plan is to have a generalized database table th
 
 = Version =
 
-Still in development 
+||Version||Date||Info||
+||PA1||1-DEC-2012||First version||
 
 = Details =
 
