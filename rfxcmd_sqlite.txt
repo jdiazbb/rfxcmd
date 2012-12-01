@@ -14,9 +14,9 @@
 CREATE TABLE 'rfxcmd' (
 'id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
 'datetime' TEXT, 
-'packettype' INTEGER, 
-'subtype' INTEGER, 
-'seqnbr' INTEGER, 
+'packettype' TEXT, 
+'subtype' TEXT, 
+'seqnbr' TEXT, 
 'battery' INTEGER, 
 'signal' INTEGER, 
 'processed' INTEGER, 
