@@ -338,6 +338,40 @@ def split_len(seq, length):
 	return [seq[i:i+length] for i in range(0, len(seq), length)]
 
 # ----------------------------------------------------------------------------
+# Insert data to MySQL
+# ----------------------------------------------------------------------------
+
+def insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
+	data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
+
+	try:
+
+		if data13 == 0:
+			data13 = "0000-00-00 00:00:00"
+
+		db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
+		cursor = db.cursor()
+		sql = """
+			INSERT INTO rfxcmd (datetime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
+				data5, data6, data7, data8, data9, data10, data11, data12, data13)
+			VALUES ('%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
+			""" % (timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, data4, data5, data6, data7, 
+				data8, data9, data10, data11, data12, data13)
+		
+		cursor.execute(sql)
+		db.commit()
+
+	except MySQLdb.Error, e:
+
+		logerror("SqLite error: %d: %s" % (e.args[0], e.args[1]))
+		print "MySQL error %d: %s" % (e.args[0], e.args[1])
+		sys.exit(1)
+
+	finally:
+		if db:
+			db.close()
+
+# ----------------------------------------------------------------------------
 # Insert data to SqLite 
 # ----------------------------------------------------------------------------
 
@@ -345,27 +379,29 @@ def insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, data1
 	data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
 
 	try:
+
 		cx = sqlite3.connect(config.sqlite_database)
 		cu = cx.cursor()
 		sql = """
-			INSERT INTO '%s' (datetime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, data4,
+			INSERT INTO '%s' (datetime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
 				data5, data6, data7, data8, data9, data10, data11, data12, data13)
-			VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
-			""" % (config.sqlite_table, timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, \
-				data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
+			VALUES('%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
+			""" % (config.sqlite_table, timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
+				data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
 
 		cu.executescript(sql)
 		cx.commit()
 				
-	except sqlite3.Error, e:	
+	except sqlite3.Error, e:
+
 		if cx:
 			cx.rollback()
 			
-			logerror("SqLite error: " + str(e))
-			print "SqLite error: " + str(e)
-			sys.exit(1)
+		logerror("SqLite error: %s" % e.args[0])
+		print "SqLite error: %s" % e.args[0]
+		sys.exit(1)
 			
-	finally:	
+	finally:
 		if cx:
 			cx.close()
 
@@ -626,16 +662,42 @@ def decodePacket( message ):
 
 		decoded = True
 		
+		# Housecode
+		housecode = rfx_subtype_10_housecode[ByteToHex(message[4])]
+
+		# Unitcode
+		unitcode = int(ByteToHex(message[5]), 16)
+
+		# Command
+		command = ByteToHex(message[6])
+
 		# Signal		
 		signal = decodeSignal(message[7])
 
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_10[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Housecode\t\t= " + ByteToHex(message[4])
-			print "Unitcode\t\t= " + ByteToHex(message[5])
-			print "Command\t\t\t= " + ByteToHex(message[6])
+			print "Housecode\t\t= " + housecode
+			print "Unitcode\t\t= " + str(unitcode)
+			print "Command\t\t\t= " + command
 			print "Signal level\t\t= " + str(signal)
+
+		if cmdarg.printout_csv == True:
+		
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
+
+		if cmdarg.mysql:
+			try:
+				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
+
+		if cmdarg.sqlite:
+			try:
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
 	# ---------------------------------------
 	# 0x11 Lighting2
@@ -1091,23 +1153,25 @@ def decodePacket( message ):
 		# Battery & Signal
 		signal = decodeSignal(message[10])
 		battery = decodeBattery(message[10])
+
+		# Id
+		sensor_id = id1 + id2
 		
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_52[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id 1 (House)\t\t= " + id1
-			print "Id 2 (Channel)\t\t= " + id2
+			print "Id\t\t\t= " + sensor_id
 			
 			print "Temperature\t\t= " + temperature + " C"
-			print "Humidity\t\t= " + str(humidity)
+			print "Humidity\t\t= " + str(humidity) + "%"
 			
-			if humidity_status == '00':
+			if humidity_status == 0:
 				print "Humidity Status\t\t= Dry"
-			elif humidity_status == '01':
+			elif humidity_status == 1:
 				print "Humidity Status\t\t= Comfort"
-			elif humidity_status == '02':
+			elif humidity_status == 2:
 				print "Humidity Status\t\t= Normal"
-			elif humidity_status == '03':
+			elif humidity_status == 3:
 				print "Humidity Status\t\t= Wet"
 			else:
 				print "Humidity Status\t\t= Unknown"
@@ -1117,44 +1181,29 @@ def decodePacket( message ):
 		
 		if cmdarg.printout_csv == True:
 		
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, id1, id2,
-							temperature, str(humidity), humidity_status, 
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, sensor_id,
+							temperature, str(humidity), str(humidity_status), 
 							str(battery), str(signal)) )
 		
 		if cmdarg.graphite == True:
 			now = int( time.time() )
 			linesg=[]
-			linesg.append("%s.%s.temperature %s %d" % ( id1, id2, temperature,now))
-			linesg.append("%s.%s.humidity %s %d" % ( id1, id2, humidity,now))
-			linesg.append("%s.%s.battery %s %d" % ( id1, id2, battery,now))
-			linesg.append("%s.%s.signal %s %d"% ( id1, id2, signal,now))
+			linesg.append("%s.%s.temperature %s %d" % ( sensor_id, temperature,now))
+			linesg.append("%s.%s.humidity %s %d" % ( sensor_id, humidity,now))
+			linesg.append("%s.%s.battery %s %d" % ( sensor_id, battery,now))
+			linesg.append("%s.%s.signal %s %d"% ( sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
 		if cmdarg.mysql:
-
 			try:
-				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
-				cursor = db.cursor()
-
-				cursor.execute("INSERT INTO weather \
-				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, humidity, humidity_status, battery, signal_level) VALUES \
-				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, humidity, humidity_status, battery, signal ))
-				
-				db.commit()
-
-			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
-				sys.exit(1)
-
-			finally:
-				if db:
-					db.close()
+				insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, humidity, humidity_status, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
 		if cmdarg.sqlite:
 			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, id1, id2, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, humidity, humidity_status, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 			except Exception, e:
 				raise e
 
@@ -1421,6 +1470,7 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
+		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
@@ -1523,12 +1573,16 @@ def decodePacket( message ):
 		if subtype == '00':
 			temperature = float(decodeTemperature(message[5], message[6]))
 			temperature = temperature * 0.1
+		else:
+			temperature = 0
 
 		# Voltage
 		if subtype == '01' or subtype == '02':
 			voltage_hi = int(ByteToHex(message[5]), 16) * 256
 			voltage_lo = int(ByteToHex(message[6]), 16)
 			voltage = voltage_hi + voltage_lo
+		else:
+			voltage = 0
 
 		# Signal
 		signal = decodeSignal(message[7])
@@ -1536,7 +1590,7 @@ def decodePacket( message ):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_70[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id 1\t\t\t= " + id1
+			print "Id\t\t\t= " + id1
 
 			if subtype == '00':
 				print "Temperature\t\t= " + str(temperature) + " C"
@@ -1548,6 +1602,38 @@ def decodePacket( message ):
 				print "Message\t\t\t= " + rfx_subtype_70_msg03[message[6]]
 
 			print "Signal level\t\t= " + str(signal)
+
+		# CSV
+		if cmdarg.printout_csv == True:
+			if subtype == '00':
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), id1, str(temperature)))
+			if subtype == '01' or subtype == '02':
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
+
+		# GRAPHITE
+		if cmdarg.graphite == True:
+			now = int( time.time() )
+			linesg=[]
+			if subtype == '00':
+				linesg.append("%s.%s.temperature %s %d" % ( id1, temperature, now ))
+			if subtype == '01':
+				linesg.append("%s.%s.voltage %s %d" % ( id1, voltage, now ))
+			linesg.append("%s.%s.signal %s %d"% ( id1, signal, now ))
+			send_graphite(config.graphite_server, config.graphite_port, linesg)
+
+		# MYSQL
+		if cmdarg.mysql:
+			try:
+				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
+
+		# SQLITE
+		if cmdarg.sqlite:
+			try:
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
 	# ---------------------------------------
 	# Not decoded message
@@ -1842,6 +1928,23 @@ rfx_subtype_10 = {"00":"X10 Lightning",
 					"05":"IMPULS",
 					"06":"RisingSun",
 					"07":"Philips SBC"}
+
+rfx_subtype_10_housecode = {"41":"A",
+							"42":"B",
+							"43":"C",
+							"44":"D",
+							"45":"E",
+							"46":"F",
+							"47":"G",
+							"48":"H",
+							"49":"I",
+							"4A":"J",
+							"4B":"K",
+							"4C":"L",
+							"4D":"M",
+							"4E":"N",
+							"4F":"O",
+							"50":"P"}
 
 rfx_subtype_10_cmnd = {"00":"Off",
 						"01":"On",
@@ -2277,7 +2380,6 @@ if options.simulate:
  			triggerlist = [ message, action ]
 
 	indata = options.simulate
-	print "------------------------------------------------"
 	
 	# remove all spaces
 	for x in string.whitespace:
@@ -2285,13 +2387,16 @@ if options.simulate:
 	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 	
-	print "Received\t\t= " + indata
-	print "Date/Time\t\t= " + timestamp
+	if cmdarg.printout_complete:
+		print "------------------------------------------------"
+		print "Received\t\t= " + indata
+		print "Date/Time\t\t= " + timestamp
 	
 	# Verify that the incoming value is hex
 	try:
 		hexval = int(indata, 16)
 	except:
+		logerror("Error: the input data is invalid hex value")
 		print "Error: the input data is invalid hex value"
 		exit()
 	
@@ -2299,6 +2404,7 @@ if options.simulate:
 	try:
 		message = indata.decode("hex")
 	except:
+		logerror("Error: the input data is not valid")
 		print "Error: the input data is not valid"
 		exit()
 	
@@ -2306,6 +2412,7 @@ if options.simulate:
 	try:
 		decodePacket( message )
 	except KeyError:
+		logerror("Error: unrecognizable packet")
 		print "Error: unrecognizable packet"
 
 	if config.trigger:
