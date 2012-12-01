@@ -68,6 +68,7 @@ Sensor specific data fields:
 ||0x70||id||msg1||msg2||-||-||-||voltage||temperature||-||-||-||-||-||
 ||0x71||id1-id2||count3||count4||count2||count1||-||-||-||-||-||-||-||-||
 ||0x72||housecode||group address||sub address||cmd1_hi||cmd1_lo||-||-||cmd2||-||-||-||-||-||
+||0x80||not implemented||-||-||-||-||-||-||-||-||-||-||-||-||
 
 = MySQL =
 
