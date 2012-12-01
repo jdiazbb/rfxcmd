@@ -31,17 +31,19 @@ Notes
 Sensor specific data fields:
 
 || ||data1||data2||data3||data4||data5||data6||data7||data8||data9||data10||data11||data12||data13||
-||MySQL||varchar(8)||varchar(2)||varchar(2)||varchar(2)||integer||integer||integer||float||float||float||float||float||datetime||
-||Sqlite||text||text||text||text||integer||integer||integer||real||real||real||real||real||text||
-||0x02||response||-||-||-||-||-||-||-||-||-||-||-||-||
-||0x10||housecode||unitcode||cmnd||-||-||-||-||-||-||-||-||-||-||
-||0x11||id1-id4||-||-||-||unitcode||cmnd||level||-||-||-||-||-||-||
-||0x12||system||channel||cmnd||-||-||-||-||-||-||-||-||-||-||
-||0x13||cmd||pulse||-||-||-||-||-||-||-||-||-||-||-||
-||0x14||id1||id2||id3||unitcode||cmnd||-||-||-||-||-||-||-||-||
-||0x15||id1||id2||groupcode||unitcode||cmnd||cmndseqnbr||rfu||-||-||-||-||-||-||
-||0x18||housecode|| unitcode || cmnd || - || - || - || - || - ||-||-||-||-||-||
-||0x19||id1 || id2|| id3 || unitcode || cmnd || - || - || - ||-||-||-||-||-||
+||MySQL||varchar(32)||varchar(2)||varchar(2)||integer||integer||integer||integer||float||float||float||float||float||datetime||
+||Sqlite||text||text||text||integer||integer||integer||integer||real||real||real||real||real||text||
+||0x01||cmnd||msg1||-||msg2||msg3||msg4||msg5||-||-||-||-||-||-||
+||0x02||msg||-||-||-||-||-||-||-||-||-||-||-||-||
+||0x03||msg1-msg33||-||-||-||-||-||-||-||-||-||-||-||-||
+||0x10||housecode||-||cmnd||housecode||-||-||-||-||-||-||-||-||-||
+||0x11||id1-id4||-||cmnd||unitcode||dimlevel||-||-||-||-||-||-||-||-||
+||0x12||system||-||cmnd||channel||-||-||-||-||-||-||-||-||-||
+||0x13||-||-||-||cmd1-3||pulse||-||-||-||-||-||-||-||-||
+||0x14||id1-id3||-||cmnd||unitcode||-||-||-||-||-||-||-||-||-||
+||0x15||id1-id2||groupcode||cmnd||unitcode||cmndseqnbr||-||-||-||-||-||-||-||-||
+||0x18||housecode||-||cmnd||unitcode||-||-||-||-||-||-||-||-||-||-||
+||0x19||id1-id3 ||-||cmnd||unitcode||-||-||-||-||-||-||-||-||-||
 ||0x20||id1 || id2|| id3 || status || - || - || - || - ||-||-||-||-||-||
 ||0x28||housecode|| cmnd || - || - || - || - || - || - ||-||-||-||-||-||
 ||0x30||id || cmnd|| toggle || cmndtype || - || - || - || - ||-||-||-||-||-||
