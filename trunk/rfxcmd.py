@@ -706,18 +706,59 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		# Signal		
-		signal = decodeSignal(message[11])
+		# Id
+		sensor_id = ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6]) + ByteToHex(message[7])
 
+		# Unitcode
+		unitcode = int(ByteToHex(message[8]),16)
+
+		# Command
+		command = ByteToHex(message[9])
+
+		# Dim level
+		try:
+			dimlevel = rfx_subtype_11_dimlevel[ByteToHex(message[10])]
+		except Exception, e:
+			dimlevel = 255
+			logerror("0x11: " + e)
+
+		# Signal
+		try:
+			signal = decodeSignal(message[11])
+		except Exception, e:
+			signal = 255
+			logerror("0x11: " + e)
+
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_11[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6]) + ByteToHex(message[7])
-			print "Unitcode\t\t= " + ByteToHex(message[8])
-			print "Command\t\t\t= " + rfx_subtype_11_cmnd[ByteToHex(message[9])]
-			print "Dim level\t\t\t= " + ByteToHex(message[10])
-			print "Signal level\t\t\t= " + str(signal)
-			
+			print "Id\t\t\t= " + sensor_id
+			print "Unitcode\t\t= " + str(unitcode)
+			print "Command\t\t\t= " + rfx_subtype_11_cmnd[command]
+			print "Dim level\t\t= " + str(dimlevel) + "%"
+			print "Signal level\t\t= " + str(signal)
+		
+		# CSV
+		if cmdarg.printout_csv == True:
+		
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), str(dimlevel) ))
+
+		# MYSQL
+		if cmdarg.mysql:
+			try:
+				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
+
+		# SQLITE
+		if cmdarg.sqlite:
+			try:
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
+
 	# ---------------------------------------
 	# 0x12 Lighting3
 	# ---------------------------------------
@@ -1017,56 +1058,41 @@ def decodePacket( message ):
 	
 		decoded = True
 
+		# Id
+		sensor_id = id1 + id2
+
 		# Temperature
 		temperature = decodeTemperature(message[6], message[7])
 
 		# Battery & Signal
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
-		
+
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_50[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id 1\t\t\t= " + id1
-			print "Id 2\t\t\t= " + id2
-			
+			print "Id\t\t\t= " + sensor_id
 			print "Temperature\t\t= " + temperature + " C"
-			
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
+		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, id1, id2,
-							temperature, str(battery), str(signal) ) )
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, sensor_id, str(battery), str(signal), temperature ))
 
+		# MYSQL
 		if cmdarg.mysql:
-
 			try:
+				insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
-				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
-				cursor = db.cursor()
-
-				cursor.execute("INSERT INTO weather \
-				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, battery, signal_level) VALUES \
-				('%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, battery, signal))
-				
-				db.commit()
-
-			except MySQLdb.Error, e:
-
-				print "Error: (MySQL Query) %d: %s" % (e.args[0], e.args[1])
-				sys.exit(1)
-
-			finally:
-
-				if db:
-					db.close()
-
+		# SQLITE
 		if cmdarg.sqlite:
 			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, id1, id2, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 			except Exception, e:
 				raise e
 
@@ -1953,7 +1979,7 @@ rfx_subtype_10_cmnd = {"00":"Off",
 						"04":"All/Group Off",
 						"05":"All/Group On",
 						"07":"Chime",
-						"ff":"Illegal cmnd received"}
+						"FF":"Illegal cmnd received"}
 
 rfx_subtype_11 = {"00":"AC",
 					"01":"HomeEasy EU",
@@ -1965,6 +1991,23 @@ rfx_subtype_11_cmnd = {"00":"Off",
 						"03":"Group Off",
 						"04":"Group On",
 						"05":"Set Group Level"}
+
+rfx_subtype_11_dimlevel = {"00":"0",
+							"01":"6",
+							"02":"12",
+							"03":"18",
+							"04":"24",
+							"05":"30",
+							"06":"36",
+							"07":"42",
+							"08":"48",
+							"09":"54",
+							"0A":"60",
+							"0B":"66",
+							"0C":"72",
+							"0D":"78",
+							"0E":"84",
+							"0F":"100"}
 
 rfx_subtype_12 = {"00":"Ikea Koppla"}
 
