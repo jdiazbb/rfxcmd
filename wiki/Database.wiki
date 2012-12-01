@@ -60,7 +60,7 @@ Sensor specific data fields:
 ||0x57||id1-id2||-||-||uv||-||-||-||-||-||temperature||-||-||-||
 ||0x58||id1-id2||-||-||-||-||-||-||-||-||-||-||-||datetime||
 ||0x59||id1-id2||-||-||count||-||-||-||ch1||ch2||ch3||-||-||-||
-||0x5A||id1-id2||-||-||packetcount||-||-||-||instant||total||-||-||-||
+||0x5A||id1-id2||-||-||packetcount||-||-||-||instant||total||-||-||-||-||
 ||0x5B||id1-id2||-||-||count||-||-||-||ch1||ch2||ch3||total||-||-||
 ||0x5D||id1-id2||-||-||-||-||-||-||weight||-||-||-||-||
 ||0x5E||reserved||-||-||-||-||-||-||-||-||-||-||-||
