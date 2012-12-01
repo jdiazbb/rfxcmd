@@ -18,7 +18,7 @@ CREATE TABLE 'rfxcmd' (
 'subtype' TEXT, 
 'seqnbr' TEXT, 
 'battery' INTEGER, 
-'signal' INTEGER, 
+'rssi' INTEGER, 
 'processed' INTEGER, 
 'data1' INTEGER, 
 'data2' INTEGER, 
