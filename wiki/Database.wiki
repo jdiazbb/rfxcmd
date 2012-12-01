@@ -76,6 +76,35 @@ Sensor specific data fields:
 Coming soon....
 }}}
 
+=== Create table ===
+
+{{{
+CREATE TABLE `rfxcmd` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `datetime` datetime DEFAULT NULL,
+  `packettype` varchar(2) DEFAULT NULL,
+  `subtype` varchar(2) DEFAULT NULL,
+  `seqnbr` varchar(2) DEFAULT NULL,
+  `battery` int(2) DEFAULT NULL,
+  `rssi` int(2) DEFAULT NULL,
+  `processed` int(1) DEFAULT NULL,
+  `data1` varchar(32) DEFAULT NULL,
+  `data2` varchar(2) DEFAULT NULL,
+  `data3` varchar(2) DEFAULT NULL,
+  `data4` int(11) DEFAULT NULL,
+  `data5` int(11) DEFAULT NULL,
+  `data6` int(11) DEFAULT NULL,
+  `data7` int(11) DEFAULT NULL,
+  `data8` float(16,4) DEFAULT NULL,
+  `data9` float(16,4) DEFAULT NULL,
+  `data10` float(16,4) DEFAULT NULL,
+  `data11` float(16,4) DEFAULT NULL,
+  `data12` float(16,4) DEFAULT NULL,
+  `data13` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+}}}
+
 = Sqlite =
 
 Sqlite is a lightweight open source database. For easy management via web interface the [http://code.google.com/p/phpliteadmin/ phpliteadmin] can be used.
