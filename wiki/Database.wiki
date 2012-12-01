@@ -19,7 +19,10 @@ The fields that all sensors have common:
 ||MySQL||integer(11)||Datetime||varchar(2)||varchar(2)||varchar(2)||integer(2)||integer(2)||integer(1)||
 ||Sqlite||integer||text||text||text||text||integer||integer||integer||
 
-Note, that battery is not used for all sensors, this case it will be 255.
+Notes
+
+ * Battery/Signal, If no battery or signal value, then it will be 255
+ * Processed, used to mark data processed, example when reading data to RRD
 
 === Sensor ===
 
