@@ -72,11 +72,13 @@ Sensor specific data fields:
 
 = MySQL =
 
-{{{
-Coming soon....
-}}}
+MySQL is a open source database. For easy managament via web interface the [http://www.phpmyadmin.net/ PHPMyAdmin] can be used.
 
 === Create table ===
+
+Use the text file 'rfxcmd_mysql.txt' which contains the table setup for Mysql.
+
+The CREATE TABLE statement:
 
 {{{
 CREATE TABLE `rfxcmd` (
@@ -146,7 +148,7 @@ $
 
 === Create table ===
 
-In the RFXCMD there is a text file called 'rfxcmd_sqlite.txt' which contains the table setup for Sqlite. To create the table, it can be imported directly from the file, from the Sqlite shell.
+Use the text file 'rfxcmd_sqlite.txt' which contains the table setup for Sqlite. To create the table, it can be imported directly from the file, from the Sqlite shell.
 
 Example;
 
