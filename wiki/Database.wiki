@@ -11,6 +11,8 @@ This document is under work, the plan is to have a generalized database table th
 
 = Details =
 
+=== Common ===
+
 The fields that all sensors have common:
 
 ||DB||id||Datetime||Packettype||Subtype||Seqnbr||Battery||Signal||Processed||
@@ -18,6 +20,8 @@ The fields that all sensors have common:
 ||Sqlite||integer||text||text||text||text||integer||integer||integer||
 
 Note, that battery is not used for all sensors, this case it will be 255.
+
+=== Sensor ===
 
 Sensor specific data fields:
 
