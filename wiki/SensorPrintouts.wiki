@@ -75,9 +75,23 @@ Signal level  = 5
 }}}
 
 ----
+== 0x30 - Remote control and IR ==
+
+Medion Remote:
+{{{
+06300200000B5A
+Packettype    = Remote control & IR
+subtype       = Medion Remote
+Sequence nbr  = 0
+ID            = 0
+Command       = CHAN+
+Signal level  = 5
+}}}
+
+----
 == 0x40 - Thermostat1 ==
 
-Thermostat1:
+Digimax:
 {{{
 09400002E75613120271
 Packettype    = Thermostat1
