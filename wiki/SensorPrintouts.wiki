@@ -144,6 +144,18 @@ Signal level  = 7
 Battery       = OK
 }}}
 
+TEMP9:
+{{{
+0850090797D0011889
+Packettype    = TEMP
+subtype       = TEMP9 - RUBiCSON 48695
+Sequence nbr  = 7
+ID            = 38864
+Temperature   = 28 °C
+Signal level  = 8
+Battery       = OK
+}}}
+
 ----
 == 0x51 - Humidity ==
 
