@@ -1000,11 +1000,50 @@ def decodePacket( message ):
 	if packettype == '30':
 
 		decoded = True
-		
+
+		# Command type
+		if subtype == '04':
+			if ByteToHex(message[7]) == '00':
+				cmndtype = "PC"
+			elif ByteToHex(message[7]) == '01':
+				cmndtype = "AUX1"
+			elif ByteToHex(message[7]) == '02':
+				cmndtype = "AUX2"
+			elif ByteToHex(message[7]) == '03':
+				cmndtype = "AUX3"
+			elif ByteToHex(message[7]) == '04':
+				cmndtype = "AUX4"
+			else:
+				cmndtype = "Unknown"
+
+		# Signal
+		if subtype == '00' or subtype == '02' or subtype == '03':
+			signal = decodeSignal(message[6])
+
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_30[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			# TODO
+			print "Id\t\t\t= " + id1
+
+			if subtype == '00':
+				print "Not implemented in RFXCMD"
+			elif subtype == '01':
+				print "Not implemented in RFXCMD"
+			elif subtype == '02':
+				print "Command\t\t\t= " + rfx_subtype_30_medion[ByteToHex(message[5])]
+			elif subtype == '03':
+				print "Not implemented in RFXCMD"
+			elif subtype == '04':
+				print "Not implemented in RFXCMD"
+
+			if subtype == '04':
+				print "Toggle\t\t\t= " + ByteToHex(message[6])
+
+			if subtype == '04':
+				print "CommandType\t= " + cmndtype
+
+			print "Signal level\t\t= " + str(signal)
+
 
 	# ---------------------------------------
 	# 0x40 - Thermostat1
@@ -2154,6 +2193,76 @@ rfx_subtype_30 = {"00":"ATI Remote Wonder",
 					"02":"Medion Remote",
 					"03":"X10 PC Remote",
 					"04":"ATI Remote Wonder II (receive only)"}
+
+rfx_subtype_30_medion = {"00":"Mute",
+						"01":"B",
+						"02":"Power",
+						"03":"TV",
+						"04":"DVD",
+						"05":"Photo",
+						"06":"Music",
+						"07":"Drag",
+						"08":"VOL-",
+						"09":"VOL+",
+						"0A":"MUTE",
+						"0B":"CHAN+",
+						"0C":"CHAN-",
+						"0D":"1",
+						"0E":"2",
+						"0F":"3",
+						"10":"4",
+						"11":"5",
+						"12":"6",
+						"13":"7",
+						"14":"8",
+						"15":"9",
+						"16":"txt",
+						"17":"0",
+						"18":"snapshot ESQ",
+						"19":"DVD MENU",
+						"1A":"^",
+						"1B":"Setup",
+						"1C":"TV/RADIO",
+						"1D":"<",
+						"1E":"OK",
+						"1F":">",
+						"20":"<-",
+						"21":"E",
+						"22":"v",
+						"23":"F",
+						"24":"Rewind",
+						"25":"Play",
+						"26":"Fast forward",
+						"27":"Record",
+						"1B":"Stop",
+						"1B":"Pause",
+						"1B":"TV",
+						"1B":"VCR",
+						"1B":"RADIO",
+						"1B":"TV Preview",
+						"1B":"Channel List",
+						"1B":"Video desktop",
+						"1B":"red",
+						"1B":"green",
+						"1B":"yellow",
+						"1B":"blue",
+						"1B":"rename TAB",
+						"1B":"Acquire image",
+						"1B":"edit image",
+						"1B":"Full screen",
+						"1B":"DVD Audio",
+						"1B":"Cursor-left",
+						"1B":"Cursor-right",
+						"1B":"Cursor-up",
+						"1B":"Cursor-down",
+						"1B":"Cursor-up-left",
+						"1B":"Cursor-up-right",
+						"1B":"Cursor-down-right",
+						"1B":"Cursor-down-left",
+						"1B":"V",
+						"1B":"V-End",
+						"1B":"X",
+						"1B":"X-End"}
 
 rfx_subtype_40 = {"00":"Digimax",
 					"01":"Digimax with short format (no set point)"}
