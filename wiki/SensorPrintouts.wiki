@@ -183,6 +183,23 @@ Battery       = OK
 ----
 == 0x54 ==
 
+THB2:
+{{{
+0D540200910000D02C0103F20449
+Packettype    = TEMP_HUM_BARO
+subtype       = THB2 - BTHR918N, BTHR968
+                channel 0
+Sequence nbr  = 0
+ID            = 37120
+Temperature   = 20.8 °C
+Humidity      = 44
+Status        = Comfortable
+Barometer     = 1010
+Forecast      = Rain
+Signal level  = 4
+Battery       = OK
+}}}
+
 ----
 == 0x55 - Rain ==
 
