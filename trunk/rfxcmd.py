@@ -656,6 +656,46 @@ def decodePacket( message ):
 							(timestamp, packettype, subtype, seqnbr, id1 ) )
 
 	# ---------------------------------------
+	# 0x03 - Undecoded Message
+	# ---------------------------------------
+	if packettype == '03':
+		
+		decoded = True
+		
+		indata = ByteToHex(message)
+
+		# remove all spaces
+		for x in string.whitespace:
+			indata = indata.replace(x,"")
+
+		indata = indata[4:]
+
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_03[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Message\t\t\t= " + indata
+
+		# CSV
+		if cmdarg.printout_csv == True:
+		
+			sys.stdout.write("%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, indata ))
+		# MYSQL
+		if cmdarg.mysql:
+			try:
+				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
+
+		# SQLITE
+		if cmdarg.sqlite:
+			try:
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
+
+	# ---------------------------------------
 	# 0x10 Lighting1
 	# ---------------------------------------
 	if packettype == '10':
@@ -790,6 +830,8 @@ def decodePacket( message ):
 			channel = 9
 		elif testBit(int(ByteToHex(message[6]),16),1) == 2:
 			channel = 10
+		else:
+			channel = 255
 
 		# Command
 		command = rfx_subtype_12_cmnd[ByteToHex(message[7])]
@@ -798,21 +840,33 @@ def decodePacket( message ):
 		battery = decodeBattery(message[8])
 		signal = decodeSignal(message[8])
 
-		# Printout to screen
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_12[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "System\t\t\t= " + str(system)
+			print "System\t\t\t= " + system
 			print "Channel\t\t\t= " + str(channel)
 			print "Command\t\t\t= " + command
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
-		# CSV output
+		# CSV 
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;\n" %(timestamp,
-				packettype, subtype, seqnbr, str(system), str(channel), 
-				command, str(battery), str(signal) ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;\n" %(timestamp, packettype, subtype, seqnbr, str(battery), str(signal), str(system), command, str(channel) ))
+
+		# MYSQL
+		if cmdarg.mysql:
+			try:
+				insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
+
+		# SQLITE
+		if cmdarg.sqlite:
+			try:
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
 	# ---------------------------------------
 	# 0x13 Lighting4
