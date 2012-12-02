@@ -1053,72 +1053,55 @@ def decodePacket( message ):
 
 		decoded = True
 
-		temp = ByteToHex(message[6])
-		temp_set = ByteToHex(message[7])
-		temp_status = ByteToHex(message[8])
-		status1 = testBit(int(temp_status,16),0)
-		status2 = testBit(int(temp_status,16),1)
-		
-		if status2 == 0:
-			if status1 == 0:
-				status = "No status available"
-			else:
-				status = "Demand"
-		elif status2 == 2:
-			if status1 == 0:
-				status = "No Demand"
-			else:
-				status = "Initializing"
-		else:
-			status = "Unknown"
-		
-		temp_mode = testBit(int(temp_status,16),7)
-		
-		if temp_mode == 128:
-			mode = "coolling"
-		else:
-			mode = "heating"
-		
-		temperature = int(temp,16)
-		temperature_set = int(temp_set,16)
+		# Id
+		sensor_id = id1 + id2
 
+		# Temperature
+		temperature = int(ByteToHex(message[6]), 16)
+
+		# Temperature set
+		temperature_set = int(ByteToHex(message[7]), 16)
+
+		# Status
+		status = testBit(int(ByteToHex(message[8]),16),0) + testBit(int(ByteToHex(message[8]),16),1)
+
+		# Mode
+		if testBit(int(ByteToHex(message[8]),16),7) == 128:
+			mode = 1
+		else:
+			mode = 0
+		
 		#  Signal
 		signal = decodeSignal(message[9])
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_40[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id 1\t\t\t= " + id1
-			print "Id 2\t\t\t= " + id2
+			print "Id\t\t\t= " + sensor_id
 			print "Temperature\t\t= " + str(temperature) + " C"
 			print "Temperature set\t\t= " + str(temperature_set) + " C"
-			print "Mode\t\t\t= " + mode
+			print "Mode\t\t\t= " + rfx_subtype_40_mode[str(mode)]
+			print "Status\t\t\t= " + rfx_subtype_40_status[str(status)]
 			print "Signal level\t\t= " + str(signal)
 
-			if printout_csv == True:
-				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-				(timestamp, packettype, subtype, seqnbr, id1, id2,
-				temperature, temperature_set, mode, str(battery), str(signal) ) )
+		# CSV 
+		if cmdarg.printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, str(signal), str(temperature_set), str(mode), str(status), str(temperature) ))
 
-			if options.mysql:
-				try:
-					db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
-					cursor = db.cursor()
+		# MYSQL
+		if cmdarg.mysql:
+			try:
+				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
-					cursor.execute("INSERT INTO thermostat \
-					(datetime, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, mode, signal_level) VALUES \
-					('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-					(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, mode, signal))
-
-					db.commit()
-
-				except MySQLdb.Error, e:
-					print "Error %d: %s" % (e.args[0], e.args[1])
-					sys.exit(1)
-
-				finally:
-					if db:
-						db.close()
+		# SQLITE
+		if cmdarg.sqlite:
+			try:
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
 	# ---------------------------------------
 	# 0x41 Thermostat2
@@ -2266,6 +2249,14 @@ rfx_subtype_30_medion = {"00":"Mute",
 
 rfx_subtype_40 = {"00":"Digimax",
 					"01":"Digimax with short format (no set point)"}
+
+rfx_subtype_40_status = {"0":"No status available",
+						"1":"Demand",
+						"2":"No demand",
+						"3":"Initializing"}
+
+rfx_subtype_40_mode = {"0":"Heating",
+						"1":"Cooling"}
 
 # 0x41 receive not implemented in RFX
 rfx_subtype_41 = {"00":"HE105",
