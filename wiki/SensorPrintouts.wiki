@@ -3,6 +3,15 @@
 = Sensor printouts =
 
 ----
+== 0x03 - Undecoded ==
+
+{{{
+07030403189186E0
+Packettype        = UNDECODED RF Message
+UNDECODED LACROSSE:189186E0
+}}}
+
+----
 == 0x10 - Lightning1 ==
 
 ARC:
