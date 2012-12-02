@@ -232,7 +232,7 @@ Signal level  = 6
 Battery       = OK
 }}}
 
----
+----
 == 0x70 - RFXsensor ==
 
 {{{
