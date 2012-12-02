@@ -60,7 +60,7 @@ Signal level  = 6
 }}}
 
 ----
-== 0x20 - Security1 ==
+== 0x20 - Security ==
 
 Security1:
 {{{
@@ -89,7 +89,7 @@ Signal level  = 5
 }}}
 
 ----
-== 0x40 - Thermostat1 ==
+== 0x40 - Thermostat ==
 
 Digimax:
 {{{
@@ -173,7 +173,7 @@ Battery       = OK
 }}}
 
 ----
-== 0x52 ==
+== 0x52 - Temperature and humidity ==
 
 TH1:
 {{{
@@ -190,10 +190,10 @@ Signal level  = 5
 Battery       = OK
 }}}
 ----
-== 0x53 ==
+== 0x53 - Barometric ==
 
 ----
-== 0x54 ==
+== 0x54 - Temperature, humidity and barometric ==
 
 THB2:
 {{{
@@ -245,6 +245,15 @@ Battery       = OK
 }}}
 
 ----
+== 0x57 - UV ==
+
+----
+== 0x58 - Date/time ==
+
+----
+== 0x59 - Current ==
+
+----
 == 0x5A - Energy ==
 
 ELEC2:
@@ -260,6 +269,12 @@ total usage   = 1156070.02405372 Wh
 Signal level  = 6
 Battery       = OK
 }}}
+
+----
+== 0x5B - Current + ENERGY ==
+
+----
+== 0x5D - Weighting scale ==
 
 ----
 == 0x70 - RFXsensor ==
@@ -293,3 +308,6 @@ ID            = 63
 msg           = 19 mV
 Signal level  = 5
 }}}
+
+----
+== 0x70 - RFXmeter ==
