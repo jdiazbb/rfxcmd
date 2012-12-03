@@ -132,6 +132,18 @@ Signal level  = 8
 Battery       = OK
 }}}
 
+TEMP5:
+{{{
+08500500050000E849
+Packettype    = TEMP
+subtype       = TEMP5 - LaCrosse TX2, TX3, TX4, TX17
+Sequence nbr  = 0
+ID            = 1280
+Temperature   = 23.2 °C
+Signal level  = 4
+Battery       = OK
+}}}
+
 TEMP8
 {{{
 0850089D630000FF79
