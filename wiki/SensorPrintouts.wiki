@@ -12,6 +12,16 @@ UNDECODED LACROSSE:189186E0
 }}}
 
 ----
+== 0x02 - Receiver/Transmitter Message ==
+
+{{{
+0402000000
+Packettype        = Receiver/Transmitter Message
+subtype           = Receiver lock error
+Sequence nbr      = 0
+}}}
+
+----
 == 0x10 - Lightning1 ==
 
 ARC:
