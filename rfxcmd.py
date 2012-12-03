@@ -646,14 +646,34 @@ def decodePacket( message ):
 		
 		decoded = True
 		
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_02[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Message\t\t\t= " + rfx_subtype_02_msg1[id1]
+
+			if subtype == '01':
+				print "Message\t\t\t= " + rfx_subtype_02_msg1[id1]
 		
+		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;\n" %
-							(timestamp, packettype, subtype, seqnbr, id1 ) )
+			if subtype == '00':
+				sys.stdout.write("%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr ) )
+			else:
+				sys.stdout.write("%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, id1 ) )
+
+		# MYSQL
+		if cmdarg.mysql:
+			if subtype == '00':
+				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			else:
+				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# SQLITE
+		if cmdarg.sqlite:
+			if subtype == '00':
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			else:
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x03 - Undecoded Message
@@ -714,6 +734,7 @@ def decodePacket( message ):
 		# Signal		
 		signal = decodeSignal(message[7])
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_10[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -722,22 +743,17 @@ def decodePacket( message ):
 			print "Command\t\t\t= " + command
 			print "Signal level\t\t= " + str(signal)
 
+		# CSV
 		if cmdarg.printout_csv == True:
-		
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
 
+		# MYSQL
 		if cmdarg.mysql:
-			try:
-				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
+		# SQLITE
 		if cmdarg.sqlite:
-			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x11 Lighting2
@@ -781,23 +797,15 @@ def decodePacket( message ):
 		
 		# CSV
 		if cmdarg.printout_csv == True:
-		
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), str(dimlevel) ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), str(dimlevel) ))
 
 		# MYSQL
 		if cmdarg.mysql:
-			try:
-				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x12 Lighting3
@@ -856,17 +864,11 @@ def decodePacket( message ):
 
 		# MYSQL
 		if cmdarg.mysql:
-			try:
-				insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x13 Lighting4
@@ -909,6 +911,7 @@ def decodePacket( message ):
 		# Signal
 		signal = decodeSignal(message[11])
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_15[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -966,6 +969,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_20[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -1020,6 +1024,7 @@ def decodePacket( message ):
 		if subtype == '00' or subtype == '02' or subtype == '03':
 			signal = decodeSignal(message[6])
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_30[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -1121,11 +1126,51 @@ def decodePacket( message ):
 	if packettype == '42':
 
 		decoded = True
-		
+
+		# unitcode & command
+		if subtype == '00':
+			unitcode = byteToHex(message[4])
+		elif subtype == '01':
+			unitcode = byteToHex(message[4]) + byteToHex(message[5]) + byteToHex(message[6])
+		else:
+			unitcode = "00"
+
+		# Command
+		command = byteToHex(message[7])
+
+		# Signal
+		signal = decodeSignal(message[8])
+
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_42[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			# TODO
+			print "Unitcode\t\t\t= " + unitcode
+			
+			if subtype == '00':
+				print "" + rfx_subtype_42_cmnd00[command]
+			elif subtype == '01':
+				print "" + rfx_subtype_42_cmnd01[command]
+			else:
+				print "Unknown"
+
+		# CSV 
+		if cmdarg.printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, str(signal), str(temperature_set), str(mode), str(status), str(temperature) ))
+
+		# MYSQL
+		if cmdarg.mysql:
+			try:
+				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
+
+		# SQLITE
+		if cmdarg.sqlite:
+			try:
+				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
+			except Exception, e:
+				raise e
 
 	# ---------------------------------------
 	# 0x50 - Temperature sensors
@@ -1188,6 +1233,7 @@ def decodePacket( message ):
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
 		
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_51[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -1210,12 +1256,14 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
+		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							str(int(humidity,16)), humidity_status, 
 							str(battery), str(signal)) )
 		
+		# MYSQL
 		if cmdarg.mysql:
 
 			try:
@@ -1259,6 +1307,7 @@ def decodePacket( message ):
 		# Id
 		sensor_id = id1 + id2
 		
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_52[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -1281,13 +1330,14 @@ def decodePacket( message ):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
+		# CSV
 		if cmdarg.printout_csv == True:
-		
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, sensor_id,
 							temperature, str(humidity), str(humidity_status), 
 							str(battery), str(signal)) )
 		
+		# GRAPHITE
 		if cmdarg.graphite == True:
 			now = int( time.time() )
 			linesg=[]
@@ -1297,17 +1347,13 @@ def decodePacket( message ):
 			linesg.append("%s.%s.signal %s %d"% ( sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
+		# MYSQL
 		if cmdarg.mysql:
-			try:
-				insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, humidity, humidity_status, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, humidity, humidity_status, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
+		# SQLITE
 		if cmdarg.sqlite:
-			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, humidity, humidity_status, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, humidity, humidity_status, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x54 - Temperature, humidity and barometric sensors
@@ -1725,17 +1771,11 @@ def decodePacket( message ):
 
 		# MYSQL
 		if cmdarg.mysql:
-			try:
-				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# Not decoded message
@@ -1744,7 +1784,7 @@ def decodePacket( message ):
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
 		print timestamp + " " + ByteToHex(message)
-		print "RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ReadMe for more information."
+		print "RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ for more information."
 
 	# decodePackage END
 	return
@@ -1762,6 +1802,7 @@ def send_rfx( message ):
 		print "Send\t\t\t= " + ByteToHex( message )
 		print "Date/Time\t\t= " + timestamp
 		print "Packet Length\t\t= " + ByteToHex( message[0] )
+		
 		try:
 			decodePacket( message )
 		except KeyError:
@@ -1867,7 +1908,7 @@ def read_config( configFile, configItem):
  		logdebug('Return')
  		
  	else:
- 		logdebug('Config file does not exists')
+ 		logerror('Config file does not exists')
  		
 	return xmlData
 
