@@ -84,6 +84,17 @@ battery level = OK
 Signal level  = 5
 }}}
 
+{{{
+0820062B7831800D59
+Packettype    = Security1
+subtype       = Visonic CodeSecure
+Sequence nbr  = 43
+id1-3         = 783180
+status        = Disarm
+battery level = OK
+Signal level  = 5
+}}}
+
 ----
 == 0x30 - Remote control and IR ==
 
