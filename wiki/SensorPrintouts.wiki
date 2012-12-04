@@ -84,7 +84,7 @@ battery level = OK
 Signal level  = 5
 }}}
 
-0x06 - Visonic CodeSecure:
+0x06 - Visonic Codesecure:
 {{{
 0820062B7831800D59
 Packettype    = Security1
