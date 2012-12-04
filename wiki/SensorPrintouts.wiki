@@ -72,7 +72,7 @@ Signal level  = 6
 ----
 == 0x20 - Security ==
 
-Security1:
+0x00 - X10 Security door/window:
 {{{
 0820006CDED1DB0259
 Packettype    = Security1
@@ -84,6 +84,7 @@ battery level = OK
 Signal level  = 5
 }}}
 
+0x06 - Visonic CodeSecure:
 {{{
 0820062B7831800D59
 Packettype    = Security1
