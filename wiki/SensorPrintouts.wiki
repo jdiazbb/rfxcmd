@@ -52,6 +52,15 @@ Signal level  = 7
 }}}
 
 ----
+== 0x12 - Lightning3 ==
+
+----
+== 0x13 - Lightning4 ==
+
+----
+== 0x14 - Lightning5 ==
+
+----
 == 0x15 - Lightning6 ==
 
 Blyss:
@@ -68,6 +77,12 @@ Command seqnbr= 4
 rfu           = 99
 Signal level  = 6
 }}}
+
+----
+== 0x18 - Curtain1 ==
+
+----
+== 0x19 - Blinds1 ==
 
 ----
 == 0x20 - Security ==
@@ -95,6 +110,9 @@ status        = Disarm
 battery level = OK
 Signal level  = 5
 }}}
+
+----
+== 0x28 - Camera1 ==
 
 ----
 == 0x30 - Remote control and IR ==
@@ -137,6 +155,12 @@ Mode          = Cooling
 Status        = demand
 Signal level  = 7
 }}}
+
+----
+== 0x41 - Thermostat2 ==
+
+----
+== 0x42 - Thermostat3 ==
 
 ----
 == 0x50 - Temperature ==
@@ -344,4 +368,7 @@ Signal level  = 5
 }}}
 
 ----
-== 0x70 - RFXmeter ==
+== 0x71 - RFXmeter ==
+
+----
+== 0x72 - FS20 ==
