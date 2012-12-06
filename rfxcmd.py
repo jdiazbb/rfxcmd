@@ -115,12 +115,81 @@ class cmdarg_data:
 		self.sqlite = sqlite
 		self.graphite = graphite
 
+class rfx_data(dict):
+
+	rfx_cmnd = {
+				"00":"Reset the receiver/transceiver. No answer is transmitted!",
+				"01":"Not used.",
+				"02":"Get Status, return firmware versions and configuration of the interface.",
+				"03":"Set mode msg1-msg5, return firmware versions and configuration of the interface.",
+				"04":"Enable all receiving modes of the receiver/transceiver.",
+				"05":"Enable reporting of undecoded packets.",
+				"06":"Save receiving modes of the receiver/transceiver in non-volatile memory.",
+				"07":"Not used.",
+				"08":"T1 - for internal use by RFXCOM",
+				"09":"T2 - for internal use by RFXCOM"
+				}
+
+	rfx_packettype = {
+				"00":"Interface Control",
+				"01":"Interface Message",
+				"02":"Receiver/Transmitter Message",
+				"03":"Undecoded RF Message",
+				"10":"Lighting1",
+				"11":"Lighting2",
+				"12":"Lighting3",
+				"13":"Lighting4",
+				"14":"Lighting5",
+				"15":"Lighting6",
+				"18":"Curtain1",
+				"19":"Blinds1",
+				"20":"Security1",
+				"28":"Camera1",
+				"30":"Remote control and IR",
+				"40":"Thermostat1",
+				"41":"Thermostat2 (Receive not implemented)",
+				"42":"Thermostat3",
+				"50":"Temperature sensors",
+				"51":"Humidity sensors",
+				"52":"Temperature and humidity sensors",
+				"53":"Barometric sensors",
+				"54":"Temperature, humidity and barometric sensors",
+				"55":"Rain sensors",
+				"56":"Wind sensors",
+				"57":"UV sensors",
+				"58":"Date/Time sensors",
+				"59":"Current sensors",
+				"5A":"Energy usage sensors",
+				"5B":"Gas usage sensors",
+				"5C":"Water usage sensors",
+				"5D":"Weighting scale",
+				"70":"RFXSensor",
+				"71":"RFXMeter",
+				"72":"FS20"
+				}
+
+	rfx_subtype_52 = {
+					"01":"THGN122/123, THGN132, THGR122/228/238/268",
+					"02":"THGR810, THGN800",
+					"03":"RTGR328",
+					"04":"THGR328",
+					"05":"WTGR800",
+					"06":"THGR918, THGRN228, THGN50",
+					"07":"TFA TS34C, Cresta",
+					"08":"WT260,WT260H,WT440H,WT450,WT450H",
+					"09":"Viking 02035, 02038"
+					}
+
+	def __getitem__(self, key): return self[key]
+	def keys(self): return self.keys()
+
 # ----------------------------------------------------------------------------
 # INIT OBJECTS
 # ----------------------------------------------------------------------------
 
 config = config_data()
 cmdarg = cmdarg_data()
+rfx = rfx_data()
 
 # ----------------------------------------------------------------------------
 # LOG DEBUG
@@ -463,7 +532,7 @@ def decodePacket( message ):
 		id2 = ByteToHex(message[5])
 	
 	if cmdarg.printout_complete == True:
-		print "Packettype\t\t= " + rfx_packettype[packettype]
+		print "Packettype\t\t= " + rfx.rfx_packettype[packettype]
 
 	# ---------------------------------------
 	# 0x0 - Interface Control
@@ -506,7 +575,7 @@ def decodePacket( message ):
 			print "Sequence nbr\t\t= " + data['seqnbr']
 		
 			# Command
-			print "Response on cmnd\t= " + rfx_cmnd[data['cmnd']]
+			print "Response on cmnd\t= " + rfx.rfx_cmnd[data['cmnd']]
 		
 			# MSG 1
 			print "Transceiver type\t= " + rfx_subtype_01_msg1[data['msg1']]
@@ -729,7 +798,7 @@ def decodePacket( message ):
 		unitcode = int(ByteToHex(message[5]), 16)
 
 		# Command
-		command = ByteToHex(message[6])
+		command = rfx_subtype_10_cmnd[ByteToHex(message[6])]
 
 		# Signal		
 		signal = decodeSignal(message[7])
@@ -769,7 +838,7 @@ def decodePacket( message ):
 		unitcode = int(ByteToHex(message[8]),16)
 
 		# Command
-		command = ByteToHex(message[9])
+		command = rfx_subtype_11_cmnd[ByteToHex(message[9])]
 
 		# Dim level
 		try:
@@ -791,13 +860,13 @@ def decodePacket( message ):
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
 			print "Unitcode\t\t= " + str(unitcode)
-			print "Command\t\t\t= " + rfx_subtype_11_cmnd[command]
-			print "Dim level\t\t= " + str(dimlevel) + "%"
+			print "Command\t\t\t= " + command
+			print "Dim level\t\t= " + dimlevel + "%"
 			print "Signal level\t\t= " + str(signal)
 		
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), str(dimlevel) ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), dimlevel ))
 
 		# MYSQL
 		if cmdarg.mysql:
@@ -902,11 +971,18 @@ def decodePacket( message ):
 
 		decoded = True
 
-		groupcode = ByteToHex(message[6])
-		unitcode = ByteToHex(message[7])
-		command = ByteToHex(message[8])
+		# Sensor id
+		sensor_id = id1 + id2
+
+		# Groupcode
+		groupcode = rfx_subtype_15_groupcode[ByteToHex(message[6])]
+
+		# Unitcode
+		unitcode = int(ByteToHex(message[7]),16)
+
+		# Command
+		command = rfx_subtype_15_cmnd[ByteToHex(message[8])]
 		command_seqnbr = ByteToHex(message[9])
-		rfu = str(int(ByteToHex(message[10]), 16))
 
 		# Signal
 		signal = decodeSignal(message[11])
@@ -915,20 +991,24 @@ def decodePacket( message ):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_15[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "ID\t\t\t= "  + id1 + id2
-			print "Groupcode\t\t= " + rfx_subtype_15_groupcode[groupcode]
-			print "Unitcode\t\t= " + ByteToHex(message[7])
-			print "Command\t\t\t= " + rfx_subtype_15_cmnd[command]
-			print "Command seqnbr\t\t= " + ByteToHex(message[9])
-			print "RFU\t\t\t= " + rfu
-			print "Signal level\t\t= " + signal
+			print "ID\t\t\t= "  + sensor_id
+			print "Groupcode\t\t= " + groupcode
+			print "Unitcode\t\t= " + str(unitcode)
+			print "Command\t\t\t= " + command
+			print "Command seqnbr\t\t= " + command_seqnbr
+			print "Signal level\t\t= " + str(signal)
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp,
-							packettype, subtype, seqnbr, id1, id2,
-							rfx_subtype_15_groupcode[groupcode], unitcode,
-							rfx_subtype_15_cmnd[command], command_seqnbr, rfu, signal ) )
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(signal), groupcode, command, str(unitcode), str(command_seqnbr) ))
+
+		# MYSQL
+		if cmdarg.mysql:
+			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# SQLITE
+		if cmdarg.sqlite:
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
@@ -940,7 +1020,7 @@ def decodePacket( message ):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_18[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			# TODO
+			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
 
 	# ---------------------------------------
 	# 0x19 Blinds1
@@ -952,7 +1032,7 @@ def decodePacket( message ):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_19[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			# TODO
+			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
 
 	# ---------------------------------------
 	# 0x20 Security1
@@ -962,8 +1042,11 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		id3 = ByteToHex(message[6])
-		status = ByteToHex(message[7])
+		# Sensor id
+		sensor_id = id1 + id2 + ByteToHex(message[6])
+
+		# Status
+		status = rfx_subtype_20_status[ByteToHex(message[7])]
 
 		# Battery & Signal
 		signal = decodeSignal(message[8])
@@ -973,10 +1056,8 @@ def decodePacket( message ):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_20[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "ID1\t\t\t= "  + id1
-			print "ID2\t\t\t= "  + id2
-			print "ID3\t\t\t= "  + id3
-			print "Status\t\t\t= " + rfx_subtype_20_status[status]
+			print "Id\t\t\t= "  + sensor_id
+			print "Status\t\t\t= " + status
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
@@ -985,6 +1066,14 @@ def decodePacket( message ):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2, id3,
 							rfx_subtype_20_status[status], str(battery), str(signal) ) )
+
+		# MYSQL
+		if cmdarg.mysql:
+			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# SQLITE
+		if cmdarg.sqlite:
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x28 Curtain1
@@ -1309,7 +1398,7 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_52[subtype]
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_52[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
 			
@@ -1945,17 +2034,7 @@ def print_version():
 # ----------------------------------------------------------------------------
 # RESPONSES
 # ----------------------------------------------------------------------------
-
-rfx_cmnd = {"00":"Reset the receiver/transceiver. No answer is transmitted!",
-			"01":"Not used.",
-			"02":"Get Status, return firmware versions and configuration of the interface.",
-			"03":"Set mode msg1-msg5, return firmware versions and configuration of the interface.",
-			"04":"Enable all receiving modes of the receiver/transceiver.",
-			"05":"Enable reporting of undecoded packets.",
-			"06":"Save receiving modes of the receiver/transceiver in non-volatile memory.",
-			"07":"Not used.",
-			"08":"T1 - for internal use by RFXCOM",
-			"09":"T2 - for internal use by RFXCOM"}
+'''
 
 rfx_packettype = {
 				"00":"Interface Control",
@@ -1993,6 +2072,7 @@ rfx_packettype = {
 				"70":"RFXSensor",
 				"71":"RFXMeter",
 				"72":"FS20"}
+'''
 
 rfx_subtype_01 = {"00":"Response on a mode command"}
 
@@ -2319,7 +2399,7 @@ rfx_subtype_50 = {"01":"THR128/138, THC138",
 
 rfx_subtype_51 = {"01":"LaCrosse TX3",
 					"02":"LaCrosse WS2300"}
-
+'''
 rfx_subtype_52 = {"01":"THGN122/123, THGN132, THGR122/228/238/268",
 					"02":"THGR810, THGN800",
 					"03":"RTGR328",
@@ -2329,6 +2409,7 @@ rfx_subtype_52 = {"01":"THGN122/123, THGN132, THGR122/228/238/268",
 					"07":"TFA TS34C, Cresta",
 					"08":"WT260,WT260H,WT440H,WT450,WT450H",
 					"09":"Viking 02035, 02038"}
+'''
 
 rfx_subtype_53 = {"01":"Reserved for future use"}
 
@@ -2854,7 +2935,7 @@ if cmdarg.action == "send":
 		read_rfx()
 
 # ----------------------------------------------------------------------------
-# BSEND
+# BSEND (Background send)
 # ----------------------------------------------------------------------------
 
 if cmdarg.action == "bsend":
@@ -2893,6 +2974,7 @@ if cmdarg.action == "bsend":
 logdebug('Close serial port')
 try:
 	serialport.close()
+	logdebug('Serial port closed OK')
 except:
 	logdebug("Failed to close the serial port '" + device + "'")
 	print "Error: Failed to close the port " + device
