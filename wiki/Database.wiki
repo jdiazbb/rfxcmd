@@ -47,7 +47,7 @@ Sensor specific data fields:
 ||0x20||id1-id3||status||-||-||-||-||-||-||-||-||-||-||-||
 ||0x28||housecode||-||cmnd||-||-||-||-||-||-||-||-||-||-||
 ||0x30||id||-||cmnd||toggle||cmndtype||-||-||-||-||-||-||-||-||
-||0x40||id1-id2||-||-||-||set_point||mode||status||temperature||-||-||-||-||-||
+||0x40||id1-id2||mode||status||-||-||-||set_point||temperature||-||-||-||-||-||
 ||0x41||unitcode||-||cmnd||-||-||-||-||-||-||-||-||-||-||
 ||0x42||unitcode1-3||-||cmnd||-||-||-||-||-||-||-||-||-||-||
 ||0x50||id1-id2||-||-||-||-||-||-||temperature||-||-||-||-||-||
