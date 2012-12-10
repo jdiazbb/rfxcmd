@@ -198,10 +198,10 @@ Start the RFXCDMD as a daemon process, it will run in the background until it is
 
 The switch '-p' for pidfile is mandantory.
 
-example
+example how to start RFXCMD as an daemon and collecting data to MySQL.
 
 {{{
-
+$ ./rfxcmd.py -d /dev/rfxcom -m -z -p /tmp/rfxcmd.pid
 }}}
 
 === Version (-v) ===
