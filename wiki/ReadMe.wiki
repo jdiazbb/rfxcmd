@@ -36,6 +36,7 @@ option -d <device>
 Specify the serial device where the RFX device is connected to. On Linux system like
 Ubuntu the name can be like /dev/ttyUSB0, or on OSX it can be /dev/tty.usbserial-03VHG0ZQ
 	
+=== Action ===
 
 {{{
 option -a <action>
@@ -63,11 +64,15 @@ to be sent and the response.
 This is experimental, it will send a message to RFX but without any response on the screen, this is because
 you might have another process running rfxcmd with LISTEN action, and all printout will occur for that process. The reason when to use it, if you want to keep listening, and send commands at the same time. However, this function is not tested that much, so there might come conflicts. 
 
+=== Config file ===
+
 {{{
 option -o <configfile>
 }}}
 
 Optional config file location, default the script will look for config.xml in the same directory as the script itself.
+
+=== Simulate message ===
 
 {{{
 option -x <message>
@@ -96,11 +101,15 @@ Signal level (0-15)	= 6
 
 Note, the simulate function will also execute trigger commands, if any are defined for that message.
 
+=== Raw message (-r) ===
+
 {{{
 option -r <message>
 }}}
 
 Specify the message data to be sent to the RFX, this is used in both "SEND" and "BSEND" action. Note, if the message contains spaces (which is not recommended) please insert them inside quotes.
+
+=== MySQL (-m) ===
 
 {{{
 option -m
@@ -153,6 +162,8 @@ Example;
 
 The default value for server is localhost and the default value for database is rfxcmd
 
+=== Sqlite (-s) ===
+
 {{{
 option -s
 }}}
@@ -160,6 +171,8 @@ option -s
 Tell rfxcmd to add the incoming sensor data to Sqlite database.
 
 This function is still experimental and only works with these sensor 0x50 and 0x52. This will be expanded for version 0.3, and is under work.
+
+=== Graphite server (-g) ===
 
 {{{
 option -g
@@ -174,6 +187,8 @@ Configuration for the graphite server can be found in the config.xml file, the s
 <graphite_port>2003</graphite_port>
 }}}
 
+=== Daemon (-z) ===
+
 {{{
 option -z
 }}}
@@ -187,6 +202,8 @@ example
 {{{
 
 }}}
+
+=== Version ===
 
 {{{
 option -v
