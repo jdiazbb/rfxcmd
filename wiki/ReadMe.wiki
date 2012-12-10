@@ -27,6 +27,7 @@ Options;
 ||-z||Start as an daemon||
 ||-p||Pidfile||
 
+----
 === Serial device ===
 
 {{{
