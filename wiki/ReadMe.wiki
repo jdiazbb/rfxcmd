@@ -27,6 +27,8 @@ Options;
 ||-z||Start as an daemon||
 ||-p||Pidfile||
 
+=== Serial device ===
+
 {{{
 option -d <device>
 }}}
@@ -173,12 +175,18 @@ Configuration for the graphite server can be found in the config.xml file, the s
 }}}
 
 {{{
-option -d
+option -z
 }}}
 
 Start the RFXCDMD as a daemon process, it will run in the background until it is terminated manually.
 
 The switch '-p' for pidfile is mandantory.
+
+example
+
+{{{
+
+}}}
 
 {{{
 option -v
