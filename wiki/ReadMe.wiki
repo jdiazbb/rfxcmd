@@ -27,9 +27,9 @@ Options;
 ||-z||Start as an daemon||
 ||-p||Pidfile||
 
-----
-=== Serial device ===
 
+=== Serial device ===
+----
 {{{
 option -d <device>
 }}}
@@ -37,9 +37,8 @@ option -d <device>
 Specify the serial device where the RFX device is connected to. On Linux system like
 Ubuntu the name can be like /dev/ttyUSB0, or on OSX it can be /dev/tty.usbserial-03VHG0ZQ
 
-----
 === Action ===
-
+----
 {{{
 option -a <action>
 }}}
