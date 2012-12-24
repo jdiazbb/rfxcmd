@@ -1063,9 +1063,7 @@ def decodePacket( message ):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, id1, id2, id3,
-							rfx_subtype_20_status[status], str(battery), str(signal) ) )
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(battery), str(signal), status ) )
 
 		# MYSQL
 		if cmdarg.mysql:
@@ -1085,7 +1083,7 @@ def decodePacket( message ):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_28[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			# TODO
+			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
 
 	# ---------------------------------------
 	# 0x30 Remote control and IR
@@ -1147,7 +1145,7 @@ def decodePacket( message ):
 
 		decoded = True
 
-		# Id
+		# Sensor id
 		sensor_id = id1 + id2
 
 		# Temperature
@@ -1157,13 +1155,14 @@ def decodePacket( message ):
 		temperature_set = int(ByteToHex(message[7]), 16)
 
 		# Status
-		status = testBit(int(ByteToHex(message[8]),16),0) + testBit(int(ByteToHex(message[8]),16),1)
+		status_temp = str(testBit(int(ByteToHex(message[8]),16),0) + testBit(int(ByteToHex(message[8]),16),1))
+		status = rfx_subtype_40_status[status_temp]
 
 		# Mode
 		if testBit(int(ByteToHex(message[8]),16),7) == 128:
-			mode = 1
+			mode = rfx_subtype_40_mode['1']
 		else:
-			mode = 0
+			mode = rfx_subtype_40_mode['0']
 		
 		#  Signal
 		signal = decodeSignal(message[9])
@@ -1175,27 +1174,21 @@ def decodePacket( message ):
 			print "Id\t\t\t= " + sensor_id
 			print "Temperature\t\t= " + str(temperature) + " C"
 			print "Temperature set\t\t= " + str(temperature_set) + " C"
-			print "Mode\t\t\t= " + rfx_subtype_40_mode[str(mode)]
-			print "Status\t\t\t= " + rfx_subtype_40_status[str(status)]
+			print "Mode\t\t\t= " + mode
+			print "Status\t\t\t= " + status
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV 
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, str(signal), str(temperature_set), str(mode), str(status), str(temperature) ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), mode, status, str(temperature_set), str(temperature) ))
 
 		# MYSQL
 		if cmdarg.mysql:
-			try:
-				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x41 Thermostat2
@@ -1249,17 +1242,11 @@ def decodePacket( message ):
 
 		# MYSQL
 		if cmdarg.mysql:
-			try:
-				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x50 - Temperature sensors
@@ -1624,120 +1611,68 @@ def decodePacket( message ):
 		
 		decoded = True
 
-		# Direction (6 & 7)
-		direction_high = int(ByteToHex(message[6]), 16)
-		direction_low = int(ByteToHex(message[7]), 16)
-		if direction_high <> 0:
-			direction_high = direction_high + 255
-		direction = direction_high + direction_low
-		direction_str = str(direction)
+		# Sensor id
+		sensor_id = id1 + id2
+
+		# Direction
+		direction = ( ( int(ByteToHex(message[6]),16) * 256 ) + int(ByteToHex(message[7]),16) )
 		
-		# AV Speed (8 & 9) (not used in WIND5)
+		# AV Speed
 		if subtype <> "05":
-			av_high = ByteToHex(message[8])
-			av_low = ByteToHex(message[9])
-			av = ( int(av_high,16) + int(av_low,16) ) * 0.1
-			av_str = str(av)
+			av_speed = ( ( int(ByteToHex(message[8]),16) * 256 ) + int(ByteToHex(message[9]),16) ) * 0.1
 		else:
-			av_str = "0";
+			av_speed = 0;
 			
-		# Gust (10 & 11)
-		gust_high = ByteToHex(message[10])
-		gust_low = ByteToHex(message[11])
-		gust = ( int(gust_high,16) + int(gust_low,16) ) * 0.1
-		gust_str = str(gust)
-		
-		# Temperature
+		# Gust
+		gust = ( ( int(ByteToHex(message[10]),16) * 256 ) + int(ByteToHex(message[11]),16) ) * 0.1
+
+		# Temperature	
 		if subtype == "04":
-			temp_high = ByteToHex(message[12])
-			temp_low = ByteToHex(message[13])
-			polarity = testBit(int(temp_high,16),12)
-		
-			if polarity == 128:
-				polarity_sign = "-"
-			else:
-				polarity_sign = ""
-
-			temp_high = clearBit(int(temp_high,16),7)
-			temp_high = temp_high << 8
-			temperature = ( temp_high + int(temp_low,16) ) * 0.1
-			temperature_str = polarity_sign + str(temperature)
+			temperature = decodeTemperature(message[12], message[13])
 		else:
-			temperature_str = "0"
+			temperature = "0"
 
-		# Chill factor (14,15)
+		# Windchill
 		if subtype == "04":
-			chill_high = ByteToHex(message[14])
-			chill_low = ByteToHex(message[15])
-			chill_pol = testBit(int(chill_high,16),14)
-		
-			if chill_pol == 1:
-				chill_pol_sign = "-"
-			else:
-				chill_pol_sign = ""
-
-			chill_high = clearBit(int(chill_high,16),7)
-			chill_high = chill_high << 8
-			windchill = ( chill_high + int(chill_low,16) ) * 0.1
-			windchill_str = chill_pol_sign + str(windchill)
+			windchill = decodeTemperature(message[14], message[15])
 		else:
-			windchill_str = "0"
+			windchill = "0"
 		
 		# Battery & Signal
 		signal = decodeSignal(message[16])
 		battery = decodeBattery(message[16])
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_56[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id 1 (House)\t\t= " + id1
-			print "Id 2 (Channel)\t\t= " + id2
-			
-			print "Wind direction\t\t= " + direction_str + " degrees"
+			print "Id\t\t\t= " + sensor_id
+			print "Wind direction\t\t= " + str(direction) + " degrees"
 			
 			if subtype <> "05":
-				print "Average wind\t\t= " + av_str + " mtr/sec"
+				print "Average wind\t\t= " + str(av_speed) + " mtr/sec"
 			
 			if subtype == "04":
-				print "Temperature\t\t= " + temperature_str + " C"
-				print "Wind chill\t\t= " + windchill_str + " C" 
+				print "Temperature\t\t= " + str(temperature) + " C"
+				print "Wind chill\t\t= " + str(windchill) + " C" 
 			
-			print "Windgust\t\t= " + gust_str + " mtr/sec"
-			
+			print "Windgust\t\t= " + str(gust) + " mtr/sec"
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, id1, id2,
-							direction_str, av_str, gust_str,
-							temperature_str, windchill_str, 
-							str(battery), str(signal) ) )
-		
-		# MySQL
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id,
+							str(temperature), str(av_speed), str(gust), str(direction), str(windchill) ) )
+	
+		# MYSQL
 		if cmdarg.mysql:
+			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 
-			try:
-				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
-				cursor = db.cursor()
-
-				cursor.execute("INSERT INTO weather \
-				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, winddirection, av_speed, \
-				windchill, gust, battery, signal_level) VALUES \
-				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, direction, av, \
-				windchill, gust, battery, signal))
-				
-				db.commit()
-
-			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
-				sys.exit(1)
-
-			finally:
-				if db:
-					db.close()
+		# SQLITE
+		if cmdarg.sqlite:
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 	
 	# ---------------------------------------
 	# 0x5A Energy sensor
@@ -2632,12 +2567,13 @@ logdebug("Action chosen: " + cmdarg.action)
 # Rawcmd
 if cmdarg.action == "send" or cmdarg.action == "bsend":
 	cmdarg.rawcmd = options.rawcmd
-	logdebug("Rawcmd: " + cmdarg.rawcmd)
 	if not cmdarg.rawcmd:
 		print "Error: You need to specify message to send with -r <rawcmd>. Exiting."
 		logerror("Error: You need to specify message to send with -r <rawcmd>")
 		logdebug("Exit 1")
 		sys.exit(1)
+	
+	logdebug("Rawcmd: " + cmdarg.rawcmd)
 
 # ----------------------------------------------------------------------------
 # READ CONFIGURATION FILE
