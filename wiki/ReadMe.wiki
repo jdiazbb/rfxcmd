@@ -1,7 +1,7 @@
 #summary Instructions for RFXCMD
 ==DESCRIPTION==
 
-RFXCMD is Python script that interfaces the RFX USB devices from RFXcom [www.rfxcom.com].
+RFXCMD is Python script that interfaces the RFX USB devices from RFXcom [http://www.rfxcom.com].
 
 ==REQUIREMENTS==
 
@@ -142,8 +142,6 @@ At current moment there are tables made for following messages
 ||0x59||Current sensors||
 ||0x5A||Energy usage sensors||
 
-
-
 To import the table to MySQL from command line;
 
 {{{	
@@ -171,7 +169,7 @@ option -s
 
 Tell rfxcmd to add the incoming sensor data to Sqlite database.
 
-This function is still experimental and only works with these sensor 0x50 and 0x52. This will be expanded for version 0.3, and is under work.
+This will be introduced in version 0.3.
 
 === Graphite server (-g) ===
 ----
