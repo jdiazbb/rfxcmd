@@ -288,6 +288,20 @@ Battery       = OK
 ----
 == 0x56 - Wind ==
 
+WIND2:
+{{{
+10560200A3000151000500040000000049
+Packettype    = WIND
+subtype       = WIND2 - WGR800
+Sequence nbr  = 0
+ID            = 41728
+Direction     = 337 degrees  NNW
+Average speed = 0.5 mtr/sec = 1.8 km/hr = 0.11 mph
+Wind gust     = 0.4 mtr/sec = 1.44 km/hr = 0.09 mph
+Signal level  = 4
+Battery       = OK
+}}}
+
 WIND6:
 {{{
 105606A063000000000001FE0000000079
