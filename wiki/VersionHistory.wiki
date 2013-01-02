@@ -1,6 +1,10 @@
 #summary RFXCMD version history
 = Version History =
 
+== v0.22 (not released yet) ==
+ * Fixed, "Issue 8: Error when testing daemon"
+ * Fixed, "Issue 9: Shutdown error when running as a daemon"
+
 == v0.21 (1-DEC-2012) ==
 
  * Fixed issue with daemon
