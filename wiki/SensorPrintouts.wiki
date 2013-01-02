@@ -288,6 +288,20 @@ Battery       = OK
 ----
 == 0x56 - Wind ==
 
+WIND1:
+{{{
+1056010040000000000000000000000049
+Packettype    = WIND
+subtype       = WIND1 - WTGR800
+Sequence nbr  = 0
+ID            = 16384
+Direction     = 0 degrees  N
+Average speed = 0 mtr/sec = 0 km/hr = 0 mph
+Wind gust     = 0 mtr/sec = 0 km/hr = 0 mph
+Signal level  = 4
+Battery       = OK
+}}}
+
 WIND2:
 {{{
 10560200A3000151000500040000000049
