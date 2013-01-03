@@ -5,9 +5,9 @@
  * Fixed, "Issue 8: Error when testing daemon"
  * Fixed, "Issue 9: Shutdown error when running as a daemon"
  * Fixed issues with sensor 0x40 (CSV output and MySQL)
- * Added CSV output for 0x70
  * Fixed simulate option to handle printout_complete properly
  * Fixed CSV output for 0x5A
+ * Fixed CSV and printout for Lighting6.
 
 == v0.21 (1-DEC-2012) ==
 
