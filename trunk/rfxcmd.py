@@ -5,7 +5,7 @@
 #	
 #	RFXCMD.PY
 #	
-#	Copyright (C) 2012 Sebastian Sjoholm
+#	Copyright (C) 2012-2013 Sebastian Sjoholm, sebastian.sjoholm@gmail.com
 #	
 #	This program is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
