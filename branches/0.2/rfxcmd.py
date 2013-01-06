@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=UTF-8
 
-# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
 #	
 #	RFXCMD.PY
 #	
@@ -30,7 +30,25 @@
 #	
 #	RFXCOM is a Trademark of RFSmartLink.
 #	
-# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
+#
+#                          Protocol License Agreement                      
+#                                                                    
+# The RFXtrx protocols are owned by RFXCOM, and are protected under applicable
+# copyright laws.
+#
+# ==================================================================================
+# = It is only allowed to use this software or any part of it for RFXCOM products. =
+# ==================================================================================
+#
+# The above Protocol License Agreement and the permission notice shall be included
+# in all software using the RFXtrx protocols.
+#
+# Any use in violation of the foregoing restrictions may subject the user to criminal
+# sanctions under applicable laws, as well as to civil liability for the breach of the
+# terms and conditions of this license.
+#
+# ----------------------------------------------------------------------------------
 
 import string
 import sys
@@ -190,7 +208,7 @@ except ImportError:
 # ----------------------------------------------------------------------------
 
 sw_name = "RFXCMD"
-sw_version = "0.2"
+sw_version = "0.22"
 
 logdebug(sw_name + ' ' + sw_version)
 logdebug("$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $")
@@ -206,7 +224,7 @@ def shutdown():
 	logdebug("Shutdown")
 	if cmdarg.createpid:
 		logdebug("Removing PID file " + str(config.pidfile))
-		os.remove(cmdarg.pidfile)
+		os.remove(config.pidfile)
     
 	logdebug("Exit 0")
 	os._exit(0)
@@ -626,16 +644,36 @@ def decodePacket( message ):
 
 		decoded = True
 		
+		# Housecode
+		housecode = rfx_subtype_10_housecode[ByteToHex(message[4])]
+
+		# Unitcode
+		unitcode = int(ByteToHex(message[5]), 16)
+
+		# Command
+		command = rfx_subtype_10_cmnd[ByteToHex(message[6])]
+
 		# Signal		
 		signal = decodeSignal(message[7])
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_10[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Housecode\t\t= " + ByteToHex(message[4])
-			print "Unitcode\t\t= " + ByteToHex(message[5])
-			print "Command\t\t\t= " + ByteToHex(message[6])
+			print "Housecode\t\t= " + housecode
+			print "Unitcode\t\t= " + str(unitcode)
+			print "Command\t\t\t= " + command
 			print "Signal level\t\t= " + str(signal)
+
+		# CSV
+		if cmdarg.printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
+
+		# MYSQL
+		# Not implemented
+			
+		# SQLITE
+		# Not implemented
 
 	# ---------------------------------------
 	# 0x11 Lighting2
@@ -644,18 +682,49 @@ def decodePacket( message ):
 
 		decoded = True
 		
-		# Signal		
-		signal = decodeSignal(message[11])
+		# Id
+		sensor_id = ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6]) + ByteToHex(message[7])
 
+		# Unitcode
+		unitcode = int(ByteToHex(message[8]),16)
+
+		# Command
+		command = rfx_subtype_11_cmnd[ByteToHex(message[9])]
+
+		# Dim level
+		try:
+			dimlevel = rfx_subtype_11_dimlevel[ByteToHex(message[10])]
+		except Exception, e:
+			dimlevel = 255
+			logerror("0x11: " + e)
+
+		# Signal
+		try:
+			signal = decodeSignal(message[11])
+		except Exception, e:
+			signal = 255
+			logerror("0x11: " + e)
+
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_11[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6]) + ByteToHex(message[7])
-			print "Unitcode\t\t= " + ByteToHex(message[8])
-			print "Command\t\t\t= " + rfx_subtype_11_cmnd[ByteToHex(message[9])]
-			print "Dim level\t\t\t= " + ByteToHex(message[10])
-			print "Signal level\t\t\t= " + str(signal)
+			print "Id\t\t\t= " + sensor_id
+			print "Unitcode\t\t= " + str(unitcode)
+			print "Command\t\t\t= " + command
+			print "Dim level\t\t= " + dimlevel + "%"
+			print "Signal level\t\t= " + str(signal)
 			
+		# CSV
+		if cmdarg.printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), dimlevel ))
+
+		# MYSQL
+		# Not implemented
+
+		# SQLITE
+		# Not implemented
+
 	# ---------------------------------------
 	# 0x12 Lighting3
 	# ---------------------------------------
@@ -761,14 +830,14 @@ def decodePacket( message ):
 			print "Command\t\t\t= " + rfx_subtype_15_cmnd[command]
 			print "Command seqnbr\t\t= " + ByteToHex(message[9])
 			print "RFU\t\t\t= " + rfu
-			print "Signal level\t\t= " + signal
+			print "Signal level\t\t= " + str(signal)
 
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp,
 							packettype, subtype, seqnbr, id1, id2,
 							rfx_subtype_15_groupcode[groupcode], unitcode,
-							rfx_subtype_15_cmnd[command], command_seqnbr, rfu, signal ) )
+							rfx_subtype_15_cmnd[command], command_seqnbr, rfu, str(signal) ) )
 
 	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
@@ -889,6 +958,7 @@ def decodePacket( message ):
 		#  Signal
 		signal = decodeSignal(message[9])
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_40[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -899,30 +969,32 @@ def decodePacket( message ):
 			print "Mode\t\t\t= " + mode
 			print "Signal level\t\t= " + str(signal)
 
-			if printout_csv == True:
-				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-				(timestamp, packettype, subtype, seqnbr, id1, id2,
-				temperature, temperature_set, mode, str(battery), str(signal) ) )
+		# CSV
+		if cmdarg.printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+			(timestamp, packettype, subtype, seqnbr, id1, id2,
+			temperature, temperature_set, mode, str(signal) ) )
 
-			if options.mysql:
-				try:
-					db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
-					cursor = db.cursor()
+		# MYSQL
+		if options.mysql:
+			try:
+				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
+				cursor = db.cursor()
 
-					cursor.execute("INSERT INTO thermostat \
-					(datetime, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, mode, signal_level) VALUES \
-					('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-					(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, mode, signal))
+				cursor.execute("INSERT INTO thermostat \
+				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, mode, signal_level) VALUES \
+				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
+				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature, temperature_set, mode, signal))
 
-					db.commit()
+				db.commit()
 
-				except MySQLdb.Error, e:
-					print "Error %d: %s" % (e.args[0], e.args[1])
-					sys.exit(1)
+			except MySQLdb.Error, e:
+				print "Error %d: %s" % (e.args[0], e.args[1])
+				sys.exit(1)
 
-				finally:
-					if db:
-						db.close()
+			finally:
+				if db:
+					db.close()
 
 	# ---------------------------------------
 	# 0x41 Thermostat2
@@ -1440,7 +1512,7 @@ def decodePacket( message ):
 				windchill, gust, battery, signal_level) VALUES \
 				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
 				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, direction, av, \
-				windchill, gust, battery, signal))
+				windchill_str, gust, battery, signal))
 				
 				db.commit()
 
@@ -1480,9 +1552,8 @@ def decodePacket( message ):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, id1, id2,
-							str(instant), str(battery), str(signal)) )
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, id1, id2, str(instant), str(battery), str(signal)) )
 
 		# MySQL
 		if cmdarg.mysql:
@@ -1548,6 +1619,13 @@ def decodePacket( message ):
 				print "Message\t\t\t= " + rfx_subtype_70_msg03[message[6]]
 
 			print "Signal level\t\t= " + str(signal)
+
+		# CSV
+		if cmdarg.printout_csv == True:
+			if subtype == '00':
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), id1, str(temperature)))
+			if subtype == '01' or subtype == '02':
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
 
 	# ---------------------------------------
 	# Not decoded message
@@ -1843,6 +1921,23 @@ rfx_subtype_10 = {"00":"X10 Lightning",
 					"06":"RisingSun",
 					"07":"Philips SBC"}
 
+rfx_subtype_10_housecode = {"41":"A",
+							"42":"B",
+							"43":"C",
+							"44":"D",
+							"45":"E",
+							"46":"F",
+							"47":"G",
+							"48":"H",
+							"49":"I",
+							"4A":"J",
+							"4B":"K",
+							"4C":"L",
+							"4D":"M",
+							"4E":"N",
+							"4F":"O",
+							"50":"P"}
+
 rfx_subtype_10_cmnd = {"00":"Off",
 						"01":"On",
 						"02":"Dim",
@@ -1862,6 +1957,23 @@ rfx_subtype_11_cmnd = {"00":"Off",
 						"03":"Group Off",
 						"04":"Group On",
 						"05":"Set Group Level"}
+
+rfx_subtype_11_dimlevel = {"00":"0",
+							"01":"6",
+							"02":"12",
+							"03":"18",
+							"04":"24",
+							"05":"30",
+							"06":"36",
+							"07":"42",
+							"08":"48",
+							"09":"54",
+							"0A":"60",
+							"0B":"66",
+							"0C":"72",
+							"0D":"78",
+							"0E":"84",
+							"0F":"100"}
 
 rfx_subtype_12 = {"00":"Ikea Koppla"}
 
@@ -2277,7 +2389,6 @@ if options.simulate:
  			triggerlist = [ message, action ]
 
 	indata = options.simulate
-	print "------------------------------------------------"
 	
 	# remove all spaces
 	for x in string.whitespace:
@@ -2285,8 +2396,10 @@ if options.simulate:
 	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 	
-	print "Received\t\t= " + indata
-	print "Date/Time\t\t= " + timestamp
+	if cmdarg.printout_complete == True:
+		print "------------------------------------------------"
+		print "Received\t\t= " + indata
+		print "Date/Time\t\t= " + timestamp
 	
 	# Verify that the incoming value is hex
 	try:
