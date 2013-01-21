@@ -242,6 +242,7 @@ def shutdown():
   		serial.port = None
 
 	logdebug("Exit 0")
+	sys.stdout.flush()
 	os._exit(0)
     
 def handler(signum=None, frame=None):
@@ -1188,16 +1189,16 @@ def decodePacket( message ):
 			print "Temperature\t\t= " + temperature + " C"
 			print "Humidity\t\t= " + str(humidity)
 			
-			if humidity_status == '00':
+			if humidity_status == 0:
 				print "Humidity Status\t\t= Dry"
-			elif humidity_status == '01':
+			elif humidity_status == 1:
 				print "Humidity Status\t\t= Comfort"
-			elif humidity_status == '02':
+			elif humidity_status == 2:
 				print "Humidity Status\t\t= Normal"
-			elif humidity_status == '03':
+			elif humidity_status == 3:
 				print "Humidity Status\t\t= Wet"
 			else:
-				print "Humidity Status\t\t= Unknown"
+				print "Humidity Status\t\t= Unknown "
 			
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
@@ -1206,7 +1207,7 @@ def decodePacket( message ):
 		
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
-							temperature, str(humidity), humidity_status, 
+							temperature, str(humidity), str(humidity_status), 
 							str(battery), str(signal)) )
 		
 		if cmdarg.graphite == True:
