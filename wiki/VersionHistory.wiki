@@ -2,10 +2,10 @@
 = Version History =
 
 == v0.23 (xx-xxx-2013) ==
-* Fixed, "Issue 10: Cleanup at exit"
-* Fixed, "Issue 11: Print to file"
-* Serial device from global variable to object
-* Fixed, humidity status string for sensor 0x52
+ * Fixed, "Issue 10: Cleanup at exit"
+ * Fixed, "Issue 11: Print to file"
+ * Serial device from global variable to object
+ * Fixed, humidity status string for sensor 0x52
 
 == v0.22 (3-JAN-2013) ==
  * Fixed, "Issue 8: Error when testing daemon"
