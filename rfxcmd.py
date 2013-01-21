@@ -217,7 +217,7 @@ except ImportError:
 # ----------------------------------------------------------------------------
 
 sw_name = "RFXCMD"
-sw_version = "0.22"
+sw_version = "0.23"
 
 logdebug(sw_name + ' ' + sw_version)
 logdebug("$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $")
