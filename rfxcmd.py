@@ -133,12 +133,21 @@ class cmdarg_data:
 		self.sqlite = sqlite
 		self.graphite = graphite
 
+class serial_data:
+	def __init__(
+		self,
+		port = None
+		):
+
+		self.port = port
+
 # ----------------------------------------------------------------------------
 # INIT OBJECTS
 # ----------------------------------------------------------------------------
 
 config = config_data()
 cmdarg = cmdarg_data()
+serial = serial_data()
 
 # ----------------------------------------------------------------------------
 # LOG DEBUG
@@ -222,10 +231,16 @@ logdebug("$Rev: 153 $")
 def shutdown():
 	# clean up PID file after us
 	logdebug("Shutdown")
+
 	if cmdarg.createpid:
 		logdebug("Removing PID file " + str(config.pidfile))
 		os.remove(config.pidfile)
     
+	if serial.port is not None:
+		logdebug("Close serial port")
+  		serial.port.close()
+  		serial.port = None
+
 	logdebug("Exit 0")
 	os._exit(0)
     
@@ -305,7 +320,7 @@ def send_graphite(CARBON_SERVER, CARBON_PORT, lines):
 def readbytes(number):
 	buf = ''
 	for i in range(number):
-		byte = serialport.read()
+		byte = serial.port.read()
 		buf += byte
 
 	return buf
@@ -1657,7 +1672,7 @@ def send_rfx( message ):
 		except KeyError:
 			print "Error: unrecognizable packet"
 	
-	serialport.write( message )
+	serial.port.write( message )
 	time.sleep(1)
 
 # ----------------------------------------------------------------------------
@@ -1671,7 +1686,7 @@ def read_rfx():
 	message = None
 
 	try:
-		byte = serialport.read()
+		byte = serial.port.read()
 		logdebug('Byte: ' + str(ByteToHex(byte)))
 		
 		if byte:
@@ -2447,15 +2462,15 @@ else:
 
 # Open serial port
 try:  
-	serialport = serial.Serial(config.device, 38400, timeout=9)
+	serial.port = serial.Serial(config.device, 38400, timeout=9)
 except:  
 	print "Error: Failed to connect on " + device
 	logdebug('sys.exit(1)')
 	sys.exit(1)
 
-already_open = serialport.isOpen()
+already_open = serial.port.isOpen()
 if not already_open:
-	serialport.open()
+	serial.port.open()
 
 # ----------------------------------------------------------------------------
 # LISTEN TO RFX, EXIT WITH CTRL+C
@@ -2481,21 +2496,21 @@ if cmdarg.action == "listen":
 			
 	# Flush buffer
 	logdebug('Serialport flush output')
-	serialport.flushOutput()
+	serial.port.flushOutput()
 	logdebug('Serialport flush input')
-	serialport.flushInput()
+	serial.port.flushInput()
 
 	# Send RESET
 	logdebug('Send rfx_reset (' + rfx_reset + ')')
-	serialport.write( rfx_reset.decode('hex') )
+	serial.port.write( rfx_reset.decode('hex') )
 	logdebug('Sleep 1 sec')
 	time.sleep(1)
 
 	# Flush buffer
 	logdebug('Serialport flush output')
-	serialport.flushOutput()
+	serial.port.flushOutput()
 	logdebug('Serialport flush input')
-	serialport.flushInput()
+	serial.port.flushInput()
 
 	if config.undecoded:
 		logdebug('Send rfx_undecoded (' + rfx_undecoded + ')')
@@ -2507,7 +2522,7 @@ if cmdarg.action == "listen":
 		
 	# Send STATUS
 	logdebug('Send rfx_status (' + rfx_status + ')')
-	serialport.write( rfx_status.decode('hex') )
+	serial.port.write( rfx_status.decode('hex') )
 	logdebug('Sleep 1 sec')
 	time.sleep(1)
 
@@ -2536,16 +2551,16 @@ if cmdarg.action == "listen":
 if cmdarg.action == "status":
 
 	# Flush buffer
-	serialport.flushOutput()
-	serialport.flushInput()
+	serial.port.flushOutput()
+	serial.port.flushInput()
 
 	# Send RESET
-	serialport.write( rfx_reset.decode('hex') )
+	serial.port.write( rfx_reset.decode('hex') )
 	time.sleep(1)
 
 	# Flush buffer
-	serialport.flushOutput()
-	serialport.flushInput()
+	serial.port.flushOutput()
+	serial.port.flushInput()
 
 	if config.undecoded:
 		send_rfx( rfx_undecoded.decode('hex') )
@@ -2588,16 +2603,16 @@ if cmdarg.action == "send":
 		sys.exit(1)
 
 	# Flush buffer
-	serialport.flushOutput()
-	serialport.flushInput()
+	serial.port.flushOutput()
+	serial.port.flushInput()
 
 	# Send RESET
-	serialport.write( rfx_reset.decode('hex') )
+	serial.port.write( rfx_reset.decode('hex') )
 	time.sleep(1)
 
 	# Flush buffer
-	serialport.flushOutput()
-	serialport.flushInput()
+	serial.port.flushOutput()
+	serial.port.flushInput()
 
 	if config.undecoded:
 		send_rfx( rfx_undecoded.decode('hex') )
@@ -2616,7 +2631,7 @@ if cmdarg.action == "send":
 			except KeyError:
 				print "Error: unrecognizable packet"
 
-		serialport.write( cmdarg.rawcmd.decode('hex') )
+		serial.port.write( cmdarg.rawcmd.decode('hex') )
 		time.sleep(1)
 		read_rfx()
 
@@ -2651,7 +2666,7 @@ if cmdarg.action == "bsend":
 		sys.exit(1)
 
 	if cmdarg.rawcmd:
-		serialport.write( cmdarg.rawcmd.decode('hex') )
+		serial.port.write( cmdarg.rawcmd.decode('hex') )
 	
 # ----------------------------------------------------------------------------
 # CLOSE SERIAL CONNECTION
@@ -2659,7 +2674,7 @@ if cmdarg.action == "bsend":
 
 logdebug('Close serial port')
 try:
-	serialport.close()
+	serial.port.close()
 except:
 	logdebug("Failed to close the serial port '" + device + "'")
 	print "Error: Failed to close the port " + device
