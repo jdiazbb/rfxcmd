@@ -296,6 +296,7 @@ def shutdown():
 		os.remove(cmdarg.pidfile)
     
 	logdebug("Exit 0")
+	sys.stdout.flush()
 	os._exit(0)
     
 def handler(signum=None, frame=None):
