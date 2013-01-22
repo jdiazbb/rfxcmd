@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=UTF-8
 
-#-----------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 #	
 #	RFXCMD.PY
 #	
@@ -30,7 +30,7 @@
 #	
 #	RFXCOM is a Trademark of RFSmartLink.
 #
-# ----------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 #
 #                          Protocol License Agreement                      
 #                                                                    
@@ -38,7 +38,7 @@
 # copyright laws.
 #
 # ==================================================================================
-# = It is only allowed to use this software or any part of it for RFXCOM products. =
+# = It is only allowed to use this protocol or any part of it for RFXCOM products. =
 # ==================================================================================
 #
 # The above Protocol License Agreement and the permission notice shall be included
@@ -48,7 +48,16 @@
 # sanctions under applicable laws, as well as to civil liability for the breach of the
 # terms and conditions of this license.
 #
-# ----------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
+
+__author__ = "Sebastian Sjoholm"
+__copyright__ = "Copyright 2012-2013, Sebastian Sjoholm"
+__license__ = "GPL"
+__version__ = "0.3 (" + filter(str.isdigit, "$Rev$") + ")"
+__maintainer__ = "Sebastian Sjoholm"
+__email__ = "sebastian.sjoholm@gmail.com"
+__status__ = "Development"
+__date__ = "$Date$"
 
 import string
 import sys
@@ -201,6 +210,28 @@ class rfx_data(dict):
 	def __getitem__(self, key): return self[key]
 	def keys(self): return self.keys()
 
+class rfxcmd_data:
+	def __init__(
+		self,
+		reset = "0d00000000000000000000000000",
+		status = "0d00000002000000000000000000",
+		undecoded = "0d00000005000000000000000000",
+		save = "0d00000006000000000000000000"
+		):
+
+		self.reset = reset
+		self.status = status
+		self.undecoded = undecoded
+		self.save = save
+
+class serial_data:
+	def __init__(
+		self,
+		port = None
+		):
+
+		self.port = port
+
 # ----------------------------------------------------------------------------
 # INIT OBJECTS
 # ----------------------------------------------------------------------------
@@ -208,9 +239,11 @@ class rfx_data(dict):
 config = config_data()
 cmdarg = cmdarg_data()
 rfx = rfx_data()
+rfxcmd = rfxcmd_data()
+serial = serial_data()
 
 # ----------------------------------------------------------------------------
-# LOG DEBUG
+# LOG DEBUG / LOG ERROR
 # ----------------------------------------------------------------------------
 
 def logdebug(text):
@@ -280,7 +313,7 @@ sw_name = "RFXCMD"
 sw_version = "0.3 Alpha"
 
 logdebug(sw_name + ' ' + sw_version)
-logdebug("$Date$")
+logdebug(__date__)
 logdebug("$Rev$")
 
 # ----------------------------------------------------------------------------
@@ -368,14 +401,14 @@ def send_graphite(CARBON_SERVER, CARBON_PORT, lines):
 	sock.close()
 
 # ----------------------------------------------------------------------------
-# Read x amount of bytes from serial port
-# Boris Smus http://smus.com
-# ----------------------------------------------------------------------------
 
 def readbytes(number):
+	"""
+	Read x amount of bytes from serial port. Credit: Boris Smus http://smus.com
+	"""
 	buf = ''
 	for i in range(number):
-		byte = serialport.read()
+		byte = serial.port.read()
 		buf += byte
 
 	return buf
@@ -419,19 +452,20 @@ def clearBit(int_type, offset):
 	return(int_type & mask)
 
 # ----------------------------------------------------------------------------
-# split_len, split string into specified chunks
-# ----------------------------------------------------------------------------
 
 def split_len(seq, length):
+	"""
+	Split string into specified chunks.
+	"""
 	return [seq[i:i+length] for i in range(0, len(seq), length)]
 
-# ----------------------------------------------------------------------------
-# Insert data to MySQL
 # ----------------------------------------------------------------------------
 
 def insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
 	data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
-
+	"""
+	Insert data to MySQL.
+	"""
 	try:
 
 		if data13 == 0:
@@ -460,12 +494,12 @@ def insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, data1,
 			db.close()
 
 # ----------------------------------------------------------------------------
-# Insert data to SqLite 
-# ----------------------------------------------------------------------------
 
 def insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
 	data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
-
+	"""
+	Insert data to SqLite.
+	"""
 	try:
 
 		cx = sqlite3.connect(config.sqlite_database)
@@ -494,11 +528,11 @@ def insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, data1
 			cx.close()
 
 # ----------------------------------------------------------------------------
-# Decode temperature bytes
-# ----------------------------------------------------------------------------
 
 def decodeTemperature(message_high, message_low):
-	
+	"""
+	Decode temperature bytes.
+	"""
 	temp_high = ByteToHex(message_high)
 	temp_low = ByteToHex(message_low)
 	polarity = testBit(int(temp_high,16),7)
@@ -516,27 +550,29 @@ def decodeTemperature(message_high, message_low):
 	return temperature_str
 
 # ----------------------------------------------------------------------------
-# Decode signal byte
-# ----------------------------------------------------------------------------
 
 def decodeSignal(message):
+	"""
+	Decode signal byte.
+	"""
 	signal = int(ByteToHex(message),16) >> 4
 	return signal
 
 # ----------------------------------------------------------------------------
-# Decode battery byte
-# ----------------------------------------------------------------------------
 
 def decodeBattery(message):
+	"""
+	Decode battery byte.
+	"""
 	battery = int(ByteToHex(message),16) & 0xf
 	return battery
 
 # ----------------------------------------------------------------------------
-# Decode packet
-# ----------------------------------------------------------------------------
 
 def decodePacket( message ):
-		
+	"""
+	Decode incoming RFXtrx message.
+	"""
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 		
 	decoded = False
@@ -1851,7 +1887,7 @@ def send_rfx( message ):
 		except KeyError:
 			print "Error: unrecognizable packet"
 	
-	serialport.write( message )
+	serial.port.write( message )
 	time.sleep(1)
 
 # ----------------------------------------------------------------------------
@@ -1865,7 +1901,7 @@ def read_rfx():
 	message = None
 
 	try:
-		byte = serialport.read()
+		byte = serial.port.read()
 		logdebug('Byte: ' + str(ByteToHex(byte)))
 		
 		if byte:
@@ -1984,6 +2020,376 @@ def print_version():
  	print "$Date$"
  	print "$Rev$"
  	sys.exit(0)
+
+# ----------------------------------------------------------------------------
+# CHECK PYTHON VERSION
+# ----------------------------------------------------------------------------
+
+def check_pythonversion():
+	logdebug("Python version: %s.%s.%s" % sys.version_info[:3])
+	if sys.hexversion < 0x02060000:
+		logerror("Error: Your Python need to be 2.6 or newer, please upgrade.")
+		print "Error: Your Python need to be 2.6 or newer, please upgrade."
+		logdebug("Exit 1")
+		sys.exit(1)
+
+# ----------------------------------------------------------------------------
+# SIMULATE INCOMING PACKET
+# ----------------------------------------------------------------------------
+
+def option_simulate(indata):
+
+	# If trigger is activated in config, then read the triggerfile
+	if config.trigger:
+		xmldoc = minidom.parse( config.triggerfile )
+		root = xmldoc.documentElement
+
+		triggers = root.getElementsByTagName('trigger')
+
+		triggerlist = []
+	
+		for trigger in triggers:
+			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+ 			triggerlist = [ message, action ]
+
+	#indata = options.simulate
+	
+	# remove all spaces
+	for x in string.whitespace:
+		indata = indata.replace(x,"")
+	
+	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+	
+	if cmdarg.printout_complete:
+		print "------------------------------------------------"
+		print "Received\t\t= " + indata
+		print "Date/Time\t\t= " + timestamp
+	
+	# Verify that the incoming value is hex
+	try:
+		hexval = int(indata, 16)
+	except:
+		logerror("Error: the input data is invalid hex value")
+		print "Error: the input data is invalid hex value"
+		exit()
+	
+	# cut into hex chunks
+	try:
+		message = indata.decode("hex")
+	except:
+		logerror("Error: the input data is not valid")
+		print "Error: the input data is not valid"
+		exit()
+	
+	# decode it
+	try:
+		decodePacket( message )
+	except KeyError:
+		logerror("Error: unrecognizable packet")
+		print "Error: unrecognizable packet"
+
+	if config.trigger:
+		if message:
+			for trigger in triggers:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					return_code = subprocess.call(action, shell=True)
+	
+	logdebug('Exit 0')
+	sys.exit(0)
+
+# ----------------------------------------------------------------------------
+# LISTEN TO RFXtrx DEVICE
+# ----------------------------------------------------------------------------
+
+def option_listen():
+
+	logdebug('Action: Listen')
+
+	# If trigger is activated in config, then read the triggerfile
+	if config.trigger:
+		xmldoc = minidom.parse( config.triggerfile )
+		root = xmldoc.documentElement
+
+		triggers = root.getElementsByTagName('trigger')
+
+		triggerlist = []
+	
+		for trigger in triggers:
+			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+ 			triggerlist = [ message, action ]
+			
+	# Flush buffer
+	logdebug('Serialport flush output')
+	serial.port.flushOutput()
+	logdebug('Serialport flush input')
+	serial.port.flushInput()
+
+	# Send RESET
+	logdebug('Send rfxcmd_reset (' + rfxcmd.reset + ')')
+	serial.port.write( rfxcmd.reset.decode('hex') )
+	logdebug('Sleep 1 sec')
+	time.sleep(1)
+
+	# Flush buffer
+	logdebug('Serialport flush output')
+	serial.port.flushOutput()
+	logdebug('Serialport flush input')
+	serial.port.flushInput()
+
+	if config.undecoded:
+		logdebug('Send rfxcmd_undecoded (' + rfxcmd.undecoded + ')')
+		send_rfx( rfxcmd.undecoded.decode('hex') )
+		logdebug('Sleep 1 sec')
+		time.sleep(1)
+		logdebug('Read_rfx')
+		read_rfx()
+		
+	# Send STATUS
+	logdebug('Send rfxcmd_status (' + rfxcmd.status + ')')
+	serial.port.write( rfxcmd.status.decode('hex') )
+	logdebug('Sleep 1 sec')
+	time.sleep(1)
+
+	try:
+		while 1:
+			rawcmd = read_rfx()
+			logdebug('Received: ' + str(rawcmd))
+
+			if config.trigger:
+				if rawcmd:
+					for trigger in triggers:
+						message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+						action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+						if re.match(message, rawcmd):
+							return_code = subprocess.call(action, shell=True)
+
+	except KeyboardInterrupt:
+		logdebug('Received keyboard interrupt')
+		print "\nExit..."
+		pass
+
+# ----------------------------------------------------------------------------
+# GET STATUS FROM RFXtrx DEVICE
+# ----------------------------------------------------------------------------
+
+def option_getstatus():
+
+	# Flush buffer
+	serial.port.flushOutput()
+	serial.port.flushInput()
+
+	# Send RESET
+	serial.port.write(rfxcmd.reset.decode('hex'))
+	time.sleep(1)
+
+	# Flush buffer
+	serial.port.flushOutput()
+	serial.port.flushInput()
+
+	if config.undecoded:
+		send_rfx(rfxcmd.undecoded.decode('hex'))
+		time.sleep(1)
+		read_rfx()
+		
+	# Send STATUS
+	send_rfx(rfxcmd.status.decode('hex'))
+	time.sleep(1)
+	read_rfx()
+
+# ----------------------------------------------------------------------------
+# SEND COMMAND
+# ----------------------------------------------------------------------------
+
+def option_send():
+
+	logdebug('Action: send')
+
+	# Remove any whitespaces	
+	cmdarg.rawcmd = cmdarg.rawcmd.replace(' ', '')
+	logdebug('rawcmd: ' + cmdarg.rawcmd)
+
+	# Test the string if it is hex format
+	try:
+		int(cmdarg.rawcmd,16)
+	except ValueError:
+		print "Error: invalid rawcmd, not hex format"
+		sys.exit(1)		
+	
+	# Check that first byte is not 00
+	if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
+		print "Error: invalid rawcmd, first byte is zero"
+		sys.exit(1)
+	
+	# Check if string is the length that it reports to be
+	cmd_len = int( ByteToHex(cmdarg.rawcmd.decode('hex')[0]),16 )
+	if not len(cmdarg.rawcmd.decode('hex')) == (cmd_len + 1):
+		print "Error: invalid rawcmd, invalid length"
+		sys.exit(1)
+
+	# Flush buffer
+	serial.port.flushOutput()
+	serial.port.flushInput()
+
+	# Send RESET
+	serial.port.write( rfxcmd.reset.decode('hex') )
+	time.sleep(1)
+
+	# Flush buffer
+	serial.port.flushOutput()
+	serial.port.flushInput()
+
+	if config.undecoded:
+		send_rfx( rfxcmd.undecoded.decode('hex') )
+		time.sleep(1)
+		read_rfx()
+		
+	if cmdarg.rawcmd:
+		timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+		if cmdarg.printout_complete == True:
+			print "------------------------------------------------"
+			print "Send\t\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex') )
+			print "Date/Time\t\t= " + timestamp
+			print "Packet Length\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex')[0] )
+			try:
+				decodePacket( cmdarg.rawcmd.decode('hex') )
+			except KeyError:
+				print "Error: unrecognizable packet"
+
+		serial.port.write( cmdarg.rawcmd.decode('hex') )
+		time.sleep(1)
+		read_rfx()
+
+# ----------------------------------------------------------------------------
+# SEND BACKGROUND COMMAND
+# ----------------------------------------------------------------------------
+
+def option_bsend():
+	
+	logdebug('Action: bsend')
+	
+	# Remove any whitespaces
+	cmdarg.rawcmd = cmdarg.rawcmd.replace(' ', '')
+	logdebug('rawcmd: ' + cmdarg.rawcmd)
+	
+	# Test the string if it is hex format
+	try:
+		int(cmdarg.rawcmd,16)
+	except ValueError:
+		print "Error: invalid rawcmd, not hex format"
+		sys.exit(1)		
+	
+	# Check that first byte is not 00
+	if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
+		print "Error: invalid rawcmd, first byte is zero"
+		sys.exit(1)
+	
+	# Check if string is the length that it reports to be
+	cmd_len = int( ByteToHex( cmdarg.rawcmd.decode('hex')[0]),16 )
+	if not len(cmdarg.rawcmd.decode('hex')) == (cmd_len + 1):
+		print "Error: invalid rawcmd, invalid length"
+		sys.exit(1)
+
+	if cmdarg.rawcmd:
+		serial.port.write(cmdarg.rawcmd.decode('hex'))
+
+# ----------------------------------------------------------------------------
+# READ CONFIGURATION FILE
+# ----------------------------------------------------------------------------
+
+def read_configfile():
+
+	if os.path.exists( cmdarg.configfile ):
+
+		# RFX configuration
+		if ( read_config( cmdarg.configfile, "undecoded") == "yes"):
+			config.undecoded = True
+		else:
+			config.undecoded = False
+
+		# MySQL configuration
+		config.mysql_server = read_config( cmdarg.configfile, "mysql_server")
+		config.mysql_database = read_config( cmdarg.configfile, "mysql_database")
+		config.mysql_username = read_config( cmdarg.configfile, "mysql_username")
+		config.mysql_password = read_config( cmdarg.configfile, "mysql_password")
+	
+		if ( read_config( cmdarg.configfile, "trigger") == "yes"):
+			config.trigger = True
+		else:
+			config.trigger = False
+
+		config.triggerfile = read_config( cmdarg.configfile, "triggerfile")	
+
+		# SQLite configuration
+		config.sqlite_database = read_config( cmdarg.configfile, "sqlite_database")
+		config.sqlite_table = read_config( cmdarg.configfile, "sqlite_table")
+	
+		# Configuration for Graphite server
+		config.graphite_server = read_config( cmdarg.configfile, "graphite_server")
+		config.graphite_port = read_config( cmdarg.configfile, "graphite_port")
+
+	else:
+
+		# config file not found, set default values
+		print "Error: Configuration file not found (" + cmdarg.configfile + ")"
+		logerror('Error: Configuration file not found (' + cmdarg.configfile + ')')
+
+# ----------------------------------------------------------------------------
+
+def open_serialport():
+	"""
+	Open serial port for communication to RFX device.
+	"""
+	try:
+		logdebug("Import serial extension")
+		import serial
+		logdebug("Serial extension version: " + serial.VERSION)
+	except ImportError:
+		print "Error: You need to install Serial extension for Python"
+		logdebug("Error: Serial extension for Python could not be loaded")
+		logdebug("Exit 1")
+		sys.exit(1)
+
+	if options.device:
+		config.device=options.device
+		logdebug("Device: " + config.device)
+	else:
+		logerror('Device name missing')
+		parser.error('Device name missing')
+
+	# Open serial port
+	try:  
+		serial.port = serial.Serial(config.device, 38400, timeout=9)
+	except:
+		logerror("Error: Failed to connect on device " + config.device)
+		print "Error: Failed to connect on device " + config.device
+		logdebug("Exit 1")
+		sys.exit(1)
+
+	already_open = serial.port.isOpen()
+	if not already_open:
+		serial.port.open()
+
+# ----------------------------------------------------------------------------
+# CLOSE SERIALPORT
+# ----------------------------------------------------------------------------
+
+def close_serialport():
+
+	logdebug('Close serial port')
+	try:
+		serial.port.close()
+		logdebug('Serial port closed OK')
+	except:
+		logdebug("Failed to close the serial port '" + device + "'")
+		print "Error: Failed to close the port " + device
+		logdebug("Exit 1")
+		sys.exit(1)
 
 # ----------------------------------------------------------------------------
 # RESPONSES
@@ -2428,24 +2834,10 @@ rfx_subtype_72 = {"00":"FS20",
 					"02":"FHT80 door/window sensor"}
 	
 # ----------------------------------------------------------------------------
-# RFX COMMANDS
-# ----------------------------------------------------------------------------
-
-rfx_reset="0d00000000000000000000000000"
-rfx_status="0d00000002000000000000000000"
-rfx_undecoded="0d00000005000000000000000000"
-rfx_save="0d00000006000000000000000000"
-
-# ----------------------------------------------------------------------------
 # CHECK CURRENT PYTHON VERSION
 # ----------------------------------------------------------------------------
 
-logdebug("Python version: %s.%s.%s" % sys.version_info[:3])
-if sys.hexversion < 0x02060000:
-	logerror("Error: Your Python need to be 2.6 or newer, please upgrade.")
-	print "Error: Your Python need to be 2.6 or newer, please upgrade."
-	logdebug("Exit 1")
-	sys.exit(1)
+check_pythonversion()
 
 # ----------------------------------------------------------------------------
 # PARSE COMMAND LINE ARGUMENT
@@ -2598,343 +2990,54 @@ if cmdarg.action == "send" or cmdarg.action == "bsend":
 # READ CONFIGURATION FILE
 # ----------------------------------------------------------------------------
 
-if os.path.exists( cmdarg.configfile ):
-
-	# RFX configuration
-	if ( read_config( cmdarg.configfile, "undecoded") == "yes"):
-		config.undecoded = True
-	else:
-		config.undecoded = False
-
-	# MySQL configuration
-	config.mysql_server = read_config( cmdarg.configfile, "mysql_server")
-	config.mysql_database = read_config( cmdarg.configfile, "mysql_database")
-	config.mysql_username = read_config( cmdarg.configfile, "mysql_username")
-	config.mysql_password = read_config( cmdarg.configfile, "mysql_password")
-	
-	if ( read_config( cmdarg.configfile, "trigger") == "yes"):
-		config.trigger = True
-	else:
-		config.trigger = False
-
-	config.triggerfile = read_config( cmdarg.configfile, "triggerfile")	
-
-	# SQLite configuration
-	config.sqlite_database = read_config( cmdarg.configfile, "sqlite_database")
-	config.sqlite_table = read_config( cmdarg.configfile, "sqlite_table")
-	
-	# Configuration for Graphite server
-	config.graphite_server = read_config( cmdarg.configfile, "graphite_server")
-	config.graphite_port = read_config( cmdarg.configfile, "graphite_port")
-
-else:
-
-	# config file not found, set default values
-	print "Error: Configuration file not found (" + cmdarg.configfile + ")"
-	logerror('Error: Configuration file not found (' + cmdarg.configfile + ')')
+read_configfile()
 
 # ----------------------------------------------------------------------------
 # SIMULATE
 # ----------------------------------------------------------------------------
 
 if options.simulate:
-
-	# If trigger is activated in config, then read the triggerfile
-	if config.trigger:
-		xmldoc = minidom.parse( config.triggerfile )
-		root = xmldoc.documentElement
-
-		triggers = root.getElementsByTagName('trigger')
-
-		triggerlist = []
-	
-		for trigger in triggers:
-			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
- 			triggerlist = [ message, action ]
-
-	indata = options.simulate
-	
-	# remove all spaces
-	for x in string.whitespace:
-		indata = indata.replace(x,"")
-	
-	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-	
-	if cmdarg.printout_complete:
-		print "------------------------------------------------"
-		print "Received\t\t= " + indata
-		print "Date/Time\t\t= " + timestamp
-	
-	# Verify that the incoming value is hex
-	try:
-		hexval = int(indata, 16)
-	except:
-		logerror("Error: the input data is invalid hex value")
-		print "Error: the input data is invalid hex value"
-		exit()
-	
-	# cut into hex chunks
-	try:
-		message = indata.decode("hex")
-	except:
-		logerror("Error: the input data is not valid")
-		print "Error: the input data is not valid"
-		exit()
-	
-	# decode it
-	try:
-		decodePacket( message )
-	except KeyError:
-		logerror("Error: unrecognizable packet")
-		print "Error: unrecognizable packet"
-
-	if config.trigger:
-		if message:
-			for trigger in triggers:
-				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-				rawcmd = ByteToHex ( message )
-				rawcmd = rawcmd.replace(' ', '')
-				if re.match(trigger_message, rawcmd):
-					return_code = subprocess.call(action, shell=True)
-	
-	logdebug('Exit 0')
-	sys.exit(0)
+	option_simulate( options.simulate )
 
 # ----------------------------------------------------------------------------
 # OPEN SERIAL CONNECTION
 # ----------------------------------------------------------------------------
 
-if options.device:
-	config.device=options.device
-	logdebug("Device: " + config.device)
-else:
-	logerror('Device name missing')
-	parser.error('Device name missing')
-
-# Open serial port
-try:  
-	serialport = serial.Serial(config.device, 38400, timeout=9)
-except:
-	logerror("Error: Failed to connect on device " + config.device)
-	print "Error: Failed to connect on device " + config.device
-	logdebug("Exit 1")
-	sys.exit(1)
-
-already_open = serialport.isOpen()
-if not already_open:
-	serialport.open()
+open_serialport()
 
 # ----------------------------------------------------------------------------
 # LISTEN TO RFX, EXIT WITH CTRL+C
 # ----------------------------------------------------------------------------
 
 if cmdarg.action == "listen":
-
-	logdebug('Action: Listen')
-
-	# If trigger is activated in config, then read the triggerfile
-	if config.trigger:
-		xmldoc = minidom.parse( config.triggerfile )
-		root = xmldoc.documentElement
-
-		triggers = root.getElementsByTagName('trigger')
-
-		triggerlist = []
-	
-		for trigger in triggers:
-			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
- 			triggerlist = [ message, action ]
-			
-	# Flush buffer
-	logdebug('Serialport flush output')
-	serialport.flushOutput()
-	logdebug('Serialport flush input')
-	serialport.flushInput()
-
-	# Send RESET
-	logdebug('Send rfx_reset (' + rfx_reset + ')')
-	serialport.write( rfx_reset.decode('hex') )
-	logdebug('Sleep 1 sec')
-	time.sleep(1)
-
-	# Flush buffer
-	logdebug('Serialport flush output')
-	serialport.flushOutput()
-	logdebug('Serialport flush input')
-	serialport.flushInput()
-
-	if config.undecoded:
-		logdebug('Send rfx_undecoded (' + rfx_undecoded + ')')
-		send_rfx( rfx_undecoded.decode('hex') )
-		logdebug('Sleep 1 sec')
-		time.sleep(1)
-		logdebug('Read_rfx')
-		read_rfx()
-		
-	# Send STATUS
-	logdebug('Send rfx_status (' + rfx_status + ')')
-	serialport.write( rfx_status.decode('hex') )
-	logdebug('Sleep 1 sec')
-	time.sleep(1)
-
-	try:
-		while 1:
-			rawcmd = read_rfx()
-			logdebug('Received: ' + str(rawcmd))
-
-			if config.trigger:
-				if rawcmd:
-					for trigger in triggers:
-						message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-						action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-						if re.match(message, rawcmd):
-							return_code = subprocess.call(action, shell=True)
-
-	except KeyboardInterrupt:
-		logdebug('Received keyboard interrupt')
-		print "\nExit..."
-		pass
+	option_listen()
 
 # ----------------------------------------------------------------------------
 # STATUS
 # ----------------------------------------------------------------------------
 
 if cmdarg.action == "status":
-
-	# Flush buffer
-	serialport.flushOutput()
-	serialport.flushInput()
-
-	# Send RESET
-	serialport.write( rfx_reset.decode('hex') )
-	time.sleep(1)
-
-	# Flush buffer
-	serialport.flushOutput()
-	serialport.flushInput()
-
-	if config.undecoded:
-		send_rfx( rfx_undecoded.decode('hex') )
-		time.sleep(1)
-		read_rfx()
-		
-	# Send STATUS
-	send_rfx( rfx_status.decode('hex') )
-	time.sleep(1)
-	read_rfx()
+	option_getstatus()
 
 # ----------------------------------------------------------------------------
 # SEND
 # ----------------------------------------------------------------------------
 
 if cmdarg.action == "send":
-
-	logdebug('Action: send')
-
-	# Remove any whitespaces	
-	cmdarg.rawcmd = cmdarg.rawcmd.replace(' ', '')
-	logdebug('rawcmd: ' + cmdarg.rawcmd)
-
-	# Test the string if it is hex format
-	try:
-		int(cmdarg.rawcmd,16)
-	except ValueError:
-		print "Error: invalid rawcmd, not hex format"
-		sys.exit(1)		
-	
-	# Check that first byte is not 00
-	if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
-		print "Error: invalid rawcmd, first byte is zero"
-		sys.exit(1)
-	
-	# Check if string is the length that it reports to be
-	cmd_len = int( ByteToHex(cmdarg.rawcmd.decode('hex')[0]),16 )
-	if not len(cmdarg.rawcmd.decode('hex')) == (cmd_len + 1):
-		print "Error: invalid rawcmd, invalid length"
-		sys.exit(1)
-
-	# Flush buffer
-	serialport.flushOutput()
-	serialport.flushInput()
-
-	# Send RESET
-	serialport.write( rfx_reset.decode('hex') )
-	time.sleep(1)
-
-	# Flush buffer
-	serialport.flushOutput()
-	serialport.flushInput()
-
-	if config.undecoded:
-		send_rfx( rfx_undecoded.decode('hex') )
-		time.sleep(1)
-		read_rfx()
-		
-	if cmdarg.rawcmd:
-		timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-		if cmdarg.printout_complete == True:
-			print "------------------------------------------------"
-			print "Send\t\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex') )
-			print "Date/Time\t\t= " + timestamp
-			print "Packet Length\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex')[0] )
-			try:
-				decodePacket( cmdarg.rawcmd.decode('hex') )
-			except KeyError:
-				print "Error: unrecognizable packet"
-
-		serialport.write( cmdarg.rawcmd.decode('hex') )
-		time.sleep(1)
-		read_rfx()
+	option_send()
 
 # ----------------------------------------------------------------------------
 # BSEND (Background send)
 # ----------------------------------------------------------------------------
 
 if cmdarg.action == "bsend":
-	
-	logdebug('Action: bsend')
-	
-	# Remove any whitespaces
-	cmdarg.rawcmd = cmdarg.rawcmd.replace(' ', '')
-	logdebug('rawcmd: ' + cmdarg.rawcmd)
-	
-	# Test the string if it is hex format
-	try:
-		int(cmdarg.rawcmd,16)
-	except ValueError:
-		print "Error: invalid rawcmd, not hex format"
-		sys.exit(1)		
-	
-	# Check that first byte is not 00
-	if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
-		print "Error: invalid rawcmd, first byte is zero"
-		sys.exit(1)
-	
-	# Check if string is the length that it reports to be
-	cmd_len = int( ByteToHex( cmdarg.rawcmd.decode('hex')[0]),16 )
-	if not len(cmdarg.rawcmd.decode('hex')) == (cmd_len + 1):
-		print "Error: invalid rawcmd, invalid length"
-		sys.exit(1)
+	option_bsend()
 
-	if cmdarg.rawcmd:
-		serialport.write( cmdarg.rawcmd.decode('hex') )
-	
 # ----------------------------------------------------------------------------
 # CLOSE SERIAL CONNECTION
 # ----------------------------------------------------------------------------
 
-logdebug('Close serial port')
-try:
-	serialport.close()
-	logdebug('Serial port closed OK')
-except:
-	logdebug("Failed to close the serial port '" + device + "'")
-	print "Error: Failed to close the port " + device
-	logdebug("Exit 1")
-	sys.exit(1)
-	
+close_serialport()
+
 logdebug("Exit 0")
 sys.exit(0)
