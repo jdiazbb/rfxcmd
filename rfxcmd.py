@@ -30,7 +30,25 @@
 #	
 #	RFXCOM is a Trademark of RFSmartLink.
 #	
-# ----------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
+#
+#                          Protocol License Agreement                      
+#                                                                    
+# The RFXtrx protocols are owned by RFXCOM, and are protected under applicable
+# copyright laws.
+#
+# ==================================================================================
+# = It is only allowed to use this software or any part of it for RFXCOM products. =
+# ==================================================================================
+#
+# The above Protocol License Agreement and the permission notice shall be included
+# in all software using the RFXtrx protocols.
+#
+# Any use in violation of the foregoing restrictions may subject the user to criminal
+# sanctions under applicable laws, as well as to civil liability for the breach of the
+# terms and conditions of this license.
+#
+# -----------------------------------------------------------------------------------
 
 import string
 import sys
