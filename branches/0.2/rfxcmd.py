@@ -38,7 +38,7 @@
 # copyright laws.
 #
 # ==================================================================================
-# = It is only allowed to use this software or any part of it for RFXCOM products. =
+# = It is only allowed to use this protocol or any part of it for RFXCOM products. =
 # ==================================================================================
 #
 # The above Protocol License Agreement and the permission notice shall be included
@@ -89,6 +89,7 @@ class config_data:
 		loglevel = "info",
 		graphite_server = "",
 		graphite_port = "",
+		program_path = ""
 		):
         
 		self.undecoded = undecoded
@@ -103,6 +104,7 @@ class config_data:
 		self.loglevel = loglevel
 		self.graphite_server = graphite_server
 		self.graphite_port = graphite_port
+		self.program_path = program_path
 				
 		
 class cmdarg_data:
@@ -149,6 +151,9 @@ config = config_data()
 cmdarg = cmdarg_data()
 serial = serial_data()
 
+# Get directory of the rfxcmd script
+config.program_path = os.path.dirname(os.path.realpath(__file__))
+
 # ----------------------------------------------------------------------------
 # LOG DEBUG
 # ----------------------------------------------------------------------------
@@ -172,8 +177,9 @@ def logerror(text):
 # Default
 loglevel = 'INFO'
 
-if os.path.exists('config.xml'):
-	f = open('config.xml','r')
+if os.path.exists( os.path.join(config.program_path, "config.xml") ):
+
+	f = open( os.path.join(config.program_path, "config.xml"),'r')
 	data = f.read()
 	f.close()
 	
@@ -192,7 +198,7 @@ if os.path.exists('config.xml'):
 	
 	if loglevel == 'DEBUG' or loglevel == 'ERROR':
 		logger = logging.getLogger('rfxcmd')
-		hdlr = logging.FileHandler('rfxcmd.log')
+		hdlr = logging.FileHandler( os.path.join(config.program_path, "rfxcmd.log") )
 		formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 		hdlr.setFormatter(formatter)
 		logger.addHandler(hdlr) 
@@ -1740,6 +1746,8 @@ def read_rfx():
 
 def read_config( configFile, configItem):
  
+ 	xmlData = ""
+
  	logdebug('Open configuration file')
  	logdebug('File: ' + configFile)
 	
@@ -1803,6 +1811,7 @@ def read_trigger():
 
 def print_version():
  	print sw_name + " Version: " + sw_version
+ 	print "Path: " + config.program_path
  	print "$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $"
  	print "$Rev: 153 $"
  	sys.exit(0)
@@ -2247,7 +2256,7 @@ if cmdarg.printout_complete == True:
 if options.config:
 	cmdarg.configfile = options.config
 else:
-	cmdarg.configfile = "config.xml"
+	cmdarg.configfile = os.path.join(config.program_path, "config.xml")
 
 logdebug("Configfile: " + cmdarg.configfile)
 
@@ -2349,10 +2358,10 @@ if cmdarg.action == "send" or cmdarg.action == "bsend":
 # READ CONFIGURATION FILE
 # ----------------------------------------------------------------------------
 
-if os.path.exists( cmdarg.configfile ):
+if os.path.isfile( cmdarg.configfile ):
 
 	# RFX configuration
-	if ( read_config( cmdarg.configfile, "undecoded") == "yes"):
+	if (read_config( cmdarg.configfile, "undecoded") == "yes"):
 		config.undecoded = True
 	else:
 		config.undecoded = False
