@@ -6,6 +6,7 @@
  * Fixed, "Issue 11 : Print to file"
  * Serial device from global variable to object
  * Fixed, humidity status string for sensor 0x52
+ * Improved path handling if RFXCMD is executed from different directory
 
 == v0.22 (3-JAN-2013) ==
  * Fixed, "Issue 8: Error when testing daemon"
