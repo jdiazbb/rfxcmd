@@ -6,6 +6,7 @@
  * Fixed, "Issue 11 : Print to file"
  * Serial device from global variable to object
  * Fixed, humidity status string for sensor 0x52
+ * Fixed, "Issue 12 : Running script from different folder generates Configuration file not found"
  * Improved path handling if RFXCMD is executed from different directory
 
 == v0.22 (3-JAN-2013) ==
