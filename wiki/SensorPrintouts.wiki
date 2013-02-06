@@ -339,6 +339,21 @@ Battery       = OK
 ----
 == 0x59 - Current ==
 
+ELEC1:
+{{{
+0D5901015D0002001B0000000079
+Packettype    = CURRENT
+subtype       = ELEC1 - OWL CM113, Electrisave, cent-a-meter
+Sequence nbr  = 1
+ID            = 23808
+Count         = 2
+Channel 1     = 2.7 ampere
+Channel 2     = 0 ampere
+Channel 3     = 0 ampere
+Signal level  = 7
+Battery       = OK
+}}}
+
 ----
 == 0x5A - Energy ==
 
