@@ -244,8 +244,8 @@ def shutdown():
     
 	if serial.port is not None:
 		logdebug("Close serial port")
-  		serial.port.close()
-  		serial.port = None
+		serial.port.close()
+		serial.port = None
 
 	logdebug("Exit 0")
 	sys.stdout.flush()
@@ -1547,6 +1547,67 @@ def decodePacket( message ):
 					db.close()
 	
 	# ---------------------------------------
+	# 0x59 Current Sensor
+	# ---------------------------------------
+
+	if packettype == '59':
+
+		decoded = True
+
+		# Sensor ID
+		sensor_id = id1 + id2
+
+		# Counter
+		count = int(ByteToHex(message[6]),16)
+
+		channel1 = (int(ByteToHex(message[7]),16) * 0x100 + int(ByteToHex(message[8]),16)) * 0.1
+		channel2 = int(ByteToHex(message[9]),16) * 0x100 + int(ByteToHex(message[10]),16)
+		channel3 = int(ByteToHex(message[11]),16) * 0x100 + int(ByteToHex(message[12]),16)
+
+		# Battery & Signal
+		signal = decodeSignal(message[13])
+		battery = decodeBattery(message[13])
+
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_5A[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id\t\t\t= " + sensor_id
+			print "Counter\t\t\t= " + str(count)
+			print "Channel 1\t\t= " + str(channel1) + "A"
+			print "Channel 2\t\t= " + str(channel2) + "A"
+			print "Channel 3\t\t= " + str(channel3) + "A"
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
+
+		# CSV
+		if cmdarg.printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, packettype, subtype, seqnbr, id1, id2, str(count), str(channel1), str(channel2), str(channel3), str(battery), str(signal)) )
+
+		# MySQL
+		if cmdarg.mysql:
+
+			try:
+				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
+				cursor = db.cursor()
+
+				cursor.execute("INSERT INTO energy \
+				(datetime, packettype, subtype, seqnbr, id1, id2, count, ch1, ch2, ch3, battery, signal_level) VALUES \
+				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
+				(timestamp, packettype, subtype, seqnbr, id1, id2, count, channel1, channel2, channel3, usage, battery, signal))
+				
+				db.commit()
+
+			except MySQLdb.Error, e:
+				print "Error %d: %s" % (e.args[0], e.args[1])
+				sys.exit(1)
+
+			finally:
+				if db:
+					db.close()
+
+	# ---------------------------------------
 	# 0x5A Energy sensor
 	# Credit: Jean-Michel ROY
 	# ---------------------------------------
@@ -2538,6 +2599,7 @@ if cmdarg.action == "listen":
 
 	try:
 		while 1:
+
 			rawcmd = read_rfx()
 			logdebug('Received: ' + str(rawcmd))
 
