@@ -1594,7 +1594,7 @@ def decodePacket( message ):
 
 				cursor.execute("INSERT INTO energy \
 				(datetime, packettype, subtype, seqnbr, id1, id2, count, ch1, ch2, ch3, battery, signal_level) VALUES \
-				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s%');" % \
+				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
 				(timestamp, packettype, subtype, seqnbr, id1, id2, count, channel1, channel2, channel3, battery, signal))
 				
 				db.commit()
@@ -2326,7 +2326,7 @@ if options.graphite:
 	cmdarg.graphite = True
 	logdebug("Option: Graphite chosen")
 
-# Deamon
+# Daemon
 if options.daemon:
 	logdebug("Option: Daemon chosen")
 	logdebug("Check PID file")
@@ -2341,7 +2341,7 @@ if options.daemon:
 			logdebug("Exit 1")
 			sys.exit(1)
 		else:
-			logdebug("PID file does not exists")
+			logdebug("PID file does not exist")
 
 	else:
 		print("You need to set the --pidfile parameter at the startup")
@@ -2752,6 +2752,6 @@ except:
 	print "Error: Failed to close the port " + device
 	logdebug("Exit 1")
 	sys.exit(1)
-	
+
 logdebug("Exit 0")
 sys.exit(0)
