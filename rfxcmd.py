@@ -239,8 +239,8 @@ def shutdown():
 	logdebug("Shutdown")
 
 	if cmdarg.createpid:
-		logdebug("Removing PID file " + str(config.pidfile))
-		os.remove(config.pidfile)
+		logdebug("Removing PID file " + str(cmdarg.pidfile))
+		os.remove(cmdarg.pidfile)
     
 	if serial.port is not None:
 		logdebug("Close serial port")
