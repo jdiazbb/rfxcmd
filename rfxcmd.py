@@ -99,7 +99,7 @@ except ImportError:
 
 # XPLLib
 try:
-	import xpllib
+	import xpl
 except ImportError:
 	pass
 
