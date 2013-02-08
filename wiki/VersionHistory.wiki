@@ -9,6 +9,7 @@
  * Fixed, "Issue 12 : Running script from different folder generates Configuration file not found"
  * Improved path handling if RFXCMD is executed from different directory
  * Added support for 0x59 Current Sensor
+ * Fixed issue when removing pid file after daemon shutdown 
 
 == v0.22 (3-JAN-2013) ==
  * Fixed, "Issue 8: Error when testing daemon"
