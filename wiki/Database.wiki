@@ -10,6 +10,7 @@ This will not work with RFXCMD version 0.2x and lower, this will be implemented 
 
 ||Version||Date||Info||
 ||PA1||1-DEC-2012||First version||
+||PA2||9-FEB-2013||Added field for UnixTime in UTC||
 
 = Details =
 
@@ -17,9 +18,9 @@ This will not work with RFXCMD version 0.2x and lower, this will be implemented 
 
 The fields that all sensors have common:
 
-||DB||id||Datetime||Packettype||Subtype||Seqnbr||Battery||Signal||Processed||
-||MySQL||integer(11)||Datetime||varchar(2)||varchar(2)||varchar(2)||integer(2)||integer(2)||integer(1)||
-||Sqlite||integer||text||text||text||text||integer||integer||integer||
+||DB||id||Datetime||UnixTime||Packettype||Subtype||Seqnbr||Battery||Signal||Processed||
+||MySQL||integer(11)||Datetime||int||varchar(2)||varchar(2)||varchar(2)||integer(2)||integer(2)||integer(1)||
+||Sqlite||integer||text||integer||text||text||text||integer||integer||integer||
 
 Notes
 
@@ -84,6 +85,7 @@ The CREATE TABLE statement:
 CREATE TABLE `rfxcmd` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `datetime` datetime DEFAULT NULL,
+  `unixtime` int(11) DEFAULT NULL,
   `packettype` varchar(2) DEFAULT NULL,
   `subtype` varchar(2) DEFAULT NULL,
   `seqnbr` varchar(2) DEFAULT NULL,
@@ -160,6 +162,7 @@ sqlite> .schema rfxcmd
 CREATE TABLE 'rfxcmd' (
 'id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
 'datetime' TEXT, 
+'datetime' INTEGER, 
 'packettype' INTEGER, 
 'subtype' INTEGER, 
 'seqnbr' INTEGER, 
