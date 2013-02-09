@@ -10,7 +10,7 @@ This will not work with RFXCMD version 0.2x and lower, this will be implemented 
 
 ||Version||Date||Info||
 ||PA1||1-DEC-2012||First version||
-||PA2||9-FEB-2013||Added field for UnixTime in UTC||
+||PA2||9-FEB-2013||Added field for Unixtime in UTC||
 
 = Details =
 
