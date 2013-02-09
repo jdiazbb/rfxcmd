@@ -340,7 +340,7 @@ I can accurately integrate the message to RFXCMD.
 
 Thanks to following users who have helped with testing, patches, ideas, bug reports, and so on (in no special order).
 
-Anders, Dimitri, Patrik, Ludwig, Jean-Michel, Jean-Baptiste, Robert, Fabien, Bert, George, Jean-Francois, Mark, Frederic
+Anders, Dimitri, Patrik, Ludwig, Jean-Michel, Jean-Baptiste, Robert, Fabien, Bert, George, Jean-Francois, Mark, Frederic, Matthew, Arno, Jean-Louis, Christophe, Fredrik
 
 and to [http://www.rfxcom.com RFXCOM] for their support.
 
