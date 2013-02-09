@@ -1,7 +1,7 @@
 #summary RFXCMD version history
 = Version History =
 
-== v0.23 (xx-xxx-2013) ==
+== v0.23 (09-FEB-2013) ==
  * Fixed, "Issue 10 : Cleanup at exit"
  * Fixed, "Issue 11 : Print to file"
  * Serial device from global variable to object
