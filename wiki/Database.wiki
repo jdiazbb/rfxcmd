@@ -18,7 +18,7 @@ This will not work with RFXCMD version 0.2x and lower, this will be implemented 
 
 The fields that all sensors have common:
 
-||DB||id||Datetime||UnixTime||Packettype||Subtype||Seqnbr||Battery||Signal||Processed||
+||DB||id||Datetime||Unixtime||Packettype||Subtype||Seqnbr||Battery||Signal||Processed||
 ||MySQL||integer(11)||Datetime||int||varchar(2)||varchar(2)||varchar(2)||integer(2)||integer(2)||integer(1)||
 ||Sqlite||integer||text||integer||text||text||text||integer||integer||integer||
 
