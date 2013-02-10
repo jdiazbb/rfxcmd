@@ -65,6 +65,7 @@ import string
 import sys
 import os
 import time
+import datetime
 import binascii
 import traceback
 import subprocess
@@ -550,10 +551,10 @@ class rfx_data(dict):
 	rfx_subtype_51 = {"01":"LaCrosse TX3",
 						"02":"LaCrosse WS2300"}
 
-	rfx_subtype_51_humstatus = {"0":"Dry",
-								"1":"Confort",
-								"2":"Normal",
-								"3":"Wet"}
+	rfx_subtype_51_humstatus = {"00":"Dry",
+								"01":"Comfort",
+								"02":"Normal",
+								"03":"Wet"}
 
 	rfx_subtype_52 = {"01":"THGN122/123, THGN132, THGR122/228/238/268",
 						"02":"THGR810, THGN800",
@@ -565,16 +566,26 @@ class rfx_data(dict):
 						"08":"WT260,WT260H,WT440H,WT450,WT450H",
 						"09":"Viking 02035, 02038"}
 
-	rfx_subtype_52_humstatus = {"0":"Dry",
-								"1":"Confort",
-								"2":"Normal",
-								"3":"Wet"}
+	rfx_subtype_52_humstatus = {"00":"Dry",
+								"01":"Comfort",
+								"02":"Normal",
+								"03":"Wet"}
 
 	rfx_subtype_53 = {"01":"Reserved for future use"}
 
 	rfx_subtype_54 = {"01":"BTHR918",
 						"02":"BTHR918N, BTHR968"}
-					
+
+	rfx_subtype_54_humstatus = {"00":"Dry",
+								"01":"Comfort",
+								"02":"Normal",
+								"03":"Wet"}
+
+	rfx_subtype_54_forecast = {"01":"Sunny",
+								"02":"Partly cloudy",
+								"03":"Cloudy",
+								"04":"Rainy"}
+
 	rfx_subtype_55 = {"01":"RGR126/682/918",
 						"02":"PCR800",
 						"03":"TFA",
@@ -954,8 +965,11 @@ def decodePacket(message):
 	"""
 	Decode incoming RFXtrx message.
 	"""
+	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-		
+	timestamp_utc = datetime.datetime.utcnow()
+	unixtime_utc = str(long(time.mktime(timestamp_utc.timetuple())))
+
 	decoded = False
 	db = ""
 	
@@ -1169,16 +1183,16 @@ def decodePacket(message):
 		# MYSQL
 		if cmdarg.mysql:
 			if subtype == '00':
-				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_mysql(timestamp, timeutc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			else:
-				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_mysql(timestamp, timeutc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
 			if subtype == '00':
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_sqlite(timestamp, timeutc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			else:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_sqlite(timestamp, timeutc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x03 - Undecoded Message
@@ -1208,17 +1222,11 @@ def decodePacket(message):
 							(timestamp, packettype, subtype, seqnbr, indata ))
 		# MYSQL
 		if cmdarg.mysql:
-			try:
-				insert_mysql(timestamp, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			try:
-				insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-			except Exception, e:
-				raise e
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x10 Lighting1
@@ -1250,15 +1258,15 @@ def decodePacket(message):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, timeutc, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x11 Lighting2
@@ -1306,11 +1314,11 @@ def decodePacket(message):
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x12 Lighting3
@@ -1369,11 +1377,11 @@ def decodePacket(message):
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x13 Lighting4
@@ -1385,6 +1393,7 @@ def decodePacket(message):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_13[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
+			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
 			# TODO
 
 	# ---------------------------------------
@@ -1397,6 +1406,7 @@ def decodePacket(message):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_14[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
+			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
 			# TODO
 
 	# ---------------------------------------
@@ -1440,11 +1450,11 @@ def decodePacket(message):
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
@@ -1503,11 +1513,11 @@ def decodePacket(message):
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x28 Curtain1
@@ -1620,11 +1630,11 @@ def decodePacket(message):
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x41 Thermostat2
@@ -1678,11 +1688,11 @@ def decodePacket(message):
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x50 - Temperature sensors
@@ -1718,11 +1728,11 @@ def decodePacket(message):
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x51 - Humidity sensors
@@ -1736,8 +1746,8 @@ def decodePacket(message):
 		signal_id = id1 + id2
 
 		# Humidity
-		humidity = ByteToHex(message[6])
-		humidity_status = ByteToHex(message[7])
+		humidity = int(ByteToHex(message[6]),16)
+		humidity_status = rfx.rfx_subtype_51_humstatus[ByteToHex(message[7])]
 
 		# Battery & Signal
 		signal = decodeSignal(message[8])
@@ -1748,24 +1758,30 @@ def decodePacket(message):
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_51[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + signal_id
-			print "Humidity\t\t= " + str(int(humidity,16))			
-			print "Humidity Status\t\t= " + rfx.rfx_subtype_51_humstatus[str(humidity_status)]
+			print "Humidity\t\t= " + str(humidity)
+			print "Humidity Status\t\t= " + humidity_status
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, id1, id2,
-							str(int(humidity,16)), humidity_status, 
-							str(battery), str(signal)) )
-		
+							(timestamp, timeutc, packettype, subtype, seqnbr, signal_id, humidity_status,
+							str(humidity), str(battery), str(signal)) )
+
+		# MYSQL
+		if cmdarg.mysql:
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# SQLITE
+		if cmdarg.sqlite:
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
 		# XPL
 		if cmdarg.xpl == True:
-			xpllib.send(config.xplhost, 'device=thgr228.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
-			xpllib.send(config.xplhost, 'device=thgr228.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=thgr228.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=thgr228.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Hum.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Hum.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Hum.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x52 - Temperature and humidity sensors
@@ -1782,7 +1798,7 @@ def decodePacket(message):
 
 		# Humidity
 		humidity = int(ByteToHex(message[8]),16)
-		humidity_status = int(ByteToHex(message[9]),16)
+		humidity_status = rfx.rfx_subtype_52_humstatus[ByteToHex(message[9])]
 
 		# Battery & Signal
 		signal = decodeSignal(message[10])
@@ -1795,16 +1811,15 @@ def decodePacket(message):
 			print "Id\t\t\t= " + sensor_id
 			print "Temperature\t\t= " + temperature + " C"
 			print "Humidity\t\t= " + str(humidity) + "%"
-			print "Humidity Status\t\t= " + rfx.rfx_subtype_52_humstatus[str(humidity_status)]
+			print "Humidity Status\t\t= " + humidity_status
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, sensor_id,
-							temperature, str(humidity), str(humidity_status), 
-							str(battery), str(signal)) )
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, timeutc, packettype, subtype, seqnbr, sensor_id, humidity_status,
+							temperature, str(humidity), str(battery), str(signal)) )
 		
 		# GRAPHITE
 		if cmdarg.graphite == True:
@@ -1818,18 +1833,18 @@ def decodePacket(message):
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, humidity, humidity_status, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, humidity, humidity_status, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
 		if cmdarg.xpl == True:
-			xpllib.send(config.xplhost, 'device=thgr228.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
-			xpllib.send(config.xplhost, 'device=thgr228.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=thgr228.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=thgr228.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+			xpllib.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
+			xpllib.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
+			xpllib.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpllib.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x54 - Temperature, humidity and barometric sensors
@@ -1839,24 +1854,15 @@ def decodePacket(message):
 		
 		decoded = True
 
+		# Sensor id
+		sensor_id = id1 + id2
+
 		# Temperature
-		temp_high = ByteToHex(message[6])
-		temp_low = ByteToHex(message[7])
-		polarity = testBit(int(temp_high,16),7)
-		
-		if polarity == 128:
-			polarity_sign = "-"
-		else:
-			polarity_sign = ""
-			
-		temp_high = clearBit(int(temp_high,16),7)
-		temp_high = temp_high << 8
-		temperature = ( temp_high + int(temp_low,16) ) * 0.1
-		temperature_str = polarity_sign + str(temperature)
+		temperature = decodeTemperature(message[6], message[7])
 		
 		# Humidity
-		humidity = ByteToHex(message[8])
-		humidity_status = ByteToHex(message[9])
+		humidity = int(ByteToHex(message[8]),16)
+		humidity_status = rfx.rfx_subtype_54_humstatus[ByteToHex(message[9])]
 
 		# Barometric pressure
 		barometric_high = ByteToHex(message[10])
@@ -1866,75 +1872,46 @@ def decodePacket(message):
 		barometric = ( barometric_high + int(barometric_low,16) )
 		
 		# Forecast
-		forecast_status = ByteToHex(message[12])
+		forecast = rfx.rfx_subtype_54_forecast[ByteToHex(message[12])]
 		
 		# Battery & Signal
 		signal = decodeSignal(message[13])
 		battery = decodeBattery(message[13])
 		
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_54[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id 1 (House)\t\t= " + id1
-			print "Id 2 (Channel)\t\t= " + id2
-			
-			print "Temperature\t\t= " + temperature_str + " C"
-			print "Humidity\t\t= " + str(int(humidity,16))
-			
-			if humidity_status == '00':
-				print "Humidity Status\t\t= Dry"
-			elif humidity_status == '01':
-				print "Humidity Status\t\t= Comfort"
-			elif humidity_status == '02':
-				print "Humidity Status\t\t= Normal"
-			elif humidity_status == '03':
-				print "Humidity Status\t\t= Wet"
-			else:
-				print "Humidity Status\t\t= Unknown"
-			
+			print "Id\t\t\t= " + sensor_id
+			print "Temperature\t\t= " + temperature + " C"
+			print "Humidity\t\t= " + str(humidity)
+			print "Humidity Status\t\t= " + humidity_status			
 			print "Barometric pressure\t= " + str(barometric)
-			
-			if forecast_status == '01':
-				print "Forecast Status\t\t= Sunny"
-			elif forecast_status == '02':
-				print "Forecast Status\t\t= Partly cloudy"
-			elif forecast_status == '03':
-				print "Forecast Status\t\t= Cloudy"
-			elif forecast_status == '04':
-				print "Forecast Status\t\t= Rainy"
-			else:
-				print "Forecast Status\t\t= Unknown"
-			
+			print "Forecast Status\t\t= " + forecast
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
+		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, id1, id2,
-							temperature_str, str(int(humidity,16)), humidity_status, 
-							str(barometric), forecast_status, str(battery), str(signal)) )
+							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id,
+							forecast, humidity_status, str(humidity), str(baormetric), str(temperature)))
 		
+		# MYSQL
 		if cmdarg.mysql:
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, temperature, 0, 0, 0, 0, 0)
 
-			try:
-				db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
-				cursor = db.cursor()
+		# SQLITE
+		if cmdarg.sqlite:
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, temperature, 0, 0, 0, 0, 0)
 
-				cursor.execute("INSERT INTO weather \
-				(datetime, packettype, subtype, seqnbr, id1, id2, temperature, humidity, humidity_status, barometric, forecast, battery, signal_level) VALUES \
-				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s','%s');" % \
-				(timestamp, packettype, subtype, seqnbr, id1, id2, temperature_str, int(humidity,16), int(humidity_status,16), \
-				barometric, int(forecast_status,16), battery, signal))
-				
-				db.commit()
-
-			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
-				sys.exit(1)
-
-			finally:
-				if db:
-					db.close()
+		# XPL
+		if cmdarg.xpl == True:
+			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
+			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
+			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(barometric)+'\nunits=%')
+			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x55 - Rain sensors
@@ -1976,7 +1953,6 @@ def decodePacket(message):
 			print "Raintotal:\t\t= " + str(int(raintotal1,16))
 			print "Raintotal:\t\t= " + str(int(raintotal2,16))
 			print "Raintotal:\t\t= " + str(int(raintotal3,16))
-				
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
@@ -2023,13 +1999,13 @@ def decodePacket(message):
 		if subtype == "04":
 			temperature = decodeTemperature(message[12], message[13])
 		else:
-			temperature = "0"
+			temperature = 0
 
 		# Windchill
 		if subtype == "04":
 			windchill = decodeTemperature(message[14], message[15])
 		else:
-			windchill = "0"
+			windchill = 0
 		
 		# Battery & Signal
 		signal = decodeSignal(message[16])
@@ -2061,11 +2037,11 @@ def decodePacket(message):
 	
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 
 	# ---------------------------------------
 	# 0x59 Current Sensor
@@ -2101,6 +2077,14 @@ def decodePacket(message):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 	
+		# XPL
+		if cmdarg.xpl == True:
+			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A')
+			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel2\ncurrent='+str(channel2)+'\nunits=A')
+			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A')
+			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+
 	# ---------------------------------------
 	# 0x5A Energy sensor
 	# Credit: Jean-Michel ROY
@@ -2120,6 +2104,7 @@ def decodePacket(message):
 		instant = int(ByteToHex(message[7]), 16) * 0x1000000 + int(ByteToHex(message[8]), 16) * 0x10000 + int(ByteToHex(message[9]), 16) * 0x100  + int(ByteToHex(message[10]), 16)
 		usage = int ((int(ByteToHex(message[11]), 16) * 0x10000000000 + int(ByteToHex(message[12]), 16) * 0x100000000 +int(ByteToHex(message[13]), 16) * 0x1000000 + int(ByteToHex(message[14]), 16) * 0x10000 + int(ByteToHex(message[15]), 16) * 0x100 + int(ByteToHex(message[16]), 16) ) / 223.666)
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_5A[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -2131,9 +2116,16 @@ def decodePacket(message):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, sensor_id,
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id,
 							str(instant), str(usage), str(battery), str(signal)) )
+
+		# XPL
+		if cmdarg.xpl == True:
+			xpllib.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(channel1)+'\nunits=W')
+			xpllib.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(channel2)+'\nunits=Wh')
+			xpllib.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpllib.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x5B Current + Energy sensor
@@ -2185,28 +2177,17 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			if subtype == '00':
-				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), id1, str(temperature)))
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(temperature)))
 			if subtype == '01' or subtype == '02':
-				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
-
-		# GRAPHITE
-		if cmdarg.graphite == True:
-			now = int( time.time() )
-			linesg=[]
-			if subtype == '00':
-				linesg.append("%s.%s.temperature %s %d" % ( id1, temperature, now ))
-			if subtype == '01':
-				linesg.append("%s.%s.voltage %s %d" % ( id1, voltage, now ))
-			linesg.append("%s.%s.signal %s %d"% ( id1, signal, now ))
-			send_graphite(config.graphite_server, config.graphite_port, linesg)
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
 
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# Not decoded message
