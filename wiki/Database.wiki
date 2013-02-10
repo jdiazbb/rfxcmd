@@ -54,7 +54,7 @@ Sensor specific data fields:
 ||0x50||id1-id2||-||-||-||-||-||-||temperature||-||-||-||-||-||
 ||0x51||id1-id2||-||humidity status||humidity||-||-||-||-||-||-||-||-||-||
 ||0x52||id1-id2||-||humidity status||humidity||-||-||-||temperature||-||-||-||-||-||
-||0x53||id1-id2||-||-||-||-||barometric||forecast||-||-||-||-||-||-||
+||0x53||id1-id2||forecast||-||-||-||barometric||-||-||-||-||-||-||-||
 ||0x54||id1-id2||forecast||humidity status||humidity||-||barometric||-||temperature||-||-||-||-||-||
 ||0x55||id1-id2||-||-||-||-||-||-||rainrate||raintotal||-||-||-||-||
 ||0x56||id1-id2||-||-||-||-||-||-||temperature||av_speed||gust||direction||chill||-||
