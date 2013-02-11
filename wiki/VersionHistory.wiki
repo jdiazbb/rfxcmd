@@ -1,6 +1,12 @@
 #summary RFXCMD version history
 = Version History =
 
+== v0.3 (Not released yet, under work...) ==
+ * Rewrite, more in object style
+ * Added 0x30 (ATI Remote Wonder and Medion)
+ * Common database structure for all sensors (MySql and Sqlite)
+ * Possible to send data to xPL network
+
 == v0.23 (09-FEB-2013) ==
  * Fixed, "Issue 10 : Cleanup at exit"
  * Fixed, "Issue 11 : Print to file"
