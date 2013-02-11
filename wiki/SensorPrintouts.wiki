@@ -111,6 +111,17 @@ battery level = OK
 Signal level  = 5
 }}}
 
+0x08 - KD101:
+{{{
+08200300346C000680
+Packettype    = Security1
+subtype       = KD101 smoke detector
+Sequence nbr  = 0
+id1-3         = 346C00
+status        = Panic
+Signal level  = 8
+}}}
+
 ----
 == 0x28 - Camera1 ==
 
