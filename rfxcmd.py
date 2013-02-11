@@ -1657,7 +1657,7 @@ def decodePacket(message):
 		# CSV 
 		if cmdarg.printout_csv == True:
 			if subtype == '00' or subtype == '02':
-				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, command)
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, command))
 			elif subtype == '04' or subtype == '01' or subtype == '03':
 				command = "Not implemented in RFXCMD"
 
