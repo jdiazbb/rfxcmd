@@ -117,6 +117,17 @@ Signal level  = 5
 ----
 == 0x30 - Remote control and IR ==
 
+ATI Remote Wonder:
+{{{
+063000000F0D50
+Packettype    = Remote control & IR
+subtype       = ATI Remote Wonder
+Sequence nbr  = 0
+ID            = 15
+Command       = 1
+Signal level  = 5
+}}}
+
 Medion Remote:
 {{{
 06300200000B5A
