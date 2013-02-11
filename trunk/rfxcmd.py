@@ -449,6 +449,76 @@ class rfx_data(dict):
 						"03":"X10 PC Remote",
 						"04":"ATI Remote Wonder II (receive only)"}
 
+	rfx_subtype_30_atiremotewonder = {"00":"A",
+									"01":"B",
+									"02":"Power",
+									"03":"TV",
+									"04":"DVD",
+									"05":"?",
+									"06":"Guide",
+									"07":"Drag",
+									"08":"VOL+",
+									"09":"VOL-",
+									"0A":"MUTE",
+									"0B":"CHAN+",
+									"0C":"CHAN-",
+									"0D":"1",
+									"0E":"2",
+									"0F":"3",
+									"10":"4",
+									"11":"5",
+									"12":"6",
+									"13":"7",
+									"14":"8",
+									"15":"9",
+									"16":"txt",
+									"17":"0",
+									"18":"Snapshot ESQ",
+									"19":"C",
+									"1A":"^",
+									"1B":"D",
+									"1C":"TV/RADIO",
+									"1D":"<",
+									"1E":"OK",
+									"1F":">",
+									"20":"<-",
+									"21":"E",
+									"22":"v",
+									"23":"F",
+									"24":"Rewind",
+									"25":"Play",
+									"26":"Fast forward",
+									"27":"Record",
+									"28":"Stop",
+									"29":"Pause",
+									"2C":"TV",
+									"2D":"VCR",
+									"2E":"RADIO",
+									"2F":"TV Preview",
+									"30":"Channel list",
+									"31":"Video Desktop",
+									"32":"red",
+									"33":"green",
+									"34":"yellow",
+									"35":"blue",
+									"36":"rename TAB",
+									"37":"Acquire image",
+									"38":"edit image",
+									"39":"Full Screen",
+									"3A":"DVD Audio",
+									"70":"Cursor-left",
+									"71":"Cursor-right",
+									"72":"Cursor-up",
+									"73":"Cursor-down",
+									"74":"Cursor-up-left",
+									"75":"Cursor-up-right",
+									"76":"Cursor-down-right",
+									"77":"Cursor-down-left",
+									"78":"V",
+									"79":"V-End",
+									"7C":"X",
+									"7D":"X-End"}
+
 	rfx_subtype_30_medion = {"00":"Mute",
 							"01":"B",
 							"02":"Power",
@@ -1258,7 +1328,7 @@ def decodePacket(message):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, timeutc, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
 
 		# MYSQL
 		if cmdarg.mysql:
@@ -1310,7 +1380,7 @@ def decodePacket(message):
 		
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), dimlevel ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), dimlevel ))
 
 		# MYSQL
 		if cmdarg.mysql:
@@ -1509,7 +1579,7 @@ def decodePacket(message):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(battery), str(signal), status ) )
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id, status ) )
 
 		# MYSQL
 		if cmdarg.mysql:
@@ -1553,6 +1623,18 @@ def decodePacket(message):
 			else:
 				cmndtype = "Unknown"
 
+		# Command
+		if subtype == '00':
+			command = rfx.rfx_subtype_30_atiremotewonder[ByteToHex(message[5])]
+		elif subtype == '01':
+			command = "Not implemented in RFXCMD"
+		elif subtype == '02':
+			command = rfx.rfx_subtype_30_medion[ByteToHex(message[5])]
+		elif subtype == '03':
+			command = "Not implemented in RFXCMD"
+		elif subtype == '04':
+			command = "Not implemented in RFXCMD"
+
 		# Signal
 		if subtype == '00' or subtype == '02' or subtype == '03':
 			signal = decodeSignal(message[6])
@@ -1562,17 +1644,7 @@ def decodePacket(message):
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_30[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + id1
-
-			if subtype == '00':
-				print "Not implemented in RFXCMD"
-			elif subtype == '01':
-				print "Not implemented in RFXCMD"
-			elif subtype == '02':
-				print "Command\t\t\t= " + rfx.rfx_subtype_30_medion[ByteToHex(message[5])]
-			elif subtype == '03':
-				print "Not implemented in RFXCMD"
-			elif subtype == '04':
-				print "Not implemented in RFXCMD"
+			print "Command\t\t\t= " + command
 
 			if subtype == '04':
 				print "Toggle\t\t\t= " + ByteToHex(message[6])
@@ -1582,6 +1654,26 @@ def decodePacket(message):
 
 			print "Signal level\t\t= " + str(signal)
 
+		# CSV 
+		if cmdarg.printout_csv == True:
+			if subtype == '00' or subtype == '02':
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, command)
+			elif subtype == '04' or subtype == '01' or subtype == '03':
+				command = "Not implemented in RFXCMD"
+
+		# MYSQL
+		if cmdarg.mysql:
+			if subtype == '00' or subtype == '02':
+				insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, id1, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			elif subtype == '04' or subtype == '01' or subtype == '03':
+				command = "Not implemented in RFXCMD"
+
+		# SQLITE
+		if cmdarg.sqlite:
+			if subtype == '00' or subtype == '02':
+				insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, id1, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			elif subtype == '04' or subtype == '01' or subtype == '03':
+				command = "Not implemented in RFXCMD"
 
 	# ---------------------------------------
 	# 0x40 - Thermostat1
@@ -1626,7 +1718,7 @@ def decodePacket(message):
 
 		# CSV 
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), mode, status, str(temperature_set), str(temperature) ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), mode, status, str(temperature_set), str(temperature) ))
 
 		# MYSQL
 		if cmdarg.mysql:
@@ -1722,9 +1814,8 @@ def decodePacket(message):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, sensor_id, 
-								str(battery), str(signal), temperature ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, str(battery), str(signal), temperature ))
 
 		# MYSQL
 		if cmdarg.mysql:
