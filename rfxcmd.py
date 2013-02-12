@@ -2124,8 +2124,7 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id,
-							str(temperature), str(av_speed), str(gust), str(direction), str(windchill) ) )
+							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id, str(temperature), str(av_speed), str(gust), str(direction), str(windchill) ) )
 	
 		# MYSQL
 		if cmdarg.mysql:
@@ -2134,6 +2133,21 @@ def decodePacket(message):
 		# SQLITE
 		if cmdarg.sqlite:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
+
+		# xPL
+		if cmdarg.xpl == True:
+			xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=direction\ncurrent='+str(direction)+'\nunits=Degrees')
+			
+			if subtype <> "05":
+				xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=Averagewind\ncurrent='+str(av_speed)+'\nunits=mtr/sec')
+			
+			if subtype == "04":
+				xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=temperature\ncurrent='+str(temperature)+'\nunits=C')
+				xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=windchill\ncurrent='+str(windchill)+'\nunits=C')
+			
+			xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=windgust\ncurrent='+str(gust)+'\nunits=mtr/sec')
+			xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x59 Current Sensor
@@ -2223,8 +2237,33 @@ def decodePacket(message):
 	# 0x5B Current + Energy sensor
 	# ---------------------------------------
 	
-	# TODO
-	
+	if packettype == '58':
+
+		decoded = True
+
+		# Sensor id
+		sensor_id = id1 + id2
+
+		# Date
+		date_year = ByteToHex(message[6]);
+		date_month = ByteToHex(message[7]);
+		date_day = ByteToHex(message[8]);
+		date_dow = ByteToHex(message[9]);
+
+		# Time
+		time_hour = ByteToHex(message[10]);
+		time_min = ByteToHex(message[11]);
+		time_sec = ByteToHex(message[12]);
+
+		# Battery & Signal
+		signal = decodeSignal(message[13])
+		battery = decodeBattery(message[13])
+
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_58[subtype]
+			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
+
 	# ---------------------------------------
 	# 0x70 RFXsensor
 	# ---------------------------------------
@@ -2441,7 +2480,7 @@ def read_trigger():
 # ----------------------------------------------------------------------------
 
 def print_version():
-	logdebug("def print_version")
+	logdebug("print_version")
  	print "RFXCMD Version: " + __version__
  	print __date__.replace('$', '')
  	logdebug("Exit 0")
