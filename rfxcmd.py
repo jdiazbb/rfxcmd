@@ -1037,8 +1037,9 @@ def decodePacket(message):
 	"""
 	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-	timestamp_utc = datetime.datetime.utcnow()
-	unixtime_utc = str(long(time.mktime(timestamp_utc.timetuple())))
+	#timestamp_utc = datetime.datetime.utcnow()
+	#unixtime_utc = str(long(time.mktime(timestamp_utc.timetuple())))
+	unixtime_utc = int(time.time())
 
 	decoded = False
 	db = ""
