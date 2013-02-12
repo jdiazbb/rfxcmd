@@ -98,7 +98,7 @@ try:
 except ImportError:
 	pass
 
-# XPLLib
+# xPL functions
 try:
 	import xpl
 except ImportError:
@@ -1037,8 +1037,6 @@ def decodePacket(message):
 	"""
 	
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-	#timestamp_utc = datetime.datetime.utcnow()
-	#unixtime_utc = str(long(time.mktime(timestamp_utc.timetuple())))
 	unixtime_utc = int(time.time())
 
 	decoded = False
@@ -1933,10 +1931,10 @@ def decodePacket(message):
 
 		# XPL
 		if cmdarg.xpl == True:
-			xpllib.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
-			xpllib.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
+			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x54 - Temperature, humidity and barometric sensors
@@ -1991,19 +1989,19 @@ def decodePacket(message):
 		
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, temperature, 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, temperature, 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
 		if cmdarg.xpl == True:
-			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
-			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(barometric)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
+			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(barometric)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x55 - Rain sensors
@@ -2136,18 +2134,18 @@ def decodePacket(message):
 
 		# xPL
 		if cmdarg.xpl == True:
-			xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=direction\ncurrent='+str(direction)+'\nunits=Degrees')
+			xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=direction\ncurrent='+str(direction)+'\nunits=Degrees')
 			
 			if subtype <> "05":
-				xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=Averagewind\ncurrent='+str(av_speed)+'\nunits=mtr/sec')
+				xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=Averagewind\ncurrent='+str(av_speed)+'\nunits=mtr/sec')
 			
 			if subtype == "04":
-				xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=temperature\ncurrent='+str(temperature)+'\nunits=C')
-				xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=windchill\ncurrent='+str(windchill)+'\nunits=C')
+				xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=temperature\ncurrent='+str(temperature)+'\nunits=C')
+				xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=windchill\ncurrent='+str(windchill)+'\nunits=C')
 			
-			xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=windgust\ncurrent='+str(gust)+'\nunits=mtr/sec')
-			xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=windgust\ncurrent='+str(gust)+'\nunits=mtr/sec')
+			xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x59 Current Sensor
@@ -2185,11 +2183,11 @@ def decodePacket(message):
 	
 		# XPL
 		if cmdarg.xpl == True:
-			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A')
-			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel2\ncurrent='+str(channel2)+'\nunits=A')
-			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A')
-			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A')
+			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel2\ncurrent='+str(channel2)+'\nunits=A')
+			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A')
+			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x5A Energy sensor
@@ -2228,10 +2226,10 @@ def decodePacket(message):
 
 		# XPL
 		if cmdarg.xpl == True:
-			xpllib.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(channel1)+'\nunits=W')
-			xpllib.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(channel2)+'\nunits=Wh')
-			xpllib.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpllib.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(channel1)+'\nunits=W')
+			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(channel2)+'\nunits=Wh')
+			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x5B Current + Energy sensor
@@ -2337,7 +2335,9 @@ def decodePacket(message):
 # ----------------------------------------------------------------------------
 
 def send_rfx( message ):
-	
+	"""
+	Send raw message to RFXtrx
+	"""
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 	
 	if cmdarg.printout_complete == True:
@@ -2359,7 +2359,9 @@ def send_rfx( message ):
 # ----------------------------------------------------------------------------
 
 def read_rfx():
-
+	"""
+	Read message from RFXtrx and decode the decode the message
+	"""
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 	logdebug('Timestamp: ' + timestamp)
 	message = None
@@ -2417,7 +2419,9 @@ def read_rfx():
 # ----------------------------------------------------------------------------
 
 def read_config( configFile, configItem):
- 
+ 	"""
+ 	Read configuration file
+ 	"""
  	logdebug('Open configuration file')
  	logdebug('File: ' + configFile)
 	
@@ -2460,7 +2464,9 @@ def read_config( configFile, configItem):
 # ----------------------------------------------------------------------------
 
 def read_trigger():
- 
+ 	"""
+ 	Read trigger file for trigger command
+ 	"""
 	xmldoc = minidom.parse('trigger.xml')
 	root = xmldoc.documentElement
 
@@ -2480,6 +2486,9 @@ def read_trigger():
 # ----------------------------------------------------------------------------
 
 def print_version():
+	"""
+	Print RFXCMD version, build and date
+	"""
 	logdebug("print_version")
  	print "RFXCMD Version: " + __version__
  	print __date__.replace('$', '')
