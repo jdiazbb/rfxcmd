@@ -187,7 +187,7 @@ Signal level  = 7
 ----
 == 0x50 - Temperature ==
 
-TEMP2
+TEMP2:
 {{{
 085002071F0100E489
 Packettype    = TEMP
@@ -212,7 +212,19 @@ Signal level  = 4
 Battery       = OK
 }}}
 
-TEMP8
+TEMP7:
+{{{
+08500700BE0000DB79
+Packettype    = TEMP
+subtype       = TEMP7 - Viking 02811
+Sequence nbr  = 0
+ID            = 48640
+Temperature   = 21.9 °C
+Signal level  = 7
+Battery       = OK
+}}}
+
+TEMP8:
 {{{
 0850089D630000FF79
 Packettype    = TEMP
