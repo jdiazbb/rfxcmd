@@ -1,0 +1,44 @@
+/*
+	
+	MYSQL_THERMOSTAT.TXT
+	
+	MySQL database/table configuration for RFXCMD / Thermostat
+	
+	NOTE!
+	There is a "drop table" line that will drop existing table with the same name
+	and remove any existing data, please backup first if you are already using table
+	with the same name.
+	
+	Usage;
+	$ mysql -u <user> -p -D <database> < mysql_thermostat.txt
+	
+	Version;
+	
+	R1A 24-NOV-2012, Jean-Francois Pucheu
+		* Created
+	
+	R1E 06-FEB-2013
+		* Added -D statement in usage
+		* Added note about the drop table line
+
+*/
+
+DROP TABLE IF EXISTS `thermostat`;
+
+CREATE TABLE `thermostat` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `datetime` datetime DEFAULT NULL,
+  `packettype` varchar(2) DEFAULT NULL,
+  `subtype` varchar(2) DEFAULT NULL,
+  `seqnbr` varchar(2) DEFAULT NULL,
+  `id1` varchar(2) DEFAULT NULL,
+  `id2` varchar(2) DEFAULT NULL,
+  `temperature` float(5,2) DEFAULT NULL,
+  `temperature_set` float(5,2) DEFAULT NULL,
+  `mode` varchar(8) DEFAULT NULL,
+  `status` varchar(10) DEFAULT NULL,
+  `signal_level` int(11) DEFAULT NULL,
+  `processed` int(1) DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+                                        
