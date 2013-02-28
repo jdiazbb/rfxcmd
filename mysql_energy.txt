@@ -4,8 +4,13 @@
 	
 	MySQL database/table configuration for RFXCMD / Energy data
 	
+	NOTE!
+	There is a "drop table" line that will drop existing table with the same name
+	and remove any existing data, please backup first if you are already using table
+	with the same name.
+
 	Usage;
-	$ mysql -u <user> -p < mysql_weather.txt
+	$ mysql -u <user> -p -D <database> < mysql_weather.txt
 	
 	Version;
 	
@@ -19,13 +24,11 @@
 	R1D 11-OCT-2012
 		* Corrected 'instant' and 'total' to int(11). (Thanks: Dimitri)
 	
+	R1E 06-FEB-2013
+		* Added -D statement in usage
+		* Added note about the drop table line
+
 */
-
-# If the database RFXCMD exists, then don't re-create it
-CREATE DATABASE IF NOT EXISTS `rfxcmd`;
-
-# Use RFXCMD
-USE `rfxcmd`
 
 /*
 	

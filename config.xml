@@ -3,8 +3,8 @@
 	<undecoded>no</undecoded>
 	<mysql_server>localhost</mysql_server>
 	<mysql_database>rfxcmd</mysql_database>
-	<mysql_username>user</mysql_username>
-	<mysql_password>pass</mysql_password>
+	<mysql_username>rfxcmd</mysql_username>
+	<mysql_password>rfxcmd</mysql_password>
 	<trigger>no</trigger>
 	<triggerfile>trigger.xml</triggerfile>
 	<sqlite_database>sqlite.db</sqlite_database>
