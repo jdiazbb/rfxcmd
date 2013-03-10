@@ -1389,12 +1389,14 @@ def decodePacket( message ):
 		# Rain rate
 		rainrate_high = ByteToHex(message[6])
 		rainrate_low = ByteToHex(message[7])
+		rainrate = int(rainrate_high,16)*255+int(rainrate_low,16)
 
 		# Rain total
-		raintotal1 = ByteToHex(message[8])
-		raintotal2 = ByteToHex(message[9])
-		raintotal3 = ByteToHex(message[10])
-		
+		raintotal1 = int(ByteToHex(message[8]),16)
+		raintotal2 = int(ByteToHex(message[9]),16)
+		raintotal3 = int(ByteToHex(message[10]),16)
+		raintotal = (raintotal1 * 0x10000 + raintotal2 * 0x100  + raintotal3) * 0.1
+
 		# Battery & Signal	
 		signal = decodeSignal(message[11])
 		battery = decodeBattery(message[11])
@@ -1402,28 +1404,23 @@ def decodePacket( message ):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_55[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id 1 (House)\t\t= " + id1
-			print "Id 2 (Channel)\t\t= " + id2
+			print "Id 1\t\t\t= " + id1
+			print "Id 2\t\t\t= " + id2
 			
-			if subtype == '1':
-				print "Rain rate\t\t= Not implemented in rfxcmd, need example"
-			elif subtype == '2':
+			if subtype == '01':
+				print "Rain rate\t\t= " + str(rainrate) + " mm/h"
+			elif subtype == '02':
 				print "Rain rate\t\t= Not implemented in rfxcmd, need example"
 			else:
 				print "Rain rate\t\t= Not supported"
 
-			print "Raintotal:\t\t= " + str(int(raintotal1,16))
-			print "Raintotal:\t\t= " + str(int(raintotal2,16))
-			print "Raintotal:\t\t= " + str(int(raintotal3,16))
+			print "Raintotal:\t\t= " + str(raintotal) + " mm"
 				
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							( timestamp, packettype, subtype, seqnbr, id1, id2,
-							str(int(rainrate_high,16)), str(int(raintotal1,16)), 
-							str(battery), str(signal) ) )
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % ( timestamp, packettype, subtype, seqnbr, id1, id2, str(rainrate), str(raintotal), str(battery), str(signal) ) )
 			sys.stdout.flush()
 
 		if cmdarg.mysql:
@@ -1434,8 +1431,7 @@ def decodePacket( message ):
 				cursor.execute("INSERT INTO weather \
 				(datetime, packettype, subtype, seqnbr, id1, id2, rainrate, raintotal, battery, signal_level) VALUES \
 				('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % \
-				(timestamp, packettype, subtype, seqnbr, id1, id2, int(rainrate_high,16), int(raintotal1,16), \
-				battery, signal))
+				(timestamp, packettype, subtype, seqnbr, id1, id2, int(rainrate), int(raintotal), battery, signal))
 				
 				db.commit()
 
