@@ -307,6 +307,19 @@ Battery       = OK
 ----
 == 0x55 - Rain ==
 
+RAIN1:
+{{{
+0B5501006D000001003FDE79
+Packettype    = RAIN
+subtype       = RAIN1 - RGR126/682/918/928
+Sequence nbr  = 0
+ID            = 27904
+Rain rate     = 1 mm/h
+Total rain    = 1635 mm
+Signal level  = 7
+Battery       = 100%
+}}}
+
 RAIN5:
 {{{
 0B55059A6300000000004C89
