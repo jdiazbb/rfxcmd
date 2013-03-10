@@ -202,13 +202,13 @@ if os.path.exists( os.path.join(config.program_path, "config.xml") ):
 		xmlTag = dom.getElementsByTagName( 'logfile' )[0].toxml()
 		logfile = xmlTag.replace('<logfile>','').replace('</logfile>','')
 	except:
-		logfile = "rfxcmd.log"
+		logfile = os.path.join(config.program_path, "rfxcmd.log")
 
 	loglevel = loglevel.upper()
 	
 	if loglevel == 'DEBUG' or loglevel == 'ERROR':
 		logger = logging.getLogger('rfxcmd')
-		hdlr = logging.FileHandler( os.path.join(config.program_path, logfile) )
+		hdlr = logging.FileHandler(logfile)
 		formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 		hdlr.setFormatter(formatter)
 		logger.addHandler(hdlr) 
