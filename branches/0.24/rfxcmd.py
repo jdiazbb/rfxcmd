@@ -87,6 +87,7 @@ class config_data:
 		sqlite_database = "",
 		sqlite_table = "",
 		loglevel = "info",
+		logfile = "",
 		graphite_server = "",
 		graphite_port = "",
 		program_path = ""
@@ -102,6 +103,7 @@ class config_data:
 		self.sqlite_database = sqlite_database
 		self.sqlite_table = sqlite_table
 		self.loglevel = loglevel
+		self.logfile = logfile
 		self.graphite_server = graphite_server
 		self.graphite_port = graphite_port
 		self.program_path = program_path
@@ -188,17 +190,25 @@ if os.path.exists( os.path.join(config.program_path, "config.xml") ):
 	except:
 		print "Error: problem in the config.xml file, cannot process it"
 	
+	# Get loglevel from configuration file
 	try:
 		xmlTag = dom.getElementsByTagName( 'loglevel' )[0].toxml()
 		loglevel = xmlTag.replace('<loglevel>','').replace('</loglevel>','')
 	except:
 		pass
-	
+
+	# Get logfile from configuration file
+	try:
+		xmlTag = dom.getElementsByTagName( 'logfile' )[0].toxml()
+		logfile = xmlTag.replace('<logfile>','').replace('</logfile>','')
+	except:
+		logfile = "rfxcmd.log"
+
 	loglevel = loglevel.upper()
 	
 	if loglevel == 'DEBUG' or loglevel == 'ERROR':
 		logger = logging.getLogger('rfxcmd')
-		hdlr = logging.FileHandler( os.path.join(config.program_path, "rfxcmd.log") )
+		hdlr = logging.FileHandler( os.path.join(config.program_path, logfile) )
 		formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 		hdlr.setFormatter(formatter)
 		logger.addHandler(hdlr) 
