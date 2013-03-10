@@ -223,7 +223,7 @@ except ImportError:
 # ----------------------------------------------------------------------------
 
 sw_name = "RFXCMD"
-sw_version = "0.23"
+sw_version = "0.24"
 
 logdebug(sw_name + ' ' + sw_version)
 logdebug("$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $")
@@ -658,6 +658,7 @@ def decodePacket( message ):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;\n" %
 							(timestamp, packettype, subtype, seqnbr, id1 ) )
+			sys.stdout.flush()
 
 	# ---------------------------------------
 	# 0x10 Lighting1
@@ -690,6 +691,7 @@ def decodePacket( message ):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
+			sys.stdout.flush()
 
 		# MYSQL
 		# Not implemented
@@ -740,6 +742,7 @@ def decodePacket( message ):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), dimlevel ))
+			sys.stdout.flush()
 
 		# MYSQL
 		# Not implemented
@@ -801,6 +804,7 @@ def decodePacket( message ):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;\n" %(timestamp,
 				packettype, subtype, seqnbr, str(system), str(channel), 
 				command, str(battery), str(signal) ))
+			sys.stdout.flush()
 
 	# ---------------------------------------
 	# 0x13 Lighting4
@@ -860,6 +864,7 @@ def decodePacket( message ):
 							packettype, subtype, seqnbr, id1, id2,
 							rfx_subtype_15_groupcode[groupcode], unitcode,
 							rfx_subtype_15_cmnd[command], command_seqnbr, rfu, str(signal) ) )
+			sys.stdout.flush()
 
 	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
@@ -915,6 +920,7 @@ def decodePacket( message ):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2, id3,
 							rfx_subtype_20_status[status], str(battery), str(signal) ) )
+			sys.stdout.flush()
 
 	# ---------------------------------------
 	# 0x28 Curtain1
@@ -996,6 +1002,7 @@ def decodePacket( message ):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 			(timestamp, packettype, subtype, seqnbr, id1, id2,
 			temperature, temperature_set, mode, str(signal) ) )
+			sys.stdout.flush()
 
 		# MYSQL
 		if options.mysql:
@@ -1071,6 +1078,7 @@ def decodePacket( message ):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							temperature, str(battery), str(signal) ) )
+			sys.stdout.flush()
 
 		if cmdarg.mysql:
 
@@ -1145,7 +1153,8 @@ def decodePacket( message ):
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							str(int(humidity,16)), humidity_status, 
 							str(battery), str(signal)) )
-		
+			sys.stdout.flush()
+
 		if cmdarg.mysql:
 
 			try:
@@ -1215,7 +1224,8 @@ def decodePacket( message ):
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							temperature, str(humidity), str(humidity_status), 
 							str(battery), str(signal)) )
-		
+			sys.stdout.flush()
+
 		if cmdarg.graphite == True:
 			now = int( time.time() )
 			linesg=[]
@@ -1334,7 +1344,8 @@ def decodePacket( message ):
 							(timestamp, packettype, subtype, seqnbr, id1, id2,
 							temperature_str, str(int(humidity,16)), humidity_status, 
 							str(barometric), forecast_status, str(battery), str(signal)) )
-		
+			sys.stdout.flush()
+
 		if cmdarg.mysql:
 
 			try:
@@ -1403,6 +1414,7 @@ def decodePacket( message ):
 							( timestamp, packettype, subtype, seqnbr, id1, id2,
 							str(int(rainrate_high,16)), str(int(raintotal1,16)), 
 							str(battery), str(signal) ) )
+			sys.stdout.flush()
 
 		if cmdarg.mysql:
 			try:
@@ -1521,7 +1533,8 @@ def decodePacket( message ):
 							direction_str, av_str, gust_str,
 							temperature_str, windchill_str, 
 							str(battery), str(signal) ) )
-		
+			sys.stdout.flush()
+
 		# MySQL
 		if cmdarg.mysql:
 
@@ -1584,6 +1597,7 @@ def decodePacket( message ):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2, str(count), str(channel1), str(channel2), str(channel3), str(battery), str(signal)) )
+			sys.stdout.flush()
 
 		# MySQL
 		if cmdarg.mysql:
@@ -1637,6 +1651,7 @@ def decodePacket( message ):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, packettype, subtype, seqnbr, id1, id2, str(instant), str(battery), str(signal)) )
+			sys.stdout.flush()
 
 		# MySQL
 		if cmdarg.mysql:
@@ -1709,6 +1724,7 @@ def decodePacket( message ):
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), id1, str(temperature)))
 			if subtype == '01' or subtype == '02':
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
+			sys.stdout.flush()
 
 	# ---------------------------------------
 	# Not decoded message
