@@ -742,6 +742,14 @@ class serial_data:
 		self.rate = rate
 		self.timeout = timeout
 
+class trigger_data:
+	def __init__(
+		self,
+		data = ""
+		):
+
+		self.data = data
+
 # ----------------------------------------------------------------------------
 
 def logdebug(text):
@@ -2530,26 +2538,20 @@ def read_config( configFile, configItem):
 	return xmlData
 
 # ----------------------------------------------------------------------------
-# TRIGGER
+# READ TRIGGER FILE
 # ----------------------------------------------------------------------------
 
-def read_trigger():
- 	"""
- 	Read trigger file for trigger command
- 	"""
-	xmldoc = minidom.parse('trigger.xml')
+def read_triggerfile():
+ 
+	try:
+		xmldoc = minidom.parse( config.triggerfile )
+	except:
+		print "Error in trigger.xml file"
+		sys.exit(1)
+
 	root = xmldoc.documentElement
 
-	triggers = root.getElementsByTagName('trigger')
-
-	triggerlist = []
-	x = 1
-	
-	for trigger in triggers:
-		message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-		action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
- 		triggerlist = [ message, action ]
- 		return triggerlist
+	triggerlist.data = root.getElementsByTagName('trigger')
 
 # ----------------------------------------------------------------------------
 # PRINT RFXCMD VERSION
@@ -2585,17 +2587,7 @@ def option_simulate(indata):
 
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
-		xmldoc = minidom.parse( config.triggerfile )
-		root = xmldoc.documentElement
-
-		triggers = root.getElementsByTagName('trigger')
-
-		triggerlist = []
-	
-		for trigger in triggers:
-			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
- 			triggerlist = [ message, action ]
+		read_triggerfile()
 
 	#indata = options.simulate
 	
@@ -2632,16 +2624,6 @@ def option_simulate(indata):
 	except KeyError:
 		logerror("Error: unrecognizable packet")
 		print "Error: unrecognizable packet"
-
-	if config.trigger:
-		if message:
-			for trigger in triggers:
-				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-				rawcmd = ByteToHex ( message )
-				rawcmd = rawcmd.replace(' ', '')
-				if re.match(trigger_message, rawcmd):
-					return_code = subprocess.call(action, shell=True)
 	
 	logdebug('Exit 0')
 	sys.exit(0)
@@ -2656,17 +2638,7 @@ def option_listen():
 
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
-		xmldoc = minidom.parse( config.triggerfile )
-		root = xmldoc.documentElement
-
-		triggers = root.getElementsByTagName('trigger')
-
-		triggerlist = []
-	
-		for trigger in triggers:
-			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
- 			triggerlist = [ message, action ]
+		read_triggerfile()
 			
 	# Flush buffer
 	logdebug('Serialport flush output')
@@ -2704,14 +2676,6 @@ def option_listen():
 		while 1:
 			rawcmd = read_rfx()
 			logdebug('Received: ' + str(rawcmd))
-
-			if config.trigger:
-				if rawcmd:
-					for trigger in triggers:
-						message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-						action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-						if re.match(message, rawcmd):
-							return_code = subprocess.call(action, shell=True)
 
 	except KeyboardInterrupt:
 		logdebug('Received keyboard interrupt')
@@ -3188,6 +3152,7 @@ if __name__ == '__main__':
 	rfx = rfx_data()
 	rfxcmd = rfxcmd_data()
 	serial_param = serial_data()
+	triggerlist = trigger_data()
 
 	# Check python version
 	check_pythonversion()
