@@ -227,10 +227,6 @@ The main configuration options are now in config.xml, these are;
 
 Should be set to 'yes' if you want to print undecoded messages on the screen.
 
-<enableallrf>
-
-This will enable all RF protocols, same function as in RFXmngr.
-
 <mysql_server>
 <mysql_database>
 <mysql_username>
