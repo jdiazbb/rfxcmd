@@ -380,6 +380,19 @@ Battery       = OK
 ----
 == 0x57 - UV ==
 
+UV2:
+{{{
+09570200430000430059
+Packettype    = UV
+Subtype       = UV2 - UVN800
+Sequence nbr  = 0
+ID            = 17152
+UV Level      = 0
+Description = Low
+Signal level  = 5
+Battery       = OK
+}}}
+
 ----
 == 0x58 - Date/time ==
 
