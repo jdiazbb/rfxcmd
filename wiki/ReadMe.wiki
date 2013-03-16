@@ -240,7 +240,7 @@ See more on mysql settings in the MySQL info above.
 
 <trigger>
 
-Set 'yes' to activate the trigger function
+Set 'yes' to activate the trigger function, and 'no' for no trigger.
 
 <triggerfile>
 
@@ -253,8 +253,11 @@ The location of the database (file) and the table that should be used.
 
 <loglevel>
 
-At the moment only info, error, debug can be used. This is at the moment only used in development and 'info' will not output any information at all. 'debug' will be very detailed.
-The logevents from 'error' and 'debug' will be logged in 'rfxcmd.log' file.
+At the moment only info, error, debug can be used. This is at the moment only used in development and 'info' will not output any information at all. 'debug' will be very detailed. The logevents from 'error' and 'debug' will be logged in 'rfxcmd.log' file.
+
+<logfile>
+
+Version 0.24 and later. Possibility to add the path and logfile name where the log will be written.
 
 <graphite_server>
 <graphite_port>
@@ -284,11 +287,9 @@ Default config.xml file;
 ----
 ==TRIGGER.XML==
 
-The file trigger.xml contains the messages and actions that the rfxcmd should executes if the message
-matches the trigger message.
+The file trigger.xml contains the messages and actions that the rfxcmd should executes if the message matches the trigger message.
 
-Regex can be used to specify the messages, and this is especially needed as the sequence number (byte 4)
-will always be incremental from the last one.
+Regex can be used to specify the messages, and this is especially needed as the sequence number (byte 4) will always be incremental from the last one.
 
 Example trigger.xml file;
 
@@ -305,8 +306,26 @@ Example trigger.xml file;
 </xml>
 }}}
 
-By putting two dots instead of the sequence byte, the rfxcmd will match the rest of the message and
-execute the defined action if the message matches.
+By putting two dots instead of the sequence byte, the rfxcmd will match the rest of the message and execute the defined action if the message matches.
+
+Version 0.24 and later have integrated possibility to add parameters from the readings to the action tag. This is still experimental and is not yet integrated to all sensors (will be soon).
+
+Example;
+
+{{{
+<trigger>
+        <message>0A5201..7001..........</message>
+        <action>echo Data: $temp$ $battery$ $signal$</action>
+</trigger>
+}}}
+
+This sentence will printout the temperature, battery and signal every time a sensor with "0A5201" signature and "7001" id.
+
+Example printout;
+
+{{{
+Data: 22.2 9 7
+}}}
 
 ----
 ==EXAMPLES==
