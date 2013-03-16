@@ -145,6 +145,15 @@ class serial_data:
 
 		self.port = port
 
+class trigger_data:
+	def __init__(
+		self,
+		data = ""
+		):
+
+		self.data = data
+
+
 # ----------------------------------------------------------------------------
 # INIT OBJECTS
 # ----------------------------------------------------------------------------
@@ -152,6 +161,7 @@ class serial_data:
 config = config_data()
 cmdarg = cmdarg_data()
 serial = serial_data()
+triggerlist = trigger_data()
 
 # Get directory of the rfxcmd script
 config.program_path = os.path.dirname(os.path.realpath(__file__))
@@ -1084,17 +1094,16 @@ def decodePacket( message ):
 
 		# Trigger
 		if config.trigger:
-			if message:
-				for trigger in triggers:
-					trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-					action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-					rawcmd = ByteToHex ( message )
-					rawcmd = rawcmd.replace(' ', '')
-					if re.match(trigger_message, rawcmd):
-						action = action.replace("$temp$", str(temperature) )
-						action = action.replace("$battery$", str(battery) )
-						action = action.replace("$signal$", str(signal) )
-						return_code = subprocess.call(action, shell=True)
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$temp$", str(temperature) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
 
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
@@ -1220,9 +1229,8 @@ def decodePacket( message ):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_52[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id 1 (House)\t\t= " + id1
-			print "Id 2 (Channel)\t\t= " + id2
-			
+			print "Id 1\t\t\t= " + id1
+			print "Id 2\t\t\t= " + id2
 			print "Temperature\t\t= " + temperature + " C"
 			print "Humidity\t\t= " + str(humidity)
 			
@@ -1242,18 +1250,17 @@ def decodePacket( message ):
 		
 		# Trigger
 		if config.trigger:
-			if message:
-				for trigger in triggers:
-					trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-					action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-					rawcmd = ByteToHex ( message )
-					rawcmd = rawcmd.replace(' ', '')
-					if re.match(trigger_message, rawcmd):
-						action = action.replace("$temp$", str(temperature) )
-						action = action.replace("$humidity$", str(humidity) )
-						action = action.replace("$battery$", str(battery) )
-						action = action.replace("$signal$", str(signal) )
-						return_code = subprocess.call(action, shell=True)
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$temp$", str(temperature) )
+					action = action.replace("$humidity$", str(humidity) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
 
 		if cmdarg.printout_csv == True:
 		
@@ -1448,18 +1455,17 @@ def decodePacket( message ):
 		
 		# Trigger
 		if config.trigger:
-			if message:
-				for trigger in triggers:
-					trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-					action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-					rawcmd = ByteToHex ( message )
-					rawcmd = rawcmd.replace(' ', '')
-					if re.match(trigger_message, rawcmd):
-						action = action.replace("$rainrate$", str(rainrate) )
-						action = action.replace("$raintotal$", str(raintotal) )
-						action = action.replace("$battery$", str(battery) )
-						action = action.replace("$signal$", str(signal) )
-						return_code = subprocess.call(action, shell=True)
+			for trigger in triggers:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$rainrate$", str(rainrate) )
+					action = action.replace("$raintotal$", str(raintotal) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
 
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % ( timestamp, packettype, subtype, seqnbr, id1, id2, str(rainrate), str(raintotal), str(battery), str(signal) ) )
@@ -1911,24 +1917,20 @@ def read_config( configFile, configItem):
 	return xmlData
 
 # ----------------------------------------------------------------------------
-# TRIGGER
+# READ TRIGGER FILE
 # ----------------------------------------------------------------------------
 
-def read_trigger():
+def read_triggerfile():
  
-	xmldoc = minidom.parse('trigger.xml')
+	try:
+		xmldoc = minidom.parse( config.triggerfile )
+	except:
+		print "Error in trigger.xml file"
+		sys.exit(1)
+
 	root = xmldoc.documentElement
 
-	triggers = root.getElementsByTagName('trigger')
-
-	triggerlist = []
-	x = 1
-	
-	for trigger in triggers:
-		message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-		action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
- 		triggerlist = [ message, action ]
- 		return triggerlist
+	triggerlist.data = root.getElementsByTagName('trigger')
 
 # ----------------------------------------------------------------------------
 # PRINT RFXCMD VERSION
@@ -2526,22 +2528,7 @@ if options.simulate:
 
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
-		try:
-			xmldoc = minidom.parse( config.triggerfile )
-		except:
-			print "Error in trigger.xml file"
-			sys.exit(1)
-
-		root = xmldoc.documentElement
-
-		triggers = root.getElementsByTagName('trigger')
-
-		triggerlist = []
-	
-		for trigger in triggers:
-			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
- 			triggerlist = [ message, action ]
+		read_triggerfile()
 
 	indata = options.simulate
 	
@@ -2575,18 +2562,6 @@ if options.simulate:
 		decodePacket( message )
 	except KeyError:
 		print "Error: unrecognizable packet"
-
-	'''
-	if config.trigger:
-		if message:
-			for trigger in triggers:
-				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-				rawcmd = ByteToHex ( message )
-				rawcmd = rawcmd.replace(' ', '')
-				if re.match(trigger_message, rawcmd):
-					return_code = subprocess.call(action, shell=True)
-	'''
 
 	logdebug('Exit 0')
 	sys.exit(0)
@@ -2624,22 +2599,7 @@ if cmdarg.action == "listen":
 
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
-		try:
-			xmldoc = minidom.parse( config.triggerfile )
-		except:
-			print "Error in trigger.xml file"
-			sys.exit(1)
-
-		root = xmldoc.documentElement
-
-		triggers = root.getElementsByTagName('trigger')
-
-		triggerlist = []
-	
-		for trigger in triggers:
-			message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-			action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
- 			triggerlist = [ message, action ]
+		read_triggerfile()
 			
 	# Flush buffer
 	logdebug('Serialport flush output')
@@ -2675,19 +2635,8 @@ if cmdarg.action == "listen":
 
 	try:
 		while 1:
-
 			rawcmd = read_rfx()
 			logdebug('Received: ' + str(rawcmd))
-
-			'''
-			if config.trigger:
-				if rawcmd:
-					for trigger in triggers:
-						message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-						action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-						if re.match(message, rawcmd):
-							return_code = subprocess.call(action, shell=True)
-			'''
 
 	except KeyboardInterrupt:
 		logdebug('Received keyboard interrupt')
