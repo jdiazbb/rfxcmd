@@ -1610,7 +1610,62 @@ def decodePacket( message ):
 			finally:
 				if db:
 					db.close()
-	
+
+	# ---------------------------------------
+	# 0x57 UV Sensor
+	# ---------------------------------------
+
+	if packettype == '57':
+
+		decoded = True
+
+		# Sensor ID
+		sensor_id = id1 + id2
+
+		# UV
+		uv = int(ByteToHex(message[6]), 16) * 10
+
+		# Temperature
+		temperature = decodeTemperature(message[6], message[8])
+
+		# Battery & Signal
+		signal = decodeSignal(message[9])
+		battery = decodeBattery(message[9])
+
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_57[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id\t\t\t= " + sensor_id
+			print "UV\t\t\t= " + str(uv)
+			if subtype == '03':
+				print "Temperature\t\t= " + temperature + " C"
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$uv$", str(temperature) )
+					if subtype == '03':
+						action = action.replace("$temp$", str(humidity) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
+
+		# CSV
+		if cmdarg.printout_csv == True:
+			if subtype == '03':
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(uv), temperature, str(battery), str(signal) ) )
+			else:
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(uv), str(battery), str(signal) ) )
+			sys.stdout.flush()
+
 	# ---------------------------------------
 	# 0x59 Current Sensor
 	# ---------------------------------------
