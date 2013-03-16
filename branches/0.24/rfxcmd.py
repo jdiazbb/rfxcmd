@@ -1455,7 +1455,7 @@ def decodePacket( message ):
 		
 		# Trigger
 		if config.trigger:
-			for trigger in triggers:
+			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
 				rawcmd = ByteToHex ( message )
@@ -1566,9 +1566,8 @@ def decodePacket( message ):
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id 1 (House)\t\t= " + id1
 			print "Id 2 (Channel)\t\t= " + id2
-			
 			print "Wind direction\t\t= " + direction_str + " degrees"
-			
+
 			if subtype <> "05":
 				print "Average wind\t\t= " + av_str + " mtr/sec"
 			
@@ -1576,8 +1575,7 @@ def decodePacket( message ):
 				print "Temperature\t\t= " + temperature_str + " C"
 				print "Wind chill\t\t= " + windchill_str + " C" 
 			
-			print "Windgust\t\t= " + gust_str + " mtr/sec"
-			
+			print "Windgust\t\t= " + gust_str + " mtr/sec"			
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
