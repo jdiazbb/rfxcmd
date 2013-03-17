@@ -304,6 +304,22 @@ Status        = Comfortable
 Signal level  = 5
 Battery       = OK
 }}}
+
+TH2:
+{{{
+0A520200AC01004A440069
+Packettype    = TEMP_HUM
+subtype       = TH2 - THGN800,TGHN801,THGR810
+                channel 1
+Sequence nbr  = 0
+ID            = 44033
+Temperature   = 7.4 °C
+Humidity      = 68
+Status        = Normal
+Signal level  = 6
+Battery       = OK
+}}}
+
 ----
 == 0x53 - Barometric ==
 
