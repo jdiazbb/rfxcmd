@@ -223,6 +223,18 @@ Signal level  = 4
 Battery       = OK
 }}}
 
+TEMP6:
+{{{
+085006003B0A00B459
+Packettype    = TEMP
+subtype       = TEMP6 - TS15C
+Sequence nbr  = 0
+ID            = 15114
+Temperature   = 18 °C
+Signal level  = 5
+Battery       = OK
+}}}
+
 TEMP7:
 {{{
 08500700BE0000DB79
