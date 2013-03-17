@@ -9,7 +9,10 @@ Details how to install RFXcmd on various platforms.
  * Tested on Debian 6 (i386)
  * Tested on Raspbian (Latest) Raspberry Pi
 
-unzip and python-serial needs to be installed on the system
+=== unzip and python-serial ===
+
+Install unzip and python-serial
+
 {{{
 apt-get install unzip python-serial
 }}}
