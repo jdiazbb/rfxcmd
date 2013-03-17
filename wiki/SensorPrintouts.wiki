@@ -359,6 +359,19 @@ Signal level  = 7
 Battery       = 100%
 }}}
 
+RAIN2:
+{{{
+0B55020096000000003B1869
+Packettype    = RAIN
+subtype       = RAIN2 - PCR800
+Sequence nbr  = 0
+ID            = 38400
+Rain rate     = 0 mm/h
+Total rain    = 1512.8 mm
+Signal level  = 6
+Battery       = OK
+}}}
+
 RAIN5:
 {{{
 0B55059A6300000000004C89
