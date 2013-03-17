@@ -12,6 +12,7 @@
  * Fixed, "Issue 15: Unable to specify a diiferent path for log file"
  * Fixed, "Issue 16: Defect on 'subtype switch' in rain sensors"
  * Added, Trigger can now transfer parameters to the action tag (experimental, not all sensors yet)
+ * Added, Support for 0x13 Lightning4 protocol
 
 == v0.23 (09-FEB-2013) ==
  * Fixed, "Issue 10 : Cleanup at exit"
