@@ -403,6 +403,20 @@ Battery       = OK
 ----
 == 0x57 - UV ==
 
+UV1:
+
+{{{
+09570127CB0000E13A59
+Packettype    = UV
+Subtype       = UV1 - UVN128,UVR128,UV138
+Sequence nbr  = 39
+ID            = 51968
+UV Level      = 0
+Description = Low
+Signal level  = 5
+Battery       = OK
+}}}
+
 UV2:
 {{{
 09570200430000430059
