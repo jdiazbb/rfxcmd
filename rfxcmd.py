@@ -363,14 +363,13 @@ def ByteToHex( byteStr ):
 	return ''.join( [ "%02X " % ord( x ) for x in str(byteStr) ] ).strip()
 
 # ----------------------------------------------------------------------------
-# Return the binary representation of dec_num
-# http://code.activestate.com/recipes/425080-easy-binary2decimal-and-decimal2binary/
-# Guyon Mor�e http://gumuz.looze.net/
+# Base-2 (Binary) Representation Using Python
+# http://stackoverflow.com/questions/187273/base-2-binary-representation-using-python
+# Brian (http://stackoverflow.com/users/9493/brian)
 # ----------------------------------------------------------------------------
 
-def Decimal2Binary(dec_num):
-	if dec_num == 0: return '0'
-	return (Decimal2Binary(dec_num >> 1) + str(dec_num % 2))
+def dec2bin(x, width=8):
+	return ''.join(str((x>>i)&1) for i in xrange(width-1,-1,-1))
 
 # ----------------------------------------------------------------------------
 # testBit() returns a nonzero result, 2**offset, if the bit at 'offset' is one.
@@ -832,11 +831,47 @@ def decodePacket( message ):
 	if packettype == '13':
 
 		decoded = True
+
+		# Command
+		code = ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6])
+
+		code1 = dec2bin(int(ByteToHex(message[4]),16))
+		code2 = dec2bin(int(ByteToHex(message[5]),16))
+		code3 = dec2bin(int(ByteToHex(message[6]),16))
+		code_bin = code1 + " " + code2 + " " + code3
+
+		# Pulse
+		pulse = ((int(ByteToHex(message[7]),16) * 256) + int(ByteToHex(message[8]),16))
+
+		# Signal
+		signal = decodeSignal(message[9])		
 		
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx_subtype_13[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			# TODO
+			print "Code\t\t\t= " + code
+			print "S1-S24\t\t\t= "  + code_bin
+			print "Pulse\t\t\t= " + str(pulse) + " usec"
+			print "Signal level\t\t= " + str(signal)
+
+		# CSV
+		if cmdarg.printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, code, code_bin, str(pulse), str(signal) ) )
+			sys.stdout.flush()
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$code$", code )
+					action = action.replace("$code_bin$", code_bin )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
 	# 0x14 Lighting5
