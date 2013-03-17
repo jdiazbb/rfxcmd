@@ -479,8 +479,12 @@ def decodePacket( message ):
 	
 	packettype = ByteToHex(message[1])
 	subtype = ByteToHex(message[2])
-	seqnbr = ByteToHex(message[3])
-	id1 = ByteToHex(message[4])
+
+	if len(message) > 3:
+		seqnbr = ByteToHex(message[3])
+
+	if len(message) > 4:
+		id1 = ByteToHex(message[4])
 	
 	if len(message) > 5:
 		id2 = ByteToHex(message[5])
@@ -1342,6 +1346,17 @@ def decodePacket( message ):
 				raise e
 
 	# ---------------------------------------
+	# 0x53 - Barometric sensors
+	# ---------------------------------------
+	if packettype == '53':
+		
+		decoded = True
+
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx_subtype_53[subtype]
+			print "Not supported, reserved for future use."
+
+	# ---------------------------------------
 	# 0x54 - Temperature, humidity and barometric sensors
 	# Credit: Jean-Baptiste Bodart
 	# ---------------------------------------
@@ -1658,10 +1673,22 @@ def decodePacket( message ):
 		sensor_id = id1 + id2
 
 		# UV
-		uv = int(ByteToHex(message[6]), 16) * 10
+		uv = int(ByteToHex(message[6]), 16) / 10
 
 		# Temperature
 		temperature = decodeTemperature(message[6], message[8])
+
+		# UV Description (based on Oregon specs)
+		if uv < 3:
+			uvdesc = "Low"
+		elif uv < 6:
+			uvdesc = "Medium"
+		elif uv < 8:
+			uvdesc = "High"
+		elif uv < 11:
+			uvdesc = "Very High"
+		else:
+			uvdesc = "Extreme"
 
 		# Battery & Signal
 		signal = decodeSignal(message[9])
@@ -1672,9 +1699,10 @@ def decodePacket( message ):
 			print "Subtype\t\t\t= " + rfx_subtype_57[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
-			print "UV\t\t\t= " + str(uv)
+			print "UV level\t\t= " + str(uv)
 			if subtype == '03':
 				print "Temperature\t\t= " + temperature + " C"
+			print "Description\t\t= " + uvdesc
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
@@ -2359,7 +2387,7 @@ rfx_subtype_56 = {"01":"WTGR800",
 					"05":"UPM WDS500",
 					"06":"WS2300"}
 
-rfx_subtype_57 = {"01":"UVN128, UV138",
+rfx_subtype_57 = {"01":"UVN128, UVR128, UV138",
 					"02":"UVN800",
 					"03":"TFA"}
 					
