@@ -57,6 +57,17 @@ Signal level  = 7
 ----
 == 0x13 - Lightning4 ==
 
+{{{
+09130003151555015E50
+Packettype    = Lighting4
+subtype       = PT2262
+Sequence nbr  = 3
+Code          = 151555
+S1- S24  = 0001 0101 0001 0101 0101 0101 
+Pulse         = 350 usec
+Signal level  = 5
+}}}
+
 ----
 == 0x14 - Lightning5 ==
 
