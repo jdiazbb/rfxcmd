@@ -2008,10 +2008,10 @@ def read_rfx():
 				
 	except OSError, e:
 		logdebug('Error in message: ' + str(ByteToHex(message)))
-		logdebug('Traceback: ' + traceback.print_exc())
+		logdebug('Traceback: ' + traceback.format_exc())
 		print "------------------------------------------------"
 		print "Received\t\t= " + ByteToHex( message )
-		traceback.print_exc()
+		traceback.format_exc()
 
 # ----------------------------------------------------------------------------
 # READ ITEM FROM THE CONFIGURATION FILE
