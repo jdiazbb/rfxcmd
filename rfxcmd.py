@@ -2452,6 +2452,7 @@ def read_rfx():
 			message = byte + readbytes( ord(byte) )
 			logdebug('Message: ' + str(ByteToHex(message)))
 			
+			# First byte indicate length of message, must be other than 00
 			if ByteToHex(message[0]) <> "00":
 			
 				# Verify length
@@ -2469,8 +2470,9 @@ def read_rfx():
 					try:
 						decodePacket( message )
 					except KeyError:
-						logdebug('Error: unrecognizable packet')
-						print "Error: unrecognizable packet"
+						logerror('Error: unrecognizable packet')
+						if cmdarg.printout_complete == True:
+							print "Error: unrecognizable packet"
 
 					rawcmd = ByteToHex ( message )
 					rawcmd = rawcmd.replace(' ', '')
@@ -2478,19 +2480,18 @@ def read_rfx():
 					return rawcmd
 				
 				else:
-				
+					logerror('Error: Incoming packet not valid length')
 					if cmdarg.printout_complete == True:
-						logdebug('Incoming packet not valid')
 						print "------------------------------------------------"
 						print "Received\t\t= " + ByteToHex( message )
 						print "Incoming packet not valid, waiting for next..."
 				
 	except OSError, e:
-		logdebug('Error in message: ' + str(ByteToHex(message)))
-		logdebug('Traceback: ' + traceback.print_exc())
+		logerror('Error in message: ' + str(ByteToHex(message)))
+		logerror('Traceback: ' + traceback.format_exc())
 		print "------------------------------------------------"
 		print "Received\t\t= " + ByteToHex( message )
-		traceback.print_exc()
+		traceback.format_exc()
 
 # ----------------------------------------------------------------------------
 # READ ITEM FROM THE CONFIGURATION FILE
