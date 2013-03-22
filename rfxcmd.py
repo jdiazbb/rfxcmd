@@ -1055,6 +1055,12 @@ def decodePacket(message):
 	seqnbr = ByteToHex(message[3])
 	id1 = ByteToHex(message[4])
 	
+	if len(message) > 3:
+		seqnbr = ByteToHex(message[3])
+
+	if len(message) > 4:
+		id1 = ByteToHex(message[4])
+	
 	if len(message) > 5:
 		id2 = ByteToHex(message[5])
 	
@@ -2534,7 +2540,7 @@ def read_config( configFile, configItem):
  		logdebug('Return')
  		
  	else:
- 		logerror('Config file does not exists')
+ 		logerror('Error: Config file does not exists')
  		
 	return xmlData
 
