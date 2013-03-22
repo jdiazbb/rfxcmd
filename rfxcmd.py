@@ -1262,20 +1262,21 @@ def decodePacket(message):
 				sys.stdout.write("%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr ) )
 			else:
 				sys.stdout.write("%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, id1 ) )
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			if subtype == '00':
-				insert_mysql(timestamp, timeutc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			else:
-				insert_mysql(timestamp, timeutc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
 			if subtype == '00':
-				insert_sqlite(timestamp, timeutc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			else:
-				insert_sqlite(timestamp, timeutc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x03 - Undecoded Message
@@ -1300,9 +1301,9 @@ def decodePacket(message):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-		
-			sys.stdout.write("%s;%s;%s;%s;%s\n" %
-							(timestamp, packettype, subtype, seqnbr, indata ))
+			sys.stdout.write("%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, indata ))
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1342,7 +1343,8 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1394,7 +1396,8 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), dimlevel ))
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1457,7 +1460,8 @@ def decodePacket(message):
 		# CSV 
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;\n" %(timestamp, packettype, subtype, seqnbr, str(battery), str(signal), str(system), command, str(channel) ))
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1530,7 +1534,8 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(signal), groupcode, command, str(unitcode), str(command_seqnbr) ))
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1593,7 +1598,8 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id, status ) )
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1673,7 +1679,8 @@ def decodePacket(message):
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, command))
 			elif subtype == '04' or subtype == '01' or subtype == '03':
 				command = "Not implemented in RFXCMD"
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			if subtype == '00' or subtype == '02':
@@ -1732,7 +1739,8 @@ def decodePacket(message):
 		# CSV 
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), mode, status, str(temperature_set), str(temperature) ))
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
@@ -1790,7 +1798,8 @@ def decodePacket(message):
 		# CSV 
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, str(signal), str(temperature_set), str(mode), str(status), str(temperature) ))
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
@@ -1827,9 +1836,9 @@ def decodePacket(message):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, str(battery), str(signal), temperature ))
-
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, str(battery), str(signal), temperature ))
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
@@ -1870,9 +1879,9 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, timeutc, packettype, subtype, seqnbr, signal_id, humidity_status,
-							str(humidity), str(battery), str(signal)) )
-
+							(timestamp, timeutc, packettype, subtype, seqnbr, signal_id, humidity_status, str(humidity), str(battery), str(signal)) )
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1924,6 +1933,7 @@ def decodePacket(message):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, timeutc, packettype, subtype, seqnbr, sensor_id, humidity_status,
 							temperature, str(humidity), str(battery), str(signal)) )
+			sys.stdout.flush()
 		
 		# GRAPHITE
 		if cmdarg.graphite == True:
@@ -2000,7 +2010,8 @@ def decodePacket(message):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id,
 							forecast, humidity_status, str(humidity), str(baormetric), str(temperature)))
-		
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
@@ -2066,7 +2077,8 @@ def decodePacket(message):
 							( timestamp, packettype, subtype, seqnbr, id1, id2,
 							str(int(rainrate_high,16)), str(int(raintotal1,16)), 
 							str(battery), str(signal) ) )
-
+			sys.stdout.flush()
+			
 		"""			
 		# MYSQL
 		if cmdarg.mysql:
@@ -2137,7 +2149,8 @@ def decodePacket(message):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id, str(temperature), str(av_speed), str(gust), str(direction), str(windchill) ) )
-	
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
@@ -2307,7 +2320,8 @@ def decodePacket(message):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id,
 							str(instant), str(usage), str(battery), str(signal)) )
-
+			sys.stdout.flush()
+			
 		# XPL
 		if cmdarg.xpl == True:
 			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(channel1)+'\nunits=W')
@@ -2393,7 +2407,8 @@ def decodePacket(message):
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(temperature)))
 			if subtype == '01' or subtype == '02':
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
-
+			sys.stdout.flush()
+			
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
