@@ -607,6 +607,21 @@ class rfx_data(dict):
 	rfx_subtype_42 = {"00":"Mertik G6R-H4T1",
 						"01":"Mertik G6R-H4TB"}
 
+	rfx_subtype_42_cmd00 = {"0":"Off",
+							"1":"On",
+							"2":"Up",
+							"3":"Down",
+							"4":"Run Up",
+							"5":"Run Down",
+							"6":"Stop"}
+	
+	rfx_subtype_42_cmd01 = {"0":"Off",
+							"1":"On",
+							"2":"Up",
+							"3":"Down",
+							"4":"2nd Off",
+							"5":"2nd On"}
+
 	rfx_subtype_50 = {"01":"THR128/138, THC138",
 						"02":"THC238/268,THN132,THWR288,THRN122,THN122,AW129/131",
 						"03":"THWR800",
@@ -1360,28 +1375,12 @@ def decodePacket(message):
 
 		decoded = True
 		
-		# Id
+		# DATA
 		sensor_id = ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6]) + ByteToHex(message[7])
-
-		# Unitcode
 		unitcode = int(ByteToHex(message[8]),16)
-
-		# Command
 		command = rfx.rfx_subtype_11_cmnd[ByteToHex(message[9])]
-
-		# Dim level
-		try:
-			dimlevel = rfx.rfx_subtype_11_dimlevel[ByteToHex(message[10])]
-		except Exception, e:
-			dimlevel = 255
-			logerror("0x11: " + e)
-
-		# Signal
-		try:
-			signal = decodeSignal(message[11])
-		except Exception, e:
-			signal = 255
-			logerror("0x11: " + e)
+		dimlevel = rfx.rfx_subtype_11_dimlevel[ByteToHex(message[10])]
+		signal = decodeSignal(message[11])
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -1413,10 +1412,9 @@ def decodePacket(message):
 
 		decoded = True
 		
-		# System
+		# DATA
 		system = ByteToHex(message[4])
 
-		# Channel
 		if testBit(int(ByteToHex(message[5]),16),0) == 1:
 			channel = 1
 		elif testBit(int(ByteToHex(message[5]),16),1) == 2:
@@ -1440,10 +1438,7 @@ def decodePacket(message):
 		else:
 			channel = 255
 
-		# Command
 		command = rfx.rfx_subtype_12_cmnd[ByteToHex(message[7])]
-
-		# Battery & Signal
 		battery = decodeBattery(message[8])
 		signal = decodeSignal(message[8])
 
@@ -1504,20 +1499,12 @@ def decodePacket(message):
 
 		decoded = True
 
-		# Sensor id
+		# DATA
 		sensor_id = id1 + id2
-
-		# Groupcode
 		groupcode = rfx.rfx_subtype_15_groupcode[ByteToHex(message[6])]
-
-		# Unitcode
 		unitcode = int(ByteToHex(message[7]),16)
-
-		# Command
 		command = rfx.rfx_subtype_15_cmnd[ByteToHex(message[8])]
 		command_seqnbr = ByteToHex(message[9])
-
-		# Signal
 		signal = decodeSignal(message[11])
 
 		# PRINTOUT
@@ -1576,13 +1563,9 @@ def decodePacket(message):
 
 		decoded = True
 		
-		# Sensor id
+		# DATA
 		sensor_id = id1 + id2 + ByteToHex(message[6])
-
-		# Status
 		status = rfx.rfx_subtype_20_status[ByteToHex(message[7])]
-
-		# Battery & Signal
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
 
@@ -1615,6 +1598,7 @@ def decodePacket(message):
 
 		decoded = True
 		
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_28[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -1703,26 +1687,16 @@ def decodePacket(message):
 
 		decoded = True
 
-		# Sensor id
+		# DATA
 		sensor_id = id1 + id2
-
-		# Temperature
 		temperature = int(ByteToHex(message[6]), 16)
-
-		# Temperature set
 		temperature_set = int(ByteToHex(message[7]), 16)
-
-		# Status
 		status_temp = str(testBit(int(ByteToHex(message[8]),16),0) + testBit(int(ByteToHex(message[8]),16),1))
 		status = rfx.rfx_subtype_40_status[status_temp]
-
-		# Mode
 		if testBit(int(ByteToHex(message[8]),16),7) == 128:
 			mode = rfx.rfx_subtype_40_mode['1']
 		else:
 			mode = rfx.rfx_subtype_40_mode['0']
-		
-		#  Signal
 		signal = decodeSignal(message[9])
 
 		# PRINTOUT
@@ -1756,6 +1730,7 @@ def decodePacket(message):
 
 		decoded = True
 		
+		# PRINTOUT		
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_41[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -1768,7 +1743,7 @@ def decodePacket(message):
 
 		decoded = True
 
-		# unitcode & command
+		# DATA
 		if subtype == '00':
 			unitcode = byteToHex(message[4])
 		elif subtype == '01':
@@ -1776,10 +1751,13 @@ def decodePacket(message):
 		else:
 			unitcode = "00"
 
-		# Command
-		command = byteToHex(message[7])
+		if subtype == '00':
+			command = rfx_subtype_42_cmd00[byteToHex(message[7])]
+		elif subtype == '01':
+			command = rfx_subtype_42_cmd01[byteToHex(message[7])]
+		else:
+			command = '0'
 
-		# Signal
 		signal = decodeSignal(message[8])
 
 		# PRINTOUT
@@ -1787,26 +1765,26 @@ def decodePacket(message):
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_42[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Unitcode\t\t\t= " + unitcode
-			
-			if subtype == '00':
-				print "" + rfx.rfx_subtype_42_cmnd00[command]
-			elif subtype == '01':
-				print "" + rfx.rfx_subtype_42_cmnd01[command]
-			else:
-				print "Unknown"
+			print "Command\t\t\t= " + command
+			print "Signal level\t\t= " + str(signal)
 
 		# CSV 
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, str(signal), str(temperature_set), str(mode), str(status), str(temperature) ))
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, str(signal), unitcode, command))
 			sys.stdout.flush()
 			
 		# MYSQL
 		if cmdarg.mysql:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if cmdarg.sqlite:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, 0, 0, temperature_set, mode, status, temperature, 0, 0, 0, 0, 0)
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# XPL
+		if cmdarg.xpl == True:
+			xpl.send(config.xplhost, 'device=Thermostat.'+unitcode+'\ntype=command\ncurrent='+command+'\nunits=C')
+			xpl.send(config.xplhost, 'device=Thermostat.'+unitcode+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x50 - Temperature sensors
@@ -1815,13 +1793,9 @@ def decodePacket(message):
 	
 		decoded = True
 
-		# Id
+		# DATA
 		sensor_id = id1 + id2
-
-		# Temperature
 		temperature = decodeTemperature(message[6], message[7])
-
-		# Battery & Signal
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
 
@@ -1847,6 +1821,12 @@ def decodePacket(message):
 		if cmdarg.sqlite:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
+		# XPL
+		if cmdarg.xpl == True:
+			xpl.send(config.xplhost, 'device=Temp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
+			xpl.send(config.xplhost, 'device=Temp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Temp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+
 	# ---------------------------------------
 	# 0x51 - Humidity sensors
 	# ---------------------------------------
@@ -1855,14 +1835,10 @@ def decodePacket(message):
 		
 		decoded = True
 
-		# Signal id
+		# DATA
 		signal_id = id1 + id2
-
-		# Humidity
 		humidity = int(ByteToHex(message[6]),16)
 		humidity_status = rfx.rfx_subtype_51_humstatus[ByteToHex(message[7])]
-
-		# Battery & Signal
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
 		
@@ -1903,17 +1879,11 @@ def decodePacket(message):
 		
 		decoded = True
 
-		# Sensor id
+		# DATA
 		sensor_id = id1 + id2
-
-		# Temperature
 		temperature = decodeTemperature(message[6], message[7])
-
-		# Humidity
 		humidity = int(ByteToHex(message[8]),16)
 		humidity_status = rfx.rfx_subtype_52_humstatus[ByteToHex(message[9])]
-
-		# Battery & Signal
 		signal = decodeSignal(message[10])
 		battery = decodeBattery(message[10])
 		
