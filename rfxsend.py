@@ -25,4 +25,4 @@ def rfx_send(message):
 	sock.sendto(message,("localhost",50000))
 
 if __name__ == '__main__':
-	rfx_send("Test message to rfxcmd")
+	rfx_send("0d00000002000000000000000000")
