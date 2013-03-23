@@ -883,7 +883,10 @@ def readbytes(number):
 	"""
 	buf = ''
 	for i in range(number):
-		byte = serial_param.port.read()
+		try:
+			byte = serial_param.port.read()
+		except IOError, e:
+    		print "Error: %s" % e
 		buf += byte
 
 	return buf
@@ -901,14 +904,13 @@ def ByteToHex( byteStr ):
 
 # ----------------------------------------------------------------------------
 
-def Decimal2Binary(dec_num):
+def dec2bin(x, width=8):
 	"""
-	Return the binary representation of dec_num
-	http://code.activestate.com/recipes/425080-easy-binary2decimal-and-decimal2binary/
-	Guyon Mor�e http://gumuz.looze.net/
+	Base-2 (Binary) Representation Using Python
+	http://stackoverflow.com/questions/187273/base-2-binary-representation-using-python
+	Brian (http://stackoverflow.com/users/9493/brian)
 	"""
-	if dec_num == 0: return '0'
-	return (Decimal2Binary(dec_num >> 1) + str(dec_num % 2))
+	return ''.join(str((x>>i)&1) for i in xrange(width-1,-1,-1))
 
 # ----------------------------------------------------------------------------
 
@@ -1065,10 +1067,16 @@ def decodePacket(message):
 	decoded = False
 	db = ""
 	
+	# Verify incoming message
+	if not test_rfx( ByteToHex(message) ):
+		if cmdarg.printout_complete == True:
+			print "Error: The incoming message is invalid"
+			return
+			
 	packettype = ByteToHex(message[1])
-	subtype = ByteToHex(message[2])
-	seqnbr = ByteToHex(message[3])
-	id1 = ByteToHex(message[4])
+
+	if len(message) > 2:
+		subtype = ByteToHex(message[2])
 	
 	if len(message) > 3:
 		seqnbr = ByteToHex(message[3])
@@ -1471,12 +1479,39 @@ def decodePacket(message):
 	if packettype == '13':
 
 		decoded = True
+
+		# DATA
+		code = ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6])
+		code1 = dec2bin(int(ByteToHex(message[4]),16))
+		code2 = dec2bin(int(ByteToHex(message[5]),16))
+		code3 = dec2bin(int(ByteToHex(message[6]),16))
+		code_bin = code1 + " " + code2 + " " + code3
+		pulse = ((int(ByteToHex(message[7]),16) * 256) + int(ByteToHex(message[8]),16))
+		signal = decodeSignal(message[9])		
 		
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_13[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
-			# TODO
+			print "Code\t\t\t= " + code
+			print "S1-S24\t\t\t= "  + code_bin
+			print "Pulse\t\t\t= " + str(pulse) + " usec"
+			print "Signal level\t\t= " + str(signal)
+
+		# CSV
+		if cmdarg.printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, code, code_bin, str(pulse), str(signal) ))
+			sys.stdout.flush()
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
 	# 0x14 Lighting5
@@ -1745,16 +1780,16 @@ def decodePacket(message):
 
 		# DATA
 		if subtype == '00':
-			unitcode = byteToHex(message[4])
+			unitcode = ByteToHex(message[4])
 		elif subtype == '01':
-			unitcode = byteToHex(message[4]) + byteToHex(message[5]) + byteToHex(message[6])
+			unitcode = ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6])
 		else:
 			unitcode = "00"
 
 		if subtype == '00':
-			command = rfx_subtype_42_cmd00[byteToHex(message[7])]
+			command = rfx.rfx_subtype_42_cmd00[ByteToHex(message[7])]
 		elif subtype == '01':
-			command = rfx_subtype_42_cmd01[byteToHex(message[7])]
+			command = rfx.rfx_subtype_42_cmd01[ByteToHex(message[7])]
 		else:
 			command = '0'
 
@@ -1836,7 +1871,7 @@ def decodePacket(message):
 		decoded = True
 
 		# DATA
-		signal_id = id1 + id2
+		sensor_id = id1 + id2
 		humidity = int(ByteToHex(message[6]),16)
 		humidity_status = rfx.rfx_subtype_51_humstatus[ByteToHex(message[7])]
 		signal = decodeSignal(message[8])
@@ -1846,7 +1881,7 @@ def decodePacket(message):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_51[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + signal_id
+			print "Id\t\t\t= " + sensor_id
 			print "Humidity\t\t= " + str(humidity)
 			print "Humidity Status\t\t= " + humidity_status
 			print "Battery\t\t\t= " + str(battery)
@@ -1855,7 +1890,7 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, timeutc, packettype, subtype, seqnbr, signal_id, humidity_status, str(humidity), str(battery), str(signal)) )
+							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, humidity_status, str(humidity), str(battery), str(signal)) )
 			sys.stdout.flush()
 			
 		# MYSQL
@@ -1901,7 +1936,7 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							(timestamp, timeutc, packettype, subtype, seqnbr, sensor_id, humidity_status,
+							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, humidity_status,
 							temperature, str(humidity), str(battery), str(signal)) )
 			sys.stdout.flush()
 		
@@ -1979,7 +2014,7 @@ def decodePacket(message):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id,
-							forecast, humidity_status, str(humidity), str(baormetric), str(temperature)))
+							forecast, humidity_status, str(humidity), str(barometric), str(temperature)))
 			sys.stdout.flush()
 			
 		# MYSQL
@@ -2117,7 +2152,7 @@ def decodePacket(message):
 
 		# CSV
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id, str(temperature), str(av_speed), str(gust), str(direction), str(windchill) ) )
 			sys.stdout.flush()
 			
@@ -2152,22 +2187,16 @@ def decodePacket(message):
 
 		decoded = True
 
-		# Sensor ID
+		# DATA
 		sensor_id = id1 + id2
-
-		# UV
 		uv = int(ByteToHex(message[6]), 16) * 10
-
-		# Temperature
 		temperature = decodeTemperature(message[6], message[8])
-
-		# Battery & Signal
 		signal = decodeSignal(message[9])
 		battery = decodeBattery(message[9])
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_57[subtype]
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_57[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
 			print "UV\t\t\t= " + str(uv)
@@ -2294,8 +2323,8 @@ def decodePacket(message):
 			
 		# XPL
 		if cmdarg.xpl == True:
-			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(channel1)+'\nunits=W')
-			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(channel2)+'\nunits=Wh')
+			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(instant)+'\nunits=W')
+			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(usage)+'\nunits=Wh')
 			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
 			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
@@ -2374,9 +2403,9 @@ def decodePacket(message):
 		# CSV
 		if cmdarg.printout_csv == True:
 			if subtype == '00':
-				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(temperature)))
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(temperature)))
 			if subtype == '01' or subtype == '02':
-				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
 			sys.stdout.flush()
 			
 		# MYSQL
@@ -2386,6 +2415,34 @@ def decodePacket(message):
 		# SQLITE
 		if cmdarg.sqlite:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
+
+	# ---------------------------------------
+	# 0x71 RFXmeter
+	# ---------------------------------------
+	if packettype == '71':
+
+		decoded = True
+		
+		# DATA
+		sensor_id = id1 + id2
+		
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_70[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id\t\t\t= " + id1
+
+	# ---------------------------------------
+	# 0x72 FS20
+	# ---------------------------------------
+	if packettype == '72':
+
+		decoded = True
+		
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_70[subtype]
+			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
 
 	# ---------------------------------------
 	# Not decoded message
@@ -2400,12 +2457,42 @@ def decodePacket(message):
 	return
 
 # ----------------------------------------------------------------------------
-# DECODE THE MESSAGE AND SEND TO RFX
+
+def test_rfx( message ):
+	"""
+	Test and verify that the incoming message is valid
+	Return true if valid, False if not
+	"""
+	
+	# Remove any whitespaces
+	message = message.replace(' ', '')
+	
+	# Test the string if it is hex format
+	try:
+		int(message,16)
+	except ValueError:
+		return False
+			
+	# Check that first byte is not 00
+	if ByteToHex(message.decode('hex')[0]) == "00":
+		return False
+	
+	# Length more than one byte
+	if not len(message.decode('hex')) > 1:
+		return False
+	
+	# Check if string is the length that it reports to be
+	cmd_len = int( ByteToHex( message.decode('hex')[0]),16 )
+	if not len(message.decode('hex')) == (cmd_len + 1):
+		return False
+
+	return True
+			
 # ----------------------------------------------------------------------------
 
 def send_rfx( message ):
 	"""
-	Send raw message to RFXtrx
+	Decode and send raw message to RFXtrx
 	"""
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 	
@@ -2992,6 +3079,12 @@ def main():
 		cmdarg.printout_complete = False
 		cmdarg.printout_csv = False
 
+	# XPL
+	if options.xpl:
+		logdebug("Option: xPL chosen")
+		cmdarg.printout_complete = False
+		cmdarg.xpl = options.xpl
+
 	if cmdarg.printout_complete == True:
 		if not options.daemon:
 			print "RFXCMD Version " + __version__
@@ -3060,12 +3153,6 @@ def main():
 
 			logdebug("Start daemon")
 			daemonize()
-
-	# XPL
-	if options.xpl:
-		logdebug("Option: XPL chosen")
-		cmdarg.printout_complete = True
-		cmdarg.xpl = options.xpl
 
 	# MySQL
 	if options.mysql == True:
