@@ -2464,6 +2464,64 @@ def decodePacket(message):
 
 # ----------------------------------------------------------------------------
 
+def open_socket(socket_port):
+	"""
+	Open socket port for incoming messages
+	Input: socket port
+	"""
+	# Initialise the socket
+	serversocket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+	serversocket.bind(('localhost',socket_port))
+	print "Socket bound to port " + str(socket_port)
+	return serversocket
+
+# ----------------------------------------------------------------------------
+	
+def close_socket(serversocket):
+	"""
+	Close open socket
+	Input: socket handler
+	"""
+	serversocket.close()
+
+# ----------------------------------------------------------------------------
+	
+def check_socket(serversocket):
+	"""
+	Check socket for messages
+	Input: socket handler
+	"""
+	# Read incoming socket
+	readable, writeable, errored = select.select([serversocket],[],[],60)
+
+	if len(readable) == 1:
+		message,addr = serversocket.recvfrom(128)
+		message = message.replace(' ', '')
+
+		if test_rfx( message ):
+			timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+			if cmdarg.printout_complete == True:
+				print "------------------------------------------------"
+				print "Incoming message from socket"
+				print "Send\t\t\t= " + ByteToHex( message.decode('hex') )
+				print "Date/Time\t\t= " + timestamp
+				print "Packet Length\t\t= " + ByteToHex( message.decode('hex')[0] )
+				try:
+					decodePacket( message.decode('hex') )
+				except KeyError:
+					print "Error: unrecognizable packet"
+
+			serial_param.port.write( message.decode('hex') )
+			time.sleep(1)
+			read_rfx()
+			
+		else:
+			if cmdarg.printout_complete == True:
+				print "------------------------------------------------"
+				print "Invalid message from socket"			
+
+# ----------------------------------------------------------------------------
+
 def test_rfx( message ):
 	"""
 	Test and verify that the incoming message is valid
@@ -2716,27 +2774,8 @@ def option_listen():
 	"""
 	logdebug('Action: Listen')
 
-	socket_buffer = 1500
-	socket_port = 5000
-	# Initialise the socket
-	UDPSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-	socket_addr = ("0.0.0.0",socket_port)
-
-	# Try and bind to the base port
-	try:
-		UDPSock.bind(addr)
-	except:
-		# A hub is running, so bind to a high port
-		socket_port = 50000
-
-	addr = ("127.0.0.1",socket_port)
-	try:
-		UDPSock.bind(addr)
-	except:
-		socket_port += 1
-
-	print "Bound to port " + str(socket_port) + ", exit with ctrl+c"
-
+	serversocket = open_socket(50000)
+	
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
 		read_triggerfile()
@@ -2780,17 +2819,12 @@ def option_listen():
 			rawcmd = read_rfx()
 			logdebug('Received: ' + str(rawcmd))
 			
-			# Read incoming socket
-			readable, writeable, errored = select.select([UDPSock],[],[],60)
-
-			if len(readable) == 1:
-				now = datetime.datetime.now()
-				data,addr = UDPSock.recvfrom(socket_buffer)
-				data = data.replace('\n', ' ')
-				print now.strftime("%Y:%m:%d %H:%M:%S") + "\t" + data
-
+			# Read socket
+			check_socket(serversocket)
+			
 	except KeyboardInterrupt:
 		logdebug('Received keyboard interrupt')
+		close_socket(serversocket)
 		print "\nExit..."
 		pass
 
