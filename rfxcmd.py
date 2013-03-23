@@ -76,6 +76,7 @@ from xml.dom.minidom import parseString
 import xml.dom.minidom as minidom
 from optparse import OptionParser
 import socket
+import select
 
 # 3rd party modules
 # These might not be needed, depended on usage
@@ -1094,12 +1095,14 @@ def decodePacket(message):
 	# 0x0 - Interface Control
 	# ---------------------------------------
 	if packettype == '00':
+		
 		decoded = True
 	
 	# ---------------------------------------
 	# 0x01 - Interface Message
 	# ---------------------------------------
 	if packettype == '01':
+		
 		decoded = True
 		
 		if cmdarg.printout_complete == True:
@@ -1342,16 +1345,10 @@ def decodePacket(message):
 
 		decoded = True
 		
-		# Housecode
+		# DATA
 		housecode = rfx.rfx_subtype_10_housecode[ByteToHex(message[4])]
-
-		# Unitcode
 		unitcode = int(ByteToHex(message[5]), 16)
-
-		# Command
 		command = rfx.rfx_subtype_10_cmnd[ByteToHex(message[6])]
-
-		# Signal		
 		signal = decodeSignal(message[7])
 
 		# PRINTOUT
@@ -1367,7 +1364,17 @@ def decodePacket(message):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
 			sys.stdout.flush()
-			
+		
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1404,7 +1411,17 @@ def decodePacket(message):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), dimlevel ))
 			sys.stdout.flush()
-			
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1464,7 +1481,17 @@ def decodePacket(message):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;\n" %(timestamp, packettype, subtype, seqnbr, str(battery), str(signal), str(system), command, str(channel) ))
 			sys.stdout.flush()
-			
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1757,6 +1784,15 @@ def decodePacket(message):
 		# SQLITE
 		if cmdarg.sqlite:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
+
+		# XPL
+		if cmdarg.xpl == True:
+			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=temperature\ncurrent='+temperature+'\nunits=C')
+			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=temperature_set\ncurrent='+temperature_set+'\nunits=C')
+			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=mode\ncurrent='+mode+'\n')
+			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=status\ncurrent='+mode+'\n')
+			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x41 Thermostat2
@@ -2101,34 +2137,22 @@ def decodePacket(message):
 		
 		decoded = True
 
-		# Sensor id
+		# DATA
 		sensor_id = id1 + id2
-
-		# Direction
 		direction = ( ( int(ByteToHex(message[6]),16) * 256 ) + int(ByteToHex(message[7]),16) )
-		
-		# AV Speed
 		if subtype <> "05":
 			av_speed = ( ( int(ByteToHex(message[8]),16) * 256 ) + int(ByteToHex(message[9]),16) ) * 0.1
 		else:
 			av_speed = 0;
-			
-		# Gust
 		gust = ( ( int(ByteToHex(message[10]),16) * 256 ) + int(ByteToHex(message[11]),16) ) * 0.1
-
-		# Temperature	
 		if subtype == "04":
 			temperature = decodeTemperature(message[12], message[13])
 		else:
 			temperature = 0
-
-		# Windchill
 		if subtype == "04":
 			windchill = decodeTemperature(message[14], message[15])
 		else:
 			windchill = 0
-		
-		# Battery & Signal
 		signal = decodeSignal(message[16])
 		battery = decodeBattery(message[16])
 
@@ -2251,17 +2275,12 @@ def decodePacket(message):
 
 		decoded = True
 
-		# Sensor ID
+		# DATA
 		sensor_id = id1 + id2
-
-		# Counter
 		count = int(ByteToHex(message[6]),16)
-
 		channel1 = (int(ByteToHex(message[7]),16) * 0x100 + int(ByteToHex(message[8]),16)) * 0.1
 		channel2 = int(ByteToHex(message[9]),16) * 0x100 + int(ByteToHex(message[10]),16)
 		channel3 = int(ByteToHex(message[11]),16) * 0x100 + int(ByteToHex(message[12]),16)
-
-		# Battery & Signal
 		signal = decodeSignal(message[13])
 		battery = decodeBattery(message[13])
 
@@ -2293,14 +2312,10 @@ def decodePacket(message):
 
 		decoded = True
 
-		# Sensor id
+		# DATA
 		sensor_id = id1 + id2
-
-		# Battery & Signal
 		signal = decodeSignal(message[17])
 		battery = decodeBattery(message[17])
-
-		# Power
 		instant = int(ByteToHex(message[7]), 16) * 0x1000000 + int(ByteToHex(message[8]), 16) * 0x10000 + int(ByteToHex(message[9]), 16) * 0x100  + int(ByteToHex(message[10]), 16)
 		usage = int ((int(ByteToHex(message[11]), 16) * 0x10000000000 + int(ByteToHex(message[12]), 16) * 0x100000000 +int(ByteToHex(message[13]), 16) * 0x1000000 + int(ByteToHex(message[14]), 16) * 0x10000 + int(ByteToHex(message[15]), 16) * 0x100 + int(ByteToHex(message[16]), 16) ) / 223.666)
 
@@ -2336,21 +2351,15 @@ def decodePacket(message):
 
 		decoded = True
 
-		# Sensor id
+		# DATA
 		sensor_id = id1 + id2
-
-		# Date
 		date_year = ByteToHex(message[6]);
 		date_month = ByteToHex(message[7]);
 		date_day = ByteToHex(message[8]);
 		date_dow = ByteToHex(message[9]);
-
-		# Time
 		time_hour = ByteToHex(message[10]);
 		time_min = ByteToHex(message[11]);
 		time_sec = ByteToHex(message[12]);
-
-		# Battery & Signal
 		signal = decodeSignal(message[13])
 		battery = decodeBattery(message[13])
 
@@ -2366,24 +2375,21 @@ def decodePacket(message):
 
 		decoded = True
 
-		# Temperature
+		# DATA
 		if subtype == '00':
 			temperature = float(decodeTemperature(message[5], message[6]))
 			temperature = temperature * 0.1
 		else:
 			temperature = 0
-
-		# Voltage
 		if subtype == '01' or subtype == '02':
 			voltage_hi = int(ByteToHex(message[5]), 16) * 256
 			voltage_lo = int(ByteToHex(message[6]), 16)
 			voltage = voltage_hi + voltage_lo
 		else:
 			voltage = 0
-
-		# Signal
 		signal = decodeSignal(message[7])
 
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_70[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -2511,8 +2517,6 @@ def send_rfx( message ):
 	time.sleep(1)
 
 # ----------------------------------------------------------------------------
-# READ DATA FROM RFX AND DECODE THE MESSAGE
-# ----------------------------------------------------------------------------
 
 def read_rfx():
 	"""
@@ -2572,12 +2576,10 @@ def read_rfx():
 		traceback.format_exc()
 
 # ----------------------------------------------------------------------------
-# READ ITEM FROM THE CONFIGURATION FILE
-# ----------------------------------------------------------------------------
 
 def read_config( configFile, configItem):
  	"""
- 	Read configuration file
+ 	Read item from the configuration file
  	"""
  	logdebug('Open configuration file')
  	logdebug('File: ' + configFile)
@@ -2617,11 +2619,11 @@ def read_config( configFile, configItem):
 	return xmlData
 
 # ----------------------------------------------------------------------------
-# READ TRIGGER FILE
-# ----------------------------------------------------------------------------
 
 def read_triggerfile():
- 
+ 	"""
+ 	Read trigger file to list
+ 	"""
 	try:
 		xmldoc = minidom.parse( config.triggerfile )
 	except:
@@ -2632,8 +2634,6 @@ def read_triggerfile():
 
 	triggerlist.data = root.getElementsByTagName('trigger')
 
-# ----------------------------------------------------------------------------
-# PRINT RFXCMD VERSION
 # ----------------------------------------------------------------------------
 
 def print_version():
@@ -2647,10 +2647,11 @@ def print_version():
  	sys.exit(0)
 
 # ----------------------------------------------------------------------------
-# CHECK PYTHON VERSION
-# ----------------------------------------------------------------------------
 
 def check_pythonversion():
+	"""
+	Check python version
+	"""
 	logdebug("Python version: %s.%s.%s" % sys.version_info[:3])
 	if sys.hexversion < 0x02060000:
 		logerror("Error: Your Python need to be 2.6 or newer, please upgrade.")
@@ -2659,11 +2660,11 @@ def check_pythonversion():
 		sys.exit(1)
 
 # ----------------------------------------------------------------------------
-# SIMULATE INCOMING PACKET
-# ----------------------------------------------------------------------------
 
 def option_simulate(indata):
-
+	"""
+	Simulate incoming packet, decode and process
+	"""
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
 		read_triggerfile()
@@ -2708,12 +2709,33 @@ def option_simulate(indata):
 	sys.exit(0)
 
 # ----------------------------------------------------------------------------
-# LISTEN TO RFXtrx DEVICE
-# ----------------------------------------------------------------------------
 
 def option_listen():
-
+	"""
+	Listen to RFXtrx device and process data, exit with CTRL+C
+	"""
 	logdebug('Action: Listen')
+
+	socket_buffer = 1500
+	socket_port = 5000
+	# Initialise the socket
+	UDPSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+	socket_addr = ("0.0.0.0",socket_port)
+
+	# Try and bind to the base port
+	try:
+		UDPSock.bind(addr)
+	except:
+		# A hub is running, so bind to a high port
+		socket_port = 50000
+
+	addr = ("127.0.0.1",socket_port)
+	try:
+		UDPSock.bind(addr)
+	except:
+		socket_port += 1
+
+	print "Bound to port " + str(socket_port) + ", exit with ctrl+c"
 
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
@@ -2753,8 +2775,19 @@ def option_listen():
 
 	try:
 		while 1:
+		
+			# Read serial port
 			rawcmd = read_rfx()
 			logdebug('Received: ' + str(rawcmd))
+			
+			# Read incoming socket
+			readable, writeable, errored = select.select([UDPSock],[],[],60)
+
+			if len(readable) == 1:
+				now = datetime.datetime.now()
+				data,addr = UDPSock.recvfrom(socket_buffer)
+				data = data.replace('\n', ' ')
+				print now.strftime("%Y:%m:%d %H:%M:%S") + "\t" + data
 
 	except KeyboardInterrupt:
 		logdebug('Received keyboard interrupt')
@@ -2762,11 +2795,11 @@ def option_listen():
 		pass
 
 # ----------------------------------------------------------------------------
-# GET STATUS FROM RFXtrx DEVICE
-# ----------------------------------------------------------------------------
 
 def option_getstatus():
-
+	"""
+	Get status from RFXtrx device and print on screen
+	"""
 	# Flush buffer
 	serial_param.port.flushOutput()
 	serial_param.port.flushInput()
