@@ -886,7 +886,7 @@ def readbytes(number):
 		try:
 			byte = serial_param.port.read()
 		except IOError, e:
-    		print "Error: %s" % e
+			print "Error: %s" % e
 		buf += byte
 
 	return buf
