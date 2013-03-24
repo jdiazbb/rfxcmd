@@ -125,7 +125,9 @@ class config_data:
 		graphite_server = "",
 		graphite_port = "",
 		program_path = "",
-		xplhost = ""
+		xplhost = "",
+		socketserver = False,
+		socketport = ""
 		):
         
 		self.undecoded = undecoded
@@ -142,6 +144,8 @@ class config_data:
 		self.graphite_port = graphite_port
 		self.program_path = program_path
 		self.xplhost = xplhost
+		self.socketserver = socketserver
+		self.socketport = socketport
 
 class cmdarg_data:
 	def __init__(
@@ -2499,6 +2503,13 @@ def check_socket(serversocket):
 		message = message.replace(' ', '')
 
 		if test_rfx( message ):
+		
+			# Message good, send acknowledgment
+			try:
+				serversocket.sendto('1',(addr[0],addr[1]))
+			except Exception, e:
+				print "Error: " + str(e)
+
 			timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 			if cmdarg.printout_complete == True:
 				print "------------------------------------------------"
@@ -2920,11 +2931,15 @@ def option_send():
 		read_rfx()
 
 # ----------------------------------------------------------------------------
-# SEND BACKGROUND COMMAND
-# ----------------------------------------------------------------------------
 
 def option_bsend():
+	"""
+	Send command when rfxcmd is running
+	Input: none
 	
+	NOTE! Will be depricated in v0.3 and removed in v0.31
+	
+	"""
 	logdebug('Action: bsend')
 	
 	# Remove any whitespaces
@@ -2990,6 +3005,10 @@ def read_configfile():
 		# XPL host
 		config.xplhost = read_config( cmdarg.configfile, "xplhost")
 
+		# Socket server
+		config.socketserver = read_config( cmdarg.configfile, "socketserver")
+		config.socketport = read_config( cmdarg.configfile, "socketport")
+		
 	else:
 
 		# config file not found, set default values
@@ -3169,6 +3188,8 @@ def main():
 		cmdarg.configfile = os.path.join(config.program_path, "config.xml")
 
 	logdebug("Configfile: " + cmdarg.configfile)
+	logdebug("Read configuration file")
+	read_configfile()
 
 	# Graphite
 	if options.graphite:
@@ -3259,8 +3280,6 @@ def main():
 			sys.exit(1)
 	
 		logdebug("Rawcmd: " + cmdarg.rawcmd)
-
-	read_configfile()
 
 	if options.simulate:
 		option_simulate( options.simulate )
