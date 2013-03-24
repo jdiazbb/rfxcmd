@@ -2475,7 +2475,7 @@ def open_socket(socket_port):
 	"""
 	# Initialise the socket
 	serversocket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-	serversocket.bind(('localhost',socket_port))
+	serversocket.bind(('localhost',int(socket_port)))
 	print "Socket bound to port " + str(socket_port)
 	return serversocket
 
@@ -2509,6 +2509,10 @@ def check_socket(serversocket):
 				serversocket.sendto('1',(addr[0],addr[1]))
 			except Exception, e:
 				print "Error: " + str(e)
+
+			# Flush buffer
+			serial_param.port.flushOutput()
+			serial_param.port.flushInput()
 
 			timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 			if cmdarg.printout_complete == True:
@@ -2785,8 +2789,9 @@ def option_listen():
 	"""
 	logdebug('Action: Listen')
 
-	serversocket = open_socket(50000)
-	
+	if config.socketserver:
+		serversocket = open_socket(config.socketport)
+			
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
 		read_triggerfile()
@@ -2831,11 +2836,14 @@ def option_listen():
 			logdebug('Received: ' + str(rawcmd))
 			
 			# Read socket
-			check_socket(serversocket)
+			if config.socketserver:
+				check_socket(serversocket)
 			
 	except KeyboardInterrupt:
 		logdebug('Received keyboard interrupt')
-		close_socket(serversocket)
+		if config.socketserver:
+			logdebug('Close socket port...')
+			close_socket(serversocket)
 		print "\nExit..."
 		pass
 
@@ -2868,11 +2876,11 @@ def option_getstatus():
 	read_rfx()
 
 # ----------------------------------------------------------------------------
-# SEND COMMAND
-# ----------------------------------------------------------------------------
 
 def option_send():
-
+	"""
+	Send command to RFX device
+	"""
 	logdebug('Action: send')
 
 	# Remove any whitespaces	
@@ -2940,6 +2948,9 @@ def option_bsend():
 	NOTE! Will be depricated in v0.3 and removed in v0.31
 	
 	"""
+	
+	print "BSEND action is DEPRICATED, will be removed in version v0.31"
+	
 	logdebug('Action: bsend')
 	
 	# Remove any whitespaces
@@ -2976,7 +2987,7 @@ def read_configfile():
 	if os.path.exists( cmdarg.configfile ):
 
 		# RFX configuration
-		if ( read_config( cmdarg.configfile, "undecoded") == "yes"):
+		if (read_config( cmdarg.configfile, "undecoded") == "yes"):
 			config.undecoded = True
 		else:
 			config.undecoded = False
@@ -2987,7 +2998,7 @@ def read_configfile():
 		config.mysql_username = read_config( cmdarg.configfile, "mysql_username")
 		config.mysql_password = read_config( cmdarg.configfile, "mysql_password")
 	
-		if ( read_config( cmdarg.configfile, "trigger") == "yes"):
+		if (read_config( cmdarg.configfile, "trigger") == "yes"):
 			config.trigger = True
 		else:
 			config.trigger = False
@@ -3006,8 +3017,14 @@ def read_configfile():
 		config.xplhost = read_config( cmdarg.configfile, "xplhost")
 
 		# Socket server
-		config.socketserver = read_config( cmdarg.configfile, "socketserver")
+		if (read_config(cmdarg.configfile, "socketserver") == "yes"):
+			config.socketserver = True
+		else:
+			config.socketserver = False
+			
 		config.socketport = read_config( cmdarg.configfile, "socketport")
+		logdebug("SocketServer: " + str(config.socketserver))
+		logdebug("SocketServer: " + str(config.socketport))
 		
 	else:
 
