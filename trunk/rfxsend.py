@@ -102,8 +102,27 @@ def rfx_send(socket_server, socket_port, message):
 		sock.close()
 		sock = None
 
-	sock.sendto(message,(socket_server,socket_port))
-
+	# Send message to server
+	try:
+		sock.sendto(message,(socket_server,socket_port))
+		
+		# Set timeout on reply
+		sock.settimeout(5)
+	
+		# Wait for reply
+		try:
+			reply, add = sock.recvfrom(1)
+			if reply == '1':
+				return True
+				
+		except Exception, e:
+			print "Error: " + str(e)
+			return False
+			
+	except Exception, e:
+		print "Error: " + str(e)
+		return False
+		
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__':
@@ -139,7 +158,8 @@ if __name__ == '__main__':
 		print "Error: rawcmd message is missing"
 		sys.exit(1)
 	
-	rfx_send(socket_server, socket_port, message)
+	if rfx_send(socket_server, socket_port, message):
+		print "Command sent successfully"
 	
 	sys.exit(0)
 
