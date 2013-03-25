@@ -63,7 +63,26 @@ import sys
 import string
 import socket
 import optparse
-import rfxcmd
+
+# ----------------------------------------------------------------------------
+
+def ByteToHex( byteStr ):
+	"""
+	Convert a byte string to it's hex string representation e.g. for output.
+	http://code.activestate.com/recipes/510399-byte-to-hex-and-hex-to-byte-string-conversion/
+
+	Added str() to byteStr in case input data is in integer
+	"""	
+	return ''.join( [ "%02X " % ord( x ) for x in str(byteStr) ] ).strip()
+
+# ----------------------------------------------------------------------------
+
+def stripped(str):
+	"""
+	Strip all characters that are not valid
+	Credit: http://rosettacode.org/wiki/Strip_control_codes_and_extended_characters_from_a_string
+	"""
+	return "".join([i for i in str if ord(i) in range(32, 127)])
 
 # -----------------------------------------------------------------------------
 
@@ -77,8 +96,50 @@ def print_version():
 
 # -----------------------------------------------------------------------------
 
-def rfx_send(socket_server, socket_port, message):
+def test_message( message ):
 	"""
+	Test, filter and verify that the incoming message is valid
+	Return true if valid, False if not
+	"""
+		
+	# Remove any whitespaces and linebreaks
+	message = message.replace(' ', '')
+	message = message.replace("\r","")
+	message = message.replace("\n","")
+	
+	# Remove all invalid characters
+	message = stripped(message)
+	
+	# Test the string if it is hex format
+	try:
+		int(message,16)
+	except Exception:
+		return False
+	
+	# Check that length is even
+	if len(message) % 2:
+		return False
+	
+	# Check that first byte is not 00
+	if ByteToHex(message.decode('hex')[0]) == "00":
+		return False
+	
+	# Length more than one byte
+	if not len(message.decode('hex')) > 1:
+		return False
+	
+	# Check if string is the length that it reports to be
+	cmd_len = int( ByteToHex( message.decode('hex')[0]),16 )
+	if not len(message.decode('hex')) == (cmd_len + 1):
+		return False
+
+	return True
+
+# -----------------------------------------------------------------------------
+
+def send_message(socket_server, socket_port, message):
+	"""
+	
 	Send message to the RFXCMD socket server
 	
 	Input:
@@ -91,38 +152,11 @@ def rfx_send(socket_server, socket_port, message):
 	"""
 	sock = None
 	
-	try:
-		sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-	except socket.error as msg:
-		sock = None
-		
-	try:
-		sock.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
-	except socket.error as msg:
-		sock.close()
-		sock = None
-
-	# Send message to server
-	try:
-		sock.sendto(message,(socket_server,socket_port))
-		
-		# Set timeout on reply
-		sock.settimeout(5)
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	sock.connect((socket_server, socket_port))
+	sock.send(message)
+	sock.close()
 	
-		# Wait for reply
-		try:
-			reply, add = sock.recvfrom(1)
-			if reply == '1':
-				return True
-				
-		except Exception, e:
-			print "Error: " + str(e)
-			return False
-			
-	except Exception, e:
-		print "Error: " + str(e)
-		return False
-		
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__':
@@ -149,17 +183,16 @@ if __name__ == '__main__':
 		socket_port = 50000
 	
 	if options.rawcmd:
-		if rfxcmd.test_rfx(options.rawcmd):
-			message = options.rawcmd
-		else:
-			print "Error: rawcmd message is invalid"
-			sys.exit(1)
+		message = options.rawcmd
 	else:
 		print "Error: rawcmd message is missing"
 		sys.exit(1)
 	
-	if rfx_send(socket_server, socket_port, message):
-		print "Command sent successfully"
+	if test_message(options.rawcmd):
+		if send_message(socket_server, socket_port, message):
+			print "Command sent successfully"
+	else:
+		print "Command not sent, invalid format"
 	
 	sys.exit(0)
 
