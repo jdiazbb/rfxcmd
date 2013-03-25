@@ -72,11 +72,28 @@ import subprocess
 import re
 import logging
 import signal
-from xml.dom.minidom import parseString
 import xml.dom.minidom as minidom
 from optparse import OptionParser
 import socket
 import select
+
+# RFXCMD modules
+try:
+	from rfx_socket import *
+except ImportError:
+	print "Error: module rfx_socket not found"
+	sys.exit(1)
+	
+try:
+	import rfx_logger
+except ImportError:
+	print "Error: module rfx_logger not found"
+	sys.exit(1)
+
+try:
+	import rfx_xplcom
+except ImportError:
+	pass
 
 # 3rd party modules
 # These might not be needed, depended on usage
@@ -99,12 +116,6 @@ try:
 except ImportError:
 	pass
 
-# xPL functions
-try:
-	import xpl
-except ImportError:
-	pass
-
 # ------------------------------------------------------------------------------
 # VARIABLE CLASSS
 # ------------------------------------------------------------------------------
@@ -122,6 +133,7 @@ class config_data:
 		sqlite_database = "",
 		sqlite_table = "",
 		loglevel = "info",
+		logfile = "rfxcmd.log",
 		graphite_server = "",
 		graphite_port = "",
 		program_path = "",
@@ -140,6 +152,7 @@ class config_data:
 		self.sqlite_database = sqlite_database
 		self.sqlite_table = sqlite_table
 		self.loglevel = loglevel
+		self.logfile = logfile
 		self.graphite_server = graphite_server
 		self.graphite_port = graphite_port
 		self.program_path = program_path
@@ -771,52 +784,30 @@ class trigger_data:
 		self.data = data
 
 # ----------------------------------------------------------------------------
-
-def logdebug(text):
-	"""
-	Create a debug log entry.
-	"""
-	try:
-		logger.debug(text)
-	except NameError:
-		pass
-
-# ----------------------------------------------------------------------------
-
-def logerror(text):
-	"""
-	Create an error log entry.
-	"""
-	try:
-		logger.error(text)
-	except NameError:
-		pass
-
-# ----------------------------------------------------------------------------
 # DEAMONIZE
 # Credit: George Henze
 # ----------------------------------------------------------------------------
 
 def shutdown():
 	# clean up PID file after us
-	logdebug("Shutdown")
+	logger.debug("Shutdown")
 
 	if cmdarg.createpid:
-		logdebug("Removing PID file " + str(config.pidfile))
+		logger.debug("Removing PID file " + str(config.pidfile))
 		os.remove(cmdarg.pidfile)
 
 	if serial_param.port is not None:
-		logdebug("Close serial port")
+		logger.debug("Close serial port")
 		serial_param.port.close()
 		serial_param.port = None
 
-	logdebug("Exit 0")
+	logger.debug("Exit 0")
 	sys.stdout.flush()
 	os._exit(0)
     
 def handler(signum=None, frame=None):
 	if type(signum) != type(None):
-		logdebug("Signal %i caught, exiting..." % int(signum))
+		logger.debug("Signal %i caught, exiting..." % int(signum))
 		shutdown()
 
 def daemonize():
@@ -845,7 +836,7 @@ def daemonize():
 
 	if cmdarg.createpid == True:
 		pid = str(os.getpid())
-		logdebug("Writing PID " + pid + " to " + str(cmdarg.pidfile))
+		logger.debug("Writing PID " + pid + " to " + str(cmdarg.pidfile))
 		file(cmdarg.pidfile, 'w').write("%s\n" % pid)
 
 # ----------------------------------------------------------------------------
@@ -895,6 +886,15 @@ def readbytes(number):
 		buf += byte
 
 	return buf
+
+# ----------------------------------------------------------------------------
+
+def stripped(str):
+	"""
+	Strip all characters that are not valid
+	Credit: http://rosettacode.org/wiki/Strip_control_codes_and_extended_characters_from_a_string
+	"""
+	return "".join([i for i in str if ord(i) in range(32, 127)])
 
 # ----------------------------------------------------------------------------
 
@@ -974,7 +974,7 @@ def insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, data1,
 
 	except MySQLdb.Error, e:
 
-		logerror("SqLite error: %d: %s" % (e.args[0], e.args[1]))
+		logger.error("SqLite error: %d: %s" % (e.args[0], e.args[1]))
 		print "MySQL error %d: %s" % (e.args[0], e.args[1])
 		sys.exit(1)
 
@@ -1011,7 +1011,7 @@ def insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, data1
 		if cx:
 			cx.rollback()
 			
-		logerror("SqLite error: %s" % e.args[0])
+		logger.error("SqLite error: %s" % e.args[0])
 		print "SqLite error: %s" % e.args[0]
 		sys.exit(1)
 			
@@ -2467,48 +2467,33 @@ def decodePacket(message):
 	return
 
 # ----------------------------------------------------------------------------
-
-def open_socket(socket_port):
-	"""
-	Open socket port for incoming messages
-	Input: socket port
-	"""
-	# Initialise the socket
-	serversocket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-	serversocket.bind(('localhost',int(socket_port)))
-	print "Socket bound to port " + str(socket_port)
-	return serversocket
-
-# ----------------------------------------------------------------------------
 	
-def close_socket(serversocket):
-	"""
-	Close open socket
-	Input: socket handler
-	"""
-	serversocket.close()
-
-# ----------------------------------------------------------------------------
-	
-def check_socket(serversocket):
+def read_socket():
 	"""
 	Check socket for messages
 	Input: socket handler
+	
+	Credit: Olivier Djian
 	"""
 	# Read incoming socket
-	readable, writeable, errored = select.select([serversocket],[],[],60)
+	# readable, writeable, errored = select.select([serversocket],[],[],60)
 
-	if len(readable) == 1:
-		message,addr = serversocket.recvfrom(128)
-		message = message.replace(' ', '')
+	global messageQueue
+	
+	if not messageQueue.empty():
+		message = messageQueue.get().replace(' ', '')
+
+	#if len(readable) == 1:
+	#	message,addr = serversocket.recvfrom(128)
+	#	message = message.replace(' ', '')
 
 		if test_rfx( message ):
 		
 			# Message good, send acknowledgment
-			try:
-				serversocket.sendto('1',(addr[0],addr[1]))
-			except Exception, e:
-				print "Error: " + str(e)
+			#try:
+			#	serversocket.sendto('1',(addr[0],addr[1]))
+			#except Exception, e:
+			#	print "Error: " + str(e)
 
 			# Flush buffer
 			serial_param.port.flushOutput()
@@ -2539,19 +2524,28 @@ def check_socket(serversocket):
 
 def test_rfx( message ):
 	"""
-	Test and verify that the incoming message is valid
+	Test, filter and verify that the incoming message is valid
 	Return true if valid, False if not
 	"""
-	
-	# Remove any whitespaces
+		
+	# Remove any whitespaces and linebreaks
 	message = message.replace(' ', '')
+	message = message.replace("\r","")
+	message = message.replace("\n","")
+	
+	# Remove all invalid characters
+	message = stripped(message)
 	
 	# Test the string if it is hex format
 	try:
 		int(message,16)
-	except ValueError:
+	except Exception:
 		return False
-			
+	
+	# Check that length is even
+	if len(message) % 2:
+		return False
+	
 	# Check that first byte is not 00
 	if ByteToHex(message.decode('hex')[0]) == "00":
 		return False
@@ -2596,36 +2590,36 @@ def read_rfx():
 	Read message from RFXtrx and decode the decode the message
 	"""
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-	logdebug('Timestamp: ' + timestamp)
+	logger.debug('Timestamp: ' + timestamp)
 	message = None
 
 	try:
 		byte = serial_param.port.read()
-		logdebug('Byte: ' + str(ByteToHex(byte)))
+		logger.debug('Byte: ' + str(ByteToHex(byte)))
 		
 		if byte:
 			message = byte + readbytes( ord(byte) )
-			logdebug('Message: ' + str(ByteToHex(message)))
+			logger.debug('Message: ' + str(ByteToHex(message)))
 			
 			# First byte indicate length of message, must be other than 00
 			if ByteToHex(message[0]) <> "00":
 			
 				# Verify length
-				logdebug('Verify length')
+				logger.debug('Verify length')
 				if (len(message) - 1) == ord(message[0]):
 				
-					logdebug('Length OK')
+					logger.debug('Length OK')
 					if cmdarg.printout_complete == True:
 						print "------------------------------------------------"
 						print "Received\t\t= " + ByteToHex( message )
 						print "Date/Time\t\t= " + timestamp
 						print "Packet Length\t\t= " + ByteToHex( message[0] )
 					
-					logdebug('Decode packet')
+					logger.debug('Decode packet')
 					try:
 						decodePacket( message )
 					except KeyError:
-						logerror('Error: unrecognizable packet')
+						logger.error('Error: unrecognizable packet')
 						if cmdarg.printout_complete == True:
 							print "Error: unrecognizable packet"
 
@@ -2635,15 +2629,15 @@ def read_rfx():
 					return rawcmd
 				
 				else:
-					logerror('Error: Incoming packet not valid length')
+					logger.error('Error: Incoming packet not valid length')
 					if cmdarg.printout_complete == True:
 						print "------------------------------------------------"
 						print "Received\t\t= " + ByteToHex( message )
 						print "Incoming packet not valid, waiting for next..."
 				
 	except OSError, e:
-		logerror('Error in message: ' + str(ByteToHex(message)))
-		logerror('Traceback: ' + traceback.format_exc())
+		logger.error('Error in message: ' + str(ByteToHex(message)))
+		logger.error('Traceback: ' + traceback.format_exc())
 		print "------------------------------------------------"
 		print "Received\t\t= " + ByteToHex( message )
 		traceback.format_exc()
@@ -2654,8 +2648,8 @@ def read_config( configFile, configItem):
  	"""
  	Read item from the configuration file
  	"""
- 	logdebug('Open configuration file')
- 	logdebug('File: ' + configFile)
+ 	logger.debug('Open configuration file')
+ 	logger.debug('File: ' + configFile)
 	
 	if os.path.exists( configFile ):
 
@@ -2665,29 +2659,29 @@ def read_config( configFile, configItem):
 		f.close()
 	
 		# xml parse file data
- 		logdebug('Parse config XML data')
+ 		logger.debug('Parse config XML data')
 		try:
-			dom = parseString(data)
+			dom = minidom.parseString(data)
 		except:
 			print "Error: problem in the config.xml file, cannot process it"
-			logdebug('Error in config.xml file')
+			logger.debug('Error in config.xml file')
 			
 		# Get config item
-	 	logdebug('Get the configuration item: ' + configItem)
+	 	logger.debug('Get the configuration item: ' + configItem)
 		
 		try:
 			xmlTag = dom.getElementsByTagName( configItem )[0].toxml()
-			logdebug('Found: ' + xmlTag)
+			logger.debug('Found: ' + xmlTag)
 			xmlData = xmlTag.replace('<' + configItem + '>','').replace('</' + configItem + '>','')
-			logdebug('--> ' + xmlData)
+			logger.debug('--> ' + xmlData)
 		except:
-			logdebug('The item tag not found in the config file')
+			logger.debug('The item tag not found in the config file')
 			xmlData = ""
 			
- 		logdebug('Return')
+ 		logger.debug('Return')
  		
  	else:
- 		logerror('Error: Config file does not exists')
+ 		logger.error('Error: Config file does not exists')
  		
 	return xmlData
 
@@ -2713,10 +2707,10 @@ def print_version():
 	"""
 	Print RFXCMD version, build and date
 	"""
-	logdebug("print_version")
+	logger.debug("print_version")
  	print "RFXCMD Version: " + __version__
  	print __date__.replace('$', '')
- 	logdebug("Exit 0")
+ 	logger.debug("Exit 0")
  	sys.exit(0)
 
 # ----------------------------------------------------------------------------
@@ -2725,11 +2719,8 @@ def check_pythonversion():
 	"""
 	Check python version
 	"""
-	logdebug("Python version: %s.%s.%s" % sys.version_info[:3])
 	if sys.hexversion < 0x02060000:
-		logerror("Error: Your Python need to be 2.6 or newer, please upgrade.")
 		print "Error: Your Python need to be 2.6 or newer, please upgrade."
-		logdebug("Exit 1")
 		sys.exit(1)
 
 # ----------------------------------------------------------------------------
@@ -2759,7 +2750,7 @@ def option_simulate(indata):
 	try:
 		hexval = int(indata, 16)
 	except:
-		logerror("Error: the input data is invalid hex value")
+		logger.error("Error: the input data is invalid hex value")
 		print "Error: the input data is invalid hex value"
 		exit()
 	
@@ -2767,7 +2758,7 @@ def option_simulate(indata):
 	try:
 		message = indata.decode("hex")
 	except:
-		logerror("Error: the input data is not valid")
+		logger.error("Error: the input data is not valid")
 		print "Error: the input data is not valid"
 		exit()
 	
@@ -2775,10 +2766,10 @@ def option_simulate(indata):
 	try:
 		decodePacket( message )
 	except KeyError:
-		logerror("Error: unrecognizable packet")
+		logger.error("Error: unrecognizable packet")
 		print "Error: unrecognizable packet"
 	
-	logdebug('Exit 0')
+	logger.debug('Exit 0')
 	sys.exit(0)
 
 # ----------------------------------------------------------------------------
@@ -2787,45 +2778,50 @@ def option_listen():
 	"""
 	Listen to RFXtrx device and process data, exit with CTRL+C
 	"""
-	logdebug('Action: Listen')
+	logger.debug('Action: Listen')
 
 	if config.socketserver:
-		serversocket = open_socket(config.socketport)
-			
+		#serversocket = open_socket(config.socketport)
+		serversocket = RFXcmdSocketAdapter()
+		if serversocket.netAdapterRegistered:
+			logger.debug("Socket interface started")
+		else:
+			logger.debug("Cannot start socket interface")
+
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
 		read_triggerfile()
 			
 	# Flush buffer
-	logdebug('Serialport flush output')
+	logger.debug('Serialport flush output')
 	serial_param.port.flushOutput()
-	logdebug('Serialport flush input')
+	logger.debug('Serialport flush input')
 	serial_param.port.flushInput()
 
 	# Send RESET
-	logdebug('Send rfxcmd_reset (' + rfxcmd.reset + ')')
+	logger.debug('Send rfxcmd_reset (' + rfxcmd.reset + ')')
 	serial_param.port.write( rfxcmd.reset.decode('hex') )
-	logdebug('Sleep 1 sec')
+	logger.debug('Sleep 1 sec')
 	time.sleep(1)
 
 	# Flush buffer
-	logdebug('Serialport flush output')
+	logger.debug('Serialport flush output')
 	serial_param.port.flushOutput()
-	logdebug('Serialport flush input')
+	logger.debug('Serialport flush input')
 	serial_param.port.flushInput()
 
 	if config.undecoded:
-		logdebug('Send rfxcmd_undecoded (' + rfxcmd.undecoded + ')')
+		logger.debug('Send rfxcmd_undecoded (' + rfxcmd.undecoded + ')')
 		send_rfx( rfxcmd.undecoded.decode('hex') )
-		logdebug('Sleep 1 sec')
+		logger.debug('Sleep 1 sec')
 		time.sleep(1)
-		logdebug('Read_rfx')
+		logger.debug('Read_rfx')
 		read_rfx()
 		
 	# Send STATUS
-	logdebug('Send rfxcmd_status (' + rfxcmd.status + ')')
+	logger.debug('Send rfxcmd_status (' + rfxcmd.status + ')')
 	serial_param.port.write( rfxcmd.status.decode('hex') )
-	logdebug('Sleep 1 sec')
+	logger.debug('Sleep 1 sec')
 	time.sleep(1)
 
 	try:
@@ -2833,17 +2829,15 @@ def option_listen():
 		
 			# Read serial port
 			rawcmd = read_rfx()
-			logdebug('Received: ' + str(rawcmd))
+			logger.debug('Received: ' + str(rawcmd))
 			
 			# Read socket
 			if config.socketserver:
-				check_socket(serversocket)
+				read_socket()
 			
 	except KeyboardInterrupt:
-		logdebug('Received keyboard interrupt')
-		if config.socketserver:
-			logdebug('Close socket port...')
-			close_socket(serversocket)
+		logger.debug('Received keyboard interrupt')
+		serversocket.netAdapter.shutdown()
 		print "\nExit..."
 		pass
 
@@ -2881,11 +2875,11 @@ def option_send():
 	"""
 	Send command to RFX device
 	"""
-	logdebug('Action: send')
+	logger.debug('Action: send')
 
 	# Remove any whitespaces	
 	cmdarg.rawcmd = cmdarg.rawcmd.replace(' ', '')
-	logdebug('rawcmd: ' + cmdarg.rawcmd)
+	logger.debug('rawcmd: ' + cmdarg.rawcmd)
 
 	# Test the string if it is hex format
 	try:
@@ -2951,11 +2945,11 @@ def option_bsend():
 	
 	print "BSEND action is DEPRICATED, will be removed in version v0.31"
 	
-	logdebug('Action: bsend')
+	logger.debug('Action: bsend')
 	
 	# Remove any whitespaces
 	cmdarg.rawcmd = cmdarg.rawcmd.replace(' ', '')
-	logdebug('rawcmd: ' + cmdarg.rawcmd)
+	logger.debug('rawcmd: ' + cmdarg.rawcmd)
 	
 	# Test the string if it is hex format
 	try:
@@ -3023,14 +3017,14 @@ def read_configfile():
 			config.socketserver = False
 			
 		config.socketport = read_config( cmdarg.configfile, "socketport")
-		logdebug("SocketServer: " + str(config.socketserver))
-		logdebug("SocketServer: " + str(config.socketport))
+		logger.debug("SocketServer: " + str(config.socketserver))
+		logger.debug("SocketServer: " + str(config.socketport))
 		
 	else:
 
 		# config file not found, set default values
 		print "Error: Configuration file not found (" + cmdarg.configfile + ")"
-		logerror('Error: Configuration file not found (' + cmdarg.configfile + ')')
+		logger.error('Error: Configuration file not found (' + cmdarg.configfile + ')')
 
 # ----------------------------------------------------------------------------
 
@@ -3041,31 +3035,31 @@ def open_serialport():
 
 	# Check that serial module is loaded
 	try:
-		logdebug("Serial extension version: " + serial.VERSION)
+		logger.debug("Serial extension version: " + serial.VERSION)
 	except:
 		print "Error: You need to install Serial extension for Python"
-		logdebug("Error: Serial extension for Python could not be loaded")
-		logdebug("Exit 1")
+		logger.debug("Error: Serial extension for Python could not be loaded")
+		logger.debug("Exit 1")
 		sys.exit(1)
 
 	# Check for serial device
 	if config.device:
-		logdebug("Device: " + config.device)
+		logger.debug("Device: " + config.device)
 	else:
-		logerror('Device name missing')
+		logger.error('Device name missing')
 		print "Serial device is missing"
-		logdebug("Exit 1")
+		logger.debug("Exit 1")
 		sys.exit(1)
 
 	# Open serial port
-	logdebug("Open Serialport")
+	logger.debug("Open Serialport")
 	try:  
 		serial_param.port = serial.Serial(config.device, serial_param.rate, timeout=serial_param.timeout)
 	except serial.SerialException, e:
-		logerror("Error: Failed to connect on device " + config.device)
+		logger.error("Error: Failed to connect on device " + config.device)
 		print "Error: Failed to connect on device " + config.device
 		print "Error: " + str(e)
-		logdebug("Exit 1")
+		logger.debug("Exit 1")
 		sys.exit(1)
 
 	if not serial_param.port.isOpen():
@@ -3078,14 +3072,14 @@ def close_serialport():
 	Close serial port.
 	"""
 
-	logdebug('Close serial port')
+	logger.debug('Close serial port')
 	try:
 		serial_param.port.close()
-		logdebug('Serial port closed')
+		logger.debug('Serial port closed')
 	except:
-		logdebug("Failed to close the serial port '" + device + "'")
+		logger.debug("Failed to close the serial port '" + device + "'")
 		print "Error: Failed to close the port " + device
-		logdebug("Exit 1")
+		logger.debug("Exit 1")
 		sys.exit(1)
 
 # ----------------------------------------------------------------------------
@@ -3109,7 +3103,7 @@ def loghandler():
 		f.close()
 
 		try:
-			dom = parseString(data)
+			dom = minidom.parseString(data)
 		except:
 			print "Error: problem in the config.xml file, cannot process it"
 
@@ -3134,18 +3128,10 @@ def loghandler():
 
 def main():
 
-	#pdb.set_trace()
+	global logger
 
 	# Get directory of the rfxcmd script
 	config.program_path = os.path.dirname(os.path.realpath(__file__))
-
-	# Start loghandler
-	loghandler()
-
-	logdebug("RFXCMD Version: " + __version__)
-	logdebug(__date__.replace('$', ''))
-
-	logdebug("Parse command line")
 
 	parser = OptionParser()
 	parser.add_option("-d", "--device", action="store", type="string", dest="device", help="The serial device of the RFXCOM, example /dev/ttyUSB0")
@@ -3154,37 +3140,57 @@ def main():
 	parser.add_option("-x", "--simulate", action="store", type="string", dest="simulate", help="Simulate one incoming data message")
 	parser.add_option("-r", "--rawcmd", action="store", type="string", dest="rawcmd", help="Send raw message (need action SEND)")
 	parser.add_option("-c", "--csv", action="store_true", dest="csv", default=False, help="Output data in CSV format")
-	parser.add_option("-l", "--xpl", action="store_true", dest="xpl", default=False, help="Send data to XPL broadcast network")
+	parser.add_option("-l", "--xpl", action="store_true", dest="xpl", default=False, help="Send data to xPL broadcast network")
 	parser.add_option("-m", "--mysql", action="store_true", dest="mysql", default=False, help="Insert data to MySQL database")
 	parser.add_option("-s", "--sqlite", action="store_true", dest="sqlite", default=False, help="Insert data to SQLite database")
 	parser.add_option("-g", "--graphite", action="store_true", dest="graphite", default=False, help="Send data to graphite server")
 	parser.add_option("-z", "--daemonize", action="store_true", dest="daemon", default=False, help="Daemonize RFXCMD")
 	parser.add_option("-p", "--pidfile", action="store", type="string", dest="pidfile", help="PID File location and name")
 	parser.add_option("-v", "--version", action="store_true", dest="version", help="Print rfxcmd version information")
-
+	parser.add_option("-D", "--debug", action="store_true", dest="debug", default=False, help="Debug printout on stdout")
 	(options, args) = parser.parse_args()
 
 	if options.version:
 		print_version()
 
+	# Config file
+	if options.config:
+		cmdarg.configfile = options.config
+	else:
+		cmdarg.configfile = os.path.join(config.program_path, "config.xml")
+
+	# Start loghandler
+	if options.debug:
+		logger = rfx_logger.init(cmdarg.configfile,'rfxcmd', True)
+	else:
+		logger = rfx_logger.init(cmdarg.configfile,'rfxcmd', False)
+	
+	logger.debug("Python version: %s.%s.%s" % sys.version_info[:3])
+	logger.debug("RFXCMD Version: " + __version__)
+	logger.debug(__date__.replace('$', ''))
+
+	logger.debug("Configfile: " + cmdarg.configfile)
+	logger.debug("Read configuration file")
+	read_configfile()
+
 	if options.csv:
-		logdebug("Option: CSV chosen")
+		logger.debug("Option: CSV chosen")
 		cmdarg.printout_complete = False
 		cmdarg.printout_csv = True
 
 	if options.mysql:
-		logdebug("Option: MySQL chosen")
+		logger.debug("Option: MySQL chosen")
 		cmdarg.printout_complete = False
 		cmdarg.printout_csv = False
 
 	if options.sqlite:
-		logdebug("Option: SqLite chosen")
+		logger.debug("Option: SqLite chosen")
 		cmdarg.printout_complete = False
 		cmdarg.printout_csv = False
 
 	# XPL
 	if options.xpl:
-		logdebug("Option: xPL chosen")
+		logger.debug("Option: xPL chosen")
 		cmdarg.printout_complete = False
 		cmdarg.xpl = options.xpl
 
@@ -3198,65 +3204,55 @@ def main():
 	else:
 		config.device = None
 
-	# Config file
-	if options.config:
-		cmdarg.configfile = options.config
-	else:
-		cmdarg.configfile = os.path.join(config.program_path, "config.xml")
-
-	logdebug("Configfile: " + cmdarg.configfile)
-	logdebug("Read configuration file")
-	read_configfile()
-
 	# Graphite
 	if options.graphite:
 		cmdarg.graphite = True
-		logdebug("Option: Graphite chosen")
+		logger.debug("Option: Graphite chosen")
 
 	# Deamon
 	if options.daemon:
-		logdebug("Option: Daemon chosen")
-		logdebug("Check PID file")
+		logger.debug("Option: Daemon chosen")
+		logger.debug("Check PID file")
 		
 		if options.pidfile:
 			cmdarg.pidfile = options.pidfile
 			cmdarg.createpid = True
-			logdebug("PID file '" + cmdarg.pidfile + "'")
+			logger.debug("PID file '" + cmdarg.pidfile + "'")
 		
 			if os.path.exists(cmdarg.pidfile):
 				print("PID file '" + cmdarg.pidfile + "' already exists. Exiting.")
-				logdebug("PID file '" + cmdarg.pidfile + "' already exists.")
-				logdebug("Exit 1")
+				logger.debug("PID file '" + cmdarg.pidfile + "' already exists.")
+				logger.debug("Exit 1")
 				sys.exit(1)
 			else:
-				logdebug("PID file does not exists")
+				logger.debug("PID file does not exists")
 
 		else:
 			print("You need to set the --pidfile parameter at the startup")
-			logdebug("Command argument --pidfile missing")
-			logdebug("Exit 1")
+			logger.debug("Command argument --pidfile missing")
+			logger.debug("Exit 1")
 			sys.exit(1)
 
-		logdebug("Check platform")
+		logger.debug("Check platform")
 		if sys.platform == 'win32':
 			print "Daemonize not supported under Windows. Exiting."
-			logdebug("Daemonize not supported under Windows.")
-			logdebug("Exit 1")
+			logger.debug("Daemonize not supported under Windows.")
+			logger.debug("Exit 1")
 			sys.exit(1)
 		else:
-			logdebug("Platform: " + sys.platform)
+			logger.debug("Platform: " + sys.platform)
 			
 			try:
-				logdebug("Write PID file")
+				logger.debug("Write PID file")
 				file(cmdarg.pidfile, 'w').write("pid\n")
 			except IOError, e:
-				logdebug("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
+				logger.debug("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
 				raise SystemExit("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
 
-			logdebug("Deactivate screen printouts")
+			logger.debug("Deactivate screen printouts")
 			cmdarg.printout_complete = False
 
-			logdebug("Start daemon")
+			logger.debug("Start daemon")
 			daemonize()
 
 	# MySQL
@@ -3266,13 +3262,13 @@ def main():
 	# SqLite
 	if options.sqlite == True:
 		cmdarg.sqlite = True
-		logdebug("Check sqlite3")
+		logger.debug("Check sqlite3")
 		try:
-			logdebug("SQLite3 version: " + sqlite3.sqlite_version)
+			logger.debug("SQLite3 version: " + sqlite3.sqlite_version)
 		except ImportError:
 			print "Error: You need to install SQLite extension for Python"
-			logdebug("Error: Could not find MySQL extension for Python")
-			logdebug("Exit 1")
+			logger.debug("Error: Could not find MySQL extension for Python")
+			logger.debug("Exit 1")
 			sys.exit(1)
 
 	# Action
@@ -3280,23 +3276,23 @@ def main():
 		cmdarg.action = options.action.lower()
 		if not (cmdarg.action == "listen" or cmdarg.action == "send" or
 			cmdarg.action == "bsend" or cmdarg.action == "status"):
-			logerror("Error: Invalid action")
+			logger.error("Error: Invalid action")
 			parser.error('Invalid action')
 	else:
 		cmdarg.action = "listen"
 
-	logdebug("Action chosen: " + cmdarg.action)
+	logger.debug("Action chosen: " + cmdarg.action)
 
 	# Rawcmd
 	if cmdarg.action == "send" or cmdarg.action == "bsend":
 		cmdarg.rawcmd = options.rawcmd
 		if not cmdarg.rawcmd:
 			print "Error: You need to specify message to send with -r <rawcmd>. Exiting."
-			logerror("Error: You need to specify message to send with -r <rawcmd>")
-			logdebug("Exit 1")
+			logger.error("Error: You need to specify message to send with -r <rawcmd>")
+			logger.debug("Exit 1")
 			sys.exit(1)
 	
-		logdebug("Rawcmd: " + cmdarg.rawcmd)
+		logger.debug("Rawcmd: " + cmdarg.rawcmd)
 
 	if options.simulate:
 		option_simulate( options.simulate )
@@ -3317,9 +3313,9 @@ def main():
 
 	close_serialport()
 
-	logdebug("Exit 0")
+	logger.debug("Exit 0")
 	sys.exit(0)
-
+	
 # ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
