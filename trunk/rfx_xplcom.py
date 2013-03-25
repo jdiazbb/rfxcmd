@@ -3,7 +3,7 @@
 
 # -----------------------------------------------------------------------------
 #   
-#   XPL.PY
+#   RFX_XPLCOM.PY
 #   
 #   Copyright (C) 2012-2013 Sebastian Sjoholm, sebastian.sjoholm@gmail.com
 #   
