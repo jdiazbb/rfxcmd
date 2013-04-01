@@ -70,16 +70,16 @@ Following sensors will forward parameters to the trigger script. (more can be ad
 ||0x20||Security1||n/a||
 ||0x28||Camera1||n/a||
 ||0x30||Remote Control||n/a||
-||0x40||Thermostat1||n/a||
+||0x40||Thermostat1||$temperature$, $temperature_set$, $mode$, $status$, $signal$||
 ||0x41||Thermostat2||n/a||
 ||0x42||Thermostat3||n/a||
-||0x50||Temperature||-||
-||0x51||Humidity||-||
-||0x52||Temperature and Humidity||-||
+||0x50||Temperature||$temperature$, $battery$, $signal$||
+||0x51||Humidity||$humidity$, $battery$, $signal$||
+||0x52||Temperature and Humidity||$temperature$, $humidity$, $battery$, $signal$||
 ||0x53||Barometric||n/a||
-||0x54||Temperature, Humidity and Barometric||-||
-||0x55||Rain||-||
-||0x56||Wind||-||
+||0x54||Temperature, Humidity and Barometric||$temperature$, $humidity$, $barometric$, $battery$, $signal$||
+||0x55||Rain||$battery$, $signal$||
+||0x56||Wind||$direction$, $average$, $temperature$, $windchill$, $windgust$, $battery$, $signal$||
 ||0x57||UV||$temperature$, $battery$, $signal$||
 ||0x59||Current||-||
 ||0x5A||Energy||-||
@@ -87,9 +87,6 @@ Following sensors will forward parameters to the trigger script. (more can be ad
 ||0x70||RFXSensor||n/a||
 ||0x71||RFXMeter||n/a||
 ||0x72||FS20||n/a||
-
-
-
 
 
 
