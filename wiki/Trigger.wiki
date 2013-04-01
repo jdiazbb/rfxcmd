@@ -88,7 +88,5 @@ Following sensors will forward parameters to the trigger script. This will be ex
 ||0x71||RFXMeter||n/a||
 ||0x72||FS20||n/a||
 
-Note, if there is a value in (xx) it means that only that subtype will output the value.
-
-
+Note, if there is a value in (xx) it means that only that subtype will output the value, the "(xx)" should not be included in the "action" statement in the trigger.xml file.
 
