@@ -6,6 +6,11 @@ This page give detail information about the trigger functionality in the rfxcmd.
 
 The major change for the trigger in the pre-0.24 was that the trigger code was placed under each sensor decoding function, so that the parameters from the sensor data could be forwarded to the whatever script that is executed in the trigger file.
 
+== Version ==
+
+||Version||Date||Info||
+||R1A||1-APR-2013||First version, default for 0.24 and 0.3||
+
 == Trigger file ==
 
 The trigger action file is called trigger.xml and RFXcmd read the file when it is started, this means as well that if the file is changed the RFXcmd needs to be restarted.
@@ -89,4 +94,3 @@ Following sensors will forward parameters to the trigger script. This will be ex
 ||0x72||FS20||n/a||
 
 Note, if there is a value in (xx) it means that only that subtype will output the value, the "(xx)" should not be included in the "action" statement in the trigger.xml file.
-
