@@ -11,6 +11,7 @@ This will not work with RFXCMD version 0.2x and lower, this will be implemented 
 ||Version||Date||Info||
 ||PA1||1-DEC-2012||First version||
 ||PA2||9-FEB-2013||Added field for Unixtime in UTC||
+||PA3||1-APR-2013||Added missing 'level' for 0x14 sensor||
 
 = Details =
 
