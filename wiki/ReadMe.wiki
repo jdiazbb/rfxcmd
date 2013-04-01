@@ -62,6 +62,8 @@ to be sent and the response.
 
 ====BSEND====
 
+NOTE, DEPRECATED IN VERSION 0.3
+
 This is experimental, it will send a message to RFX but without any response on the screen, this is because
 you might have another process running rfxcmd with LISTEN action, and all printout will occur for that process. The reason when to use it, if you want to keep listening, and send commands at the same time. However, this function is not tested that much, so there might come conflicts. 
 
