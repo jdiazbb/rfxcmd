@@ -71,6 +71,27 @@ Signal level  = 5
 ----
 == 0x14 - Lightning5 ==
 
+LightwaveRF:
+{{{
+0A140001F0DD4805010070
+Packettype    = Lighting5
+subtype       = LightwaveRF
+Sequence nbr  = 1
+ID            = F0DD48
+Unit          = 5
+Command       = On
+Signal level  = 7
+
+0A140001F0DD4810030070
+Packettype    = Lighting5
+subtype       = LightwaveRF
+Sequence nbr  = 1
+ID            = F0DD48
+Unit          = 16
+Command       = Group Mood 1
+Signal level  = 7
+}}}
+
 ----
 == 0x15 - Lightning6 ==
 
