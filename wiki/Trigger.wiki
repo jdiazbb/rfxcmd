@@ -10,7 +10,7 @@ The major change for the trigger in the pre-0.24 was that the trigger code was p
 
 The trigger action file is called trigger.xml and RFXcmd read the file when it is started, this means as well that if the file is changed the RFXcmd needs to be restarted.
 
-The contents of the file is kept in the memory and checked against every sensor if they match the trigger sentence, if it matches then the '''action''' statement will be executed.
+The contents of the file is kept in the memory and checked against every sensor if they match the trigger sentence, if it matches then the "action" statement will be executed.
 
 == Sensor data ==
 
