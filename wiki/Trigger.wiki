@@ -54,4 +54,46 @@ Data: 22.2 9 7
 
 Following sensors will forward parameters to the trigger script. (more can be added in the future)
 
-||Sensor id||Sensor name||Parameters||
+||Data id||Data name||Parameters||
+||0x00||Interface control||n/a||
+||0x01||Interface message||n/a||
+||0x02||Receiver/Transmitter Msg||n/a||
+||0x03||Undecoed Msg||n/a||
+||0x10||Lightning1||n/a||
+||0x11||Lightning2||n/a||
+||0x12||Lightning3||n/a||
+||0x13||Lightning4||n/a||
+||0x14||Lightning5||n/a||
+||0x15||Lightning6||n/a||
+||0x18||Curtain1||n/a||
+||0x19||Blinds1||n/a||
+||0x20||Security1||n/a||
+||0x28||Camera1||n/a||
+||0x30||Remote Control||n/a||
+||0x40||Thermostat1||n/a||
+||0x41||Thermostat2||n/a||
+||0x42||Thermostat3||n/a||
+||0x50||Temperature||-||
+||0x51||Humidity||-||
+||0x52||Temperature and Humidity||-||
+||0x53||Barometric||n/a||
+||0x54||Temperature, Humidity and Barometric||-||
+||0x55||Rain||-||
+||0x56||Wind||-||
+||0x57||UV||$temperature$, $battery$, $signal$||
+||0x59||Current||-||
+||0x5A||Energy||-||
+||0x5B||Current and Energy||-||
+||0x70||RFXSensor||n/a||
+||0x71||RFXMeter||n/a||
+||0x72||FS20||n/a||
+
+
+
+
+
+
+
+
+
+
