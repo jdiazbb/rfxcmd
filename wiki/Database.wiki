@@ -42,7 +42,7 @@ Sensor specific data fields:
 ||0x11||id1-id4||-||cmnd||unitcode||dimlevel||-||-||-||-||-||-||-||-||
 ||0x12||system||-||cmnd||channel||-||-||-||-||-||-||-||-||-||
 ||0x13||-||-||-||cmd1-3||pulse||-||-||-||-||-||-||-||-||
-||0x14||id1-id3||-||cmnd||unitcode||-||-||-||-||-||-||-||-||-||
+||0x14||id1-id3||-||cmnd||unitcode||level||-||-||-||-||-||-||-||-||
 ||0x15||id1-id2||groupcode||cmnd||unitcode||cmndseqnbr||-||-||-||-||-||-||-||-||
 ||0x18||housecode||-||cmnd||unitcode||-||-||-||-||-||-||-||-||-||
 ||0x19||id1-id3||-||cmnd||unitcode||-||-||-||-||-||-||-||-||-||
