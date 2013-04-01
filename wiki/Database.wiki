@@ -6,7 +6,7 @@ Generalized database structure for all sensors from RFX, for both Mysql and Sqli
 
 This will not work with RFXCMD version 0.2x and lower, this will be implemented in RFXCMD 0.3x
 
-= Version =
+== Version ==
 
 ||Version||Date||Info||
 ||PA1||1-DEC-2012||First version||
