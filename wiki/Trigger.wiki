@@ -1,0 +1,16 @@
+#summary About the trigger function
+
+= Introduction =
+
+This page give detail information about the trigger functionality in the rfxcmd. The trigger function was changed in version 0.24 and 0.3, and this document is only valid for these versions and above.
+
+The major change for the trigger in the pre-0.24 was that the trigger code was placed under each sensor decoding function, so that the parameters from the sensor data could be forwarded to the whatever script that is executed in the trigger file.
+
+= TRIGGER.XML file =
+
+
+= Sensor data =
+
+Following sensors will forward parameters to the trigger script. (more can be added in the future)
+
+||Sensor id||Sensor name||Parameters||
