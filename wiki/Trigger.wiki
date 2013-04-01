@@ -6,10 +6,13 @@ This page give detail information about the trigger functionality in the rfxcmd.
 
 The major change for the trigger in the pre-0.24 was that the trigger code was placed under each sensor decoding function, so that the parameters from the sensor data could be forwarded to the whatever script that is executed in the trigger file.
 
-= TRIGGER.XML file =
+== Trigger file ==
 
+The trigger action file is called trigger.xml and RFXcmd read the file when it is started, this means as well that if the file is changed the RFXcmd needs to be restarted.
 
-= Sensor data =
+The contents of the file is kept in the memory and checked against every sensor if they match the trigger sentence, if it matches then the <action> statement will be executed.
+
+== Sensor data ==
 
 Following sensors will forward parameters to the trigger script. (more can be added in the future)
 
