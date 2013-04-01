@@ -12,6 +12,44 @@ The trigger action file is called trigger.xml and RFXcmd read the file when it i
 
 The contents of the file is kept in the memory and checked against every sensor if they match the trigger sentence, if it matches then the "action" statement will be executed.
 
+Regex should be used to specify the messages, and this is especially needed as the sequence number (byte 4) will always be incremental from the last one.
+
+Example trigger.xml file;
+
+{{{
+<xml>
+<trigger>
+	<message>0A5201..0A01006A390269</message>
+	<action>echo TEST</action>
+</trigger>
+<trigger>
+	<message>0A5201000A01006A390269</message>
+	<action>echo ACTION</action>
+</trigger>
+</xml>
+}}}
+
+By putting two dots instead of the sequence byte, the rfxcmd will match the rest of the message and execute the defined action if the message matches.
+
+Parameters can be forwarded from the sensor data to the "action" statement.
+
+Example;
+
+{{{
+<trigger>
+        <message>0A5201..7001..........</message>
+        <action>echo Data: $temperature$ $battery$ $signal$</action>
+</trigger>
+}}}
+
+This sentence will printout the temperature, battery and signal every time a sensor with "0A5201" signature and "7001" id.
+
+Example printout;
+
+{{{
+Data: 22.2 9 7
+}}}
+
 == Sensor data ==
 
 Following sensors will forward parameters to the trigger script. (more can be added in the future)
