@@ -84,7 +84,7 @@ Following sensors will forward parameters to the trigger script. This will be ex
 ||0x53||Barometric||n/a||
 ||0x54||Temperature, Humidity and Barometric||$temperature$, $humidity$, $barometric$, $battery$, $signal$||
 ||0x55||Rain||$battery$, $signal$||
-||0x56||Wind||$direction$, $average$(05), $temperature$(04), $windchill$(04), $windgust$, $battery$, $signal$||
+||0x56||Wind||$direction$, $average$(not 05), $temperature$(only 04), $windchill$(only 04), $windgust$, $battery$, $signal$||
 ||0x57||UV||$temperature$, $battery$, $signal$||
 ||0x59||Current||-||
 ||0x5A||Energy||-||
