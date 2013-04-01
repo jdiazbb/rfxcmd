@@ -285,43 +285,7 @@ Default config.xml file;
 
 The file trigger.xml contains the messages and actions that the rfxcmd should executes if the message matches the trigger message.
 
-Regex can be used to specify the messages, and this is especially needed as the sequence number (byte 4) will always be incremental from the last one.
-
-Example trigger.xml file;
-
-{{{
-<xml>
-<trigger>
-	<message>0A5201..0A01006A390269</message>
-	<action>echo TEST</action>
-</trigger>
-<trigger>
-	<message>0A5201000A01006A390269</message>
-	<action>echo ACTION</action>
-</trigger>
-</xml>
-}}}
-
-By putting two dots instead of the sequence byte, the rfxcmd will match the rest of the message and execute the defined action if the message matches.
-
-Version 0.24 and later have integrated possibility to add parameters from the readings to the action tag. This is still experimental and is not yet integrated to all sensors (will be soon).
-
-Example;
-
-{{{
-<trigger>
-        <message>0A5201..7001..........</message>
-        <action>echo Data: $temp$ $battery$ $signal$</action>
-</trigger>
-}}}
-
-This sentence will printout the temperature, battery and signal every time a sensor with "0A5201" signature and "7001" id.
-
-Example printout;
-
-{{{
-Data: 22.2 9 7
-}}}
+More about the trigger functionality in the [[Trigger]] page.
 
 ----
 ==EXAMPLES==
