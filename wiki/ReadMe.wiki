@@ -285,7 +285,7 @@ Default config.xml file;
 
 The file trigger.xml contains the messages and actions that the rfxcmd should executes if the message matches the trigger message.
 
-More about the trigger functionality in the [[Trigger]] page.
+More about the trigger functionality in the [Trigger] page.
 
 ----
 ==EXAMPLES==
