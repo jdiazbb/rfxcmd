@@ -11,8 +11,9 @@
  * Fixed, "Issue 14 : rfxcmd impossible to pipe to another script"
  * Fixed, "Issue 15: Unable to specify a diiferent path for log file"
  * Fixed, "Issue 16: Defect on 'subtype switch' in rain sensors"
- * Added, Trigger can now transfer parameters to the action tag (experimental, not all sensors yet)
+ * Added, Trigger can now transfer parameters to the action tag (experimental)
  * Added, Support for 0x13 Lightning4 protocol
+ * Fixed, "Issue 17: Graphite not working"
 
 == v0.23 (09-FEB-2013) ==
  * Fixed, "Issue 10 : Cleanup at exit"
