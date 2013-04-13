@@ -9,11 +9,15 @@
 	R1A 29-NOV-2012 Sebastian Sjoholm
 		* Created
 
+	R1B 13-APR-2013 Sebastian Sjoholm
+		* Added 'unixtime' field
+
 */
 
 CREATE TABLE `rfxcmd` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `datetime` datetime DEFAULT NULL,
+  `unixtime` int(11) DEFAULT NULL,
   `packettype` varchar(2) DEFAULT NULL,
   `subtype` varchar(2) DEFAULT NULL,
   `seqnbr` varchar(2) DEFAULT NULL,
