@@ -2883,11 +2883,6 @@ def test_rfx( message ):
 	Return true if valid, False if not
 	"""
 		
-	# Remove any whitespaces and linebreaks
-	message = message.replace(' ', '')
-	message = message.replace("\r","")
-	message = message.replace("\n","")
-	
 	# Remove all invalid characters
 	message = stripped(message)
 	
