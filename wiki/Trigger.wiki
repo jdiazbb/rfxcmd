@@ -64,33 +64,33 @@ Following sensors will forward parameters to the trigger script. This will be ex
 ||0x01||Interface message||n/a||
 ||0x02||Receiver/Transmitter Msg||n/a||
 ||0x03||Undecoed Msg||n/a||
-||0x10||Lightning1||n/a||
-||0x11||Lightning2||n/a||
-||0x12||Lightning3||n/a||
-||0x13||Lightning4||n/a||
-||0x14||Lightning5||n/a||
-||0x15||Lightning6||n/a||
-||0x18||Curtain1||n/a||
-||0x19||Blinds1||n/a||
-||0x20||Security1||n/a||
-||0x28||Camera1||n/a||
-||0x30||Remote Control||n/a||
-||0x40||Thermostat1||$temperature$, $temperature_set$, $mode$, $status$, $signal$||
-||0x41||Thermostat2||n/a||
-||0x42||Thermostat3||n/a||
-||0x50||Temperature||$temperature$, $battery$, $signal$||
-||0x51||Humidity||$humidity$, $battery$, $signal$||
-||0x52||Temperature and Humidity||$temperature$, $humidity$, $battery$, $signal$||
-||0x53||Barometric||n/a||
-||0x54||Temperature, Humidity and Barometric||$temperature$, $humidity$, $barometric$, $battery$, $signal$||
-||0x55||Rain||$battery$, $signal$||
-||0x56||Wind||$direction$, $average$(not 05), $temperature$(only 04), $windchill$(only 04), $windgust$, $battery$, $signal$||
-||0x57||UV||$temperature$, $battery$, $signal$||
-||0x59||Current||-||
-||0x5A||Energy||-||
-||0x5B||Current and Energy||-||
-||0x70||RFXSensor||n/a||
-||0x71||RFXMeter||n/a||
-||0x72||FS20||n/a||
+||0x10||Lightning1||$id$||
+||0x11||Lightning2||$id$||
+||0x12||Lightning3||$id$||
+||0x13||Lightning4||$id$||
+||0x14||Lightning5||$id$||
+||0x15||Lightning6||$id$||
+||0x18||Curtain1||$id$||
+||0x19||Blinds1||$id$||
+||0x20||Security1||$id$||
+||0x28||Camera1||$id$||
+||0x30||Remote Control||$id$||
+||0x40||Thermostat1||$id$, $temperature$, $temperature_set$, $mode$, $status$, $signal$||
+||0x41||Thermostat2||$id$||
+||0x42||Thermostat3||$id$||
+||0x50||Temperature||$id$, $temperature$, $battery$, $signal$||
+||0x51||Humidity||$id$, $humidity$, $battery$, $signal$||
+||0x52||Temperature and Humidity||$id$, $temperature$, $humidity$, $battery$, $signal$||
+||0x53||Barometric||$id$||
+||0x54||Temperature, Humidity and Barometric||$id$, $temperature$, $humidity$, $barometric$, $battery$, $signal$||
+||0x55||Rain||$id$, $battery$, $signal$||
+||0x56||Wind||$id$, $direction$, $average$(not 05), $temperature$(only 04), $windchill$(only 04), $windgust$, $battery$, $signal$||
+||0x57||UV||$id$, $temperature$, $battery$, $signal$||
+||0x59||Current||$id$||
+||0x5A||Energy||$id$||
+||0x5B||Current and Energy||$id$||
+||0x70||RFXSensor||$id$||
+||0x71||RFXMeter||$id$||
+||0x72||FS20||$id$||
 
 Note, if there is a value in (xx) it means that only that subtype will output the value, the "(xx)" should not be included in the "action" statement in the trigger.xml file.
