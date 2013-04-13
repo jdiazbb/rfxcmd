@@ -994,7 +994,7 @@ def insert_mysql(timestamp, unixtime, packettype, subtype, seqnbr, battery, sign
 			INSERT INTO rfxcmd (datetime, unixtime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
 				data5, data6, data7, data8, data9, data10, data11, data12, data13)
 			VALUES ('%s','%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
-			""" % (timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, data4, data5, data6, data7, 
+			""" % (timestamp, unixtime, packettype, subtype, int(seqnbr,16), battery, signal, data1, data2, data3, data4, data5, data6, data7, 
 				data8, data9, data10, data11, data12, data13)
 		
 		cursor.execute(sql)
@@ -1028,7 +1028,7 @@ def insert_sqlite(timestamp, unixtime, packettype, subtype, seqnbr, battery, sig
 			INSERT INTO '%s' (datetime, unixtime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
 				data5, data6, data7, data8, data9, data10, data11, data12, data13)
 			VALUES('%s','%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
-			""" % (config.sqlite_table, timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
+			""" % (config.sqlite_table, timestamp, unixtime, packettype, subtype, int(seqnbr,16), battery, signal, data1, data2, data3, 
 				data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
 
 		cu.executescript(sql)
