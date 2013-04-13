@@ -821,7 +821,7 @@ def shutdown():
 	logger.debug("Shutdown")
 
 	if cmdarg.createpid:
-		logger.debug("Removing PID file " + str(config.pidfile))
+		logger.debug("Removing PID file " + str(cmdarg.pidfile))
 		os.remove(cmdarg.pidfile)
 
 	if serial_param.port is not None:
