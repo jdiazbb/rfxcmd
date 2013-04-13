@@ -17,52 +17,52 @@ SCRIPTNAME=/etc/init.d/$NAME
 case "$1" in
 start)
 	printf "%-50s" "Starting $NAME..."
-        # Check if PID exists, and if process is active
+    # Check if PID exists, and if process is active
 	if [ -f $PIDFILE ]; then
-            	PID=`cat $PIDFILE`
-            	if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+    	PID=`cat $PIDFILE`
+        if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
 			# Process not active remove PID file
-                	rm -f $PIDFILE
+            rm -f $PIDFILE
 		else
 			printf "%s\n" "Process already started..."
 			exit 1
-            	fi
         fi
+	fi
 
 	$DAEMON_PATH$DAEMON $DAEMONOPTS
         
 	# Check process
 	PID=`cat $PIDFILE`
 	if [ -f $PID ]; then
-            printf "%s\n" "Fail"
-        else
-            printf "%s\n" "Ok"
-        fi
+    	printf "%s\n" "Fail"
+	else
+    	printf "%s\n" "Ok"
+	fi
 ;;
 status)
-        printf "%-50s" "Checking $NAME..."
-        if [ -f $PIDFILE ]; then
-            PID=`cat $PIDFILE`
-            if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
-                printf "%s\n" "Process dead but pidfile exists"
-            else
-                echo "Running"
-            fi
-        else
-            printf "%s\n" "Service not running"
-        fi
+    printf "%-50s" "Checking $NAME..."
+    if [ -f $PIDFILE ]; then
+    	PID=`cat $PIDFILE`
+        if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+        	printf "%s\n" "Process dead but pidfile exists"
+		else
+        	echo "Running"
+		fi
+	else
+	    printf "%s\n" "Service not running"
+    fi
 ;;
 stop)
-        printf "%-50s" "Stopping $NAME"
+    printf "%-50s" "Stopping $NAME"
 	PID=`cat $PIDFILE`
 	cd $DAEMON_PATH
-        if [ -f $PIDFILE ]; then
-            kill -HUP $PID
-            printf "%s\n" "Ok"
-            rm -f $PIDFILE
-        else
-            printf "%s\n" "pidfile not found"
-        fi
+    if [ -f $PIDFILE ]; then
+    	kill -HUP $PID
+        printf "%s\n" "Ok"
+        rm -f $PIDFILE
+	else
+    	printf "%s\n" "pidfile not found"
+	fi
 ;;
 
 restart)
