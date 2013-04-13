@@ -395,7 +395,35 @@ class rfx_data(dict):
 	rfx_subtype_13 = {"00":"PT2262"}
 
 	rfx_subtype_14 = {"00":"LightwaveRF, Siemens",
-						"01":"EMW100 GAO/Everflourish"}
+						"01":"EMW100 GAO/Everflourish",
+						"02":"BBSB new types"}
+						
+	rfx_subtype_14_cmnd0 = {"00":"Off",
+							"01":"On",
+							"02":"Group off",
+							"03":"Mood1",
+							"04":"Mood2",
+							"05":"Mood3",
+							"06":"Mood4",
+							"07":"Mood5",
+							"08":"Reserved",
+							"09":"Reserved",
+							"0A":"Unlock",
+							"0B":"Lock",
+							"0C":"All lock",
+							"0D":"Close (inline relay)",
+							"0E":"Stop (inline relay)",
+							"0F":"Open (inline relay)",
+							"10":"Set level"}						
+
+	rfx_subtype_14_cmnd1 = {"00":"Off",
+							"01":"On",
+							"02":"Learn"}						
+
+	rfx_subtype_14_cmnd2 = {"00":"Off",
+							"01":"On",
+							"02":"Group Off",
+							"03":"Group On"}						
 					
 	rfx_subtype_15 = {"00":"Blyss"}
 
@@ -1092,7 +1120,7 @@ def decodePacket(message):
 	if len(message) > 5:
 		id2 = ByteToHex(message[5])
 	
-	if cmdarg.printout_complete == True:
+	if cmdarg.printout_complete:
 		print "Packettype\t\t= " + rfx.rfx_packettype[packettype]
 
 	# ---------------------------------------
@@ -1109,7 +1137,7 @@ def decodePacket(message):
 		
 		decoded = True
 		
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			
 			data = {
 			'packetlen' : ByteToHex(message[0]),
@@ -1324,16 +1352,27 @@ def decodePacket(message):
 		indata = indata[4:]
 
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_03[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Message\t\t\t= " + indata
 
 		# CSV
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, indata ))
 			sys.stdout.flush()
 			
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1356,7 +1395,7 @@ def decodePacket(message):
 		signal = decodeSignal(message[7])
 
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_10[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Housecode\t\t= " + housecode
@@ -1365,7 +1404,7 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), housecode, command, str(unitcode) ))
 			sys.stdout.flush()
 		
@@ -1377,6 +1416,7 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
@@ -1402,7 +1442,7 @@ def decodePacket(message):
 		signal = decodeSignal(message[11])
 
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_11[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
@@ -1412,7 +1452,7 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 		
 		# CSV
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), sensor_id, command, str(unitcode), dimlevel ))
 			sys.stdout.flush()
 
@@ -1424,6 +1464,7 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
@@ -1472,7 +1513,7 @@ def decodePacket(message):
 		signal = decodeSignal(message[8])
 
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_12[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "System\t\t\t= " + system
@@ -1482,7 +1523,7 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV 
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;\n" %(timestamp, packettype, subtype, seqnbr, str(battery), str(signal), str(system), command, str(channel) ))
 			sys.stdout.flush()
 
@@ -1494,6 +1535,7 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
@@ -1521,7 +1563,7 @@ def decodePacket(message):
 		signal = decodeSignal(message[9])		
 		
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_13[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Code\t\t\t= " + code
@@ -1530,7 +1572,7 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, code, code_bin, str(pulse), str(signal) ))
 			sys.stdout.flush()
 
@@ -1542,6 +1584,7 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
@@ -1551,11 +1594,65 @@ def decodePacket(message):
 
 		decoded = True
 		
+		# DATA
+		sensor_id = id1 + id2 + ByteToHex(message[6])
+		unitcode = int(ByteToHex(message[7]),16)
+		
+		if subtype == '00':
+			command = rfx.rfx_subtype_14_cmnd0[ByteToHex(message[8])]
+		elif subtype == '01':
+			command = rfx.rfx_subtype_14_cmnd1[ByteToHex(message[8])]
+		elif subtype == '02':
+			command = rfx.rfx_subtype_14_cmnd2[ByteToHex(message[8])]
+		else:
+			command = "Unknown"
+		
+		if subtype == "00":
+			level = ByteToHex(message[9])
+		else:
+			level = 0
+		
+		signal = decodeSignal(message[10])
+		
+		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_14[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
-			# TODO
+			print "Id\t\t\t= " + sensor_id
+			print "Unitcode\t\t= " + str(unitcode)
+			print "Command\t\t\t= " + command
+			
+			if subtype == '00':
+				print "Level\t\t\t= " + level
+			
+			print "Signal level\t\t= " + str(signal)
+	
+		# CSV
+		if cmdarg.printout_csv:
+			if subtype == '00':
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(unitcode), command, level, str(signal) ))
+			else:
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(unitcode), command, str(signal) ))
+			sys.stdout.flush()
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+
+		# MYSQL
+		if cmdarg.mysql:
+			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, 0, sensor_id, 0, command, str(unitcode), level, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# SQLITE
+		if cmdarg.sqlite:
+			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, 0, sensor_id, 0, command, str(unitcode), level, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x15 Lighting6
@@ -1574,7 +1671,7 @@ def decodePacket(message):
 		signal = decodeSignal(message[11])
 
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_15[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "ID\t\t\t= "  + sensor_id
@@ -1585,7 +1682,7 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(signal), groupcode, command, str(unitcode), str(command_seqnbr) ))
 			sys.stdout.flush()
 			
@@ -1597,17 +1694,39 @@ def decodePacket(message):
 		if cmdarg.sqlite:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
 
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+
 	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
 	# ---------------------------------------
 	if packettype == '18':
 
 		decoded = True
-		
-		if cmdarg.printout_complete == True:
+
+		# PRINTOUT		
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_18[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
 	# 0x19 Blinds1
@@ -1616,10 +1735,22 @@ def decodePacket(message):
 
 		decoded = True
 		
-		if cmdarg.printout_complete == True:
+		# PRINTOUT
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_19[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
 	# 0x20 Security1
@@ -1645,7 +1776,7 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id, status ) )
 			sys.stdout.flush()
 			
@@ -1657,18 +1788,40 @@ def decodePacket(message):
 		if cmdarg.sqlite:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+
 	# ---------------------------------------
-	# 0x28 Curtain1
+	# 0x28 Camera1
 	# ---------------------------------------
 	if packettype == '28':
 
 		decoded = True
 		
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_28[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
 	# 0x30 Remote control and IR
@@ -1709,7 +1862,7 @@ def decodePacket(message):
 			signal = decodeSignal(message[6])
 
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_30[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + id1
@@ -1724,13 +1877,24 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV 
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			if subtype == '00' or subtype == '02':
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, command))
 			elif subtype == '04' or subtype == '01' or subtype == '03':
 				command = "Not implemented in RFXCMD"
 			sys.stdout.flush()
-			
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			if subtype == '00' or subtype == '02':
@@ -1766,7 +1930,7 @@ def decodePacket(message):
 		signal = decodeSignal(message[9])
 
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_40[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
@@ -1777,10 +1941,26 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV 
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), mode, status, str(temperature_set), str(temperature) ))
 			sys.stdout.flush()
-			
+	
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$temperature$", str(temperature) )
+					action = action.replace("$temperatureset$", str(temperature_set) )
+					action = action.replace("$mode$", mode )
+					action = action.replace("$status$", status )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
@@ -1790,7 +1970,7 @@ def decodePacket(message):
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=temperature\ncurrent='+temperature+'\nunits=C')
 			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=temperature_set\ncurrent='+temperature_set+'\nunits=C')
 			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=mode\ncurrent='+mode+'\n')
@@ -1806,10 +1986,21 @@ def decodePacket(message):
 		decoded = True
 		
 		# PRINTOUT		
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_41[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
 	# 0x42 Thermostat3
@@ -1836,7 +2027,7 @@ def decodePacket(message):
 		signal = decodeSignal(message[8])
 
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_42[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Unitcode\t\t\t= " + unitcode
@@ -1844,10 +2035,21 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV 
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, str(signal), unitcode, command))
 			sys.stdout.flush()
-			
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1857,7 +2059,7 @@ def decodePacket(message):
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=Thermostat.'+unitcode+'\ntype=command\ncurrent='+command+'\nunits=C')
 			xpl.send(config.xplhost, 'device=Thermostat.'+unitcode+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
@@ -1875,7 +2077,7 @@ def decodePacket(message):
 		battery = decodeBattery(message[8])
 
 		# PRINTOUT
-		if cmdarg.printout_complete == True:
+		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_50[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
@@ -1884,10 +2086,24 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, str(battery), str(signal), temperature ))
 			sys.stdout.flush()
 			
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$temperature$", str(temperature) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
@@ -1897,7 +2113,7 @@ def decodePacket(message):
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=Temp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
 			xpl.send(config.xplhost, 'device=Temp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
 			xpl.send(config.xplhost, 'device=Temp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
@@ -1928,11 +2144,25 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 		
 		# CSV
-		if cmdarg.printout_csv == True:
+		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, humidity_status, str(humidity), str(battery), str(signal)) )
 			sys.stdout.flush()
-			
+		
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$humidity$", str(humidity) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1942,7 +2172,7 @@ def decodePacket(message):
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=Hum.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
 			xpl.send(config.xplhost, 'device=Hum.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
 			xpl.send(config.xplhost, 'device=Hum.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
@@ -1980,14 +2210,29 @@ def decodePacket(message):
 							temperature, str(humidity), str(battery), str(signal)) )
 			sys.stdout.flush()
 		
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$temperature$", str(temperature) )
+					action = action.replace("$humidity$", str(humidity) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# GRAPHITE
 		if cmdarg.graphite == True:
 			now = int( time.time() )
 			linesg=[]
-			linesg.append("%s.%s.temperature %s %d" % ( sensor_id, temperature,now))
-			linesg.append("%s.%s.humidity %s %d" % ( sensor_id, humidity,now))
-			linesg.append("%s.%s.battery %s %d" % ( sensor_id, battery,now))
-			linesg.append("%s.%s.signal %s %d"% ( sensor_id, signal,now))
+			linesg.append("%s.%s.temperature %s %d" % ( 'rfxcmd', sensor_id, temperature,now))
+			linesg.append("%s.%s.humidity %s %d" % ( 'rfxcmd', sensor_id, humidity,now))
+			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
+			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
 		# MYSQL
@@ -1999,11 +2244,16 @@ def decodePacket(message):
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
 			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
 			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
 			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+
+	# ---------------------------------------
+	# 0x53 - Barometric
+	# RESERVED FOR FUTURE
+	# ---------------------------------------
 
 	# ---------------------------------------
 	# 0x54 - Temperature, humidity and barometric sensors
@@ -2056,7 +2306,23 @@ def decodePacket(message):
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id,
 							forecast, humidity_status, str(humidity), str(barometric), str(temperature)))
 			sys.stdout.flush()
-			
+		
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$temperature$", str(temperature) )
+					action = action.replace("$humidity$", str(humidity) )
+					action = action.replace("$baromatric$", str(baromatric) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
@@ -2066,7 +2332,7 @@ def decodePacket(message):
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
 			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
 			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(barometric)+'\nunits=%')
@@ -2123,7 +2389,20 @@ def decodePacket(message):
 							str(int(rainrate_high,16)), str(int(raintotal1,16)), 
 							str(battery), str(signal) ) )
 			sys.stdout.flush()
-			
+		
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
+		
 		"""			
 		# MYSQL
 		if cmdarg.mysql:
@@ -2183,7 +2462,27 @@ def decodePacket(message):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id, str(temperature), str(av_speed), str(gust), str(direction), str(windchill) ) )
 			sys.stdout.flush()
-			
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$direction$", str(direction) )
+					if subtype <> "05":
+						action = action.replace("$average$", str(av_speed) )
+					if subtype == "04":
+						action = action.replace("$temperature$", str(temperature) )
+						action = action.replace("$windchill$", str(windchill) )
+					action = action.replace("$windgust$", str(windgust) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
@@ -2193,7 +2492,7 @@ def decodePacket(message):
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 
 		# xPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=direction\ncurrent='+str(direction)+'\nunits=Degrees')
 			
 			if subtype <> "05":
@@ -2233,6 +2532,14 @@ def decodePacket(message):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 
+		# CSV
+		if cmdarg.printout_csv:
+			if subtype == '03':
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(uv), temperature, str(battery), str(signal) ) )
+			else:
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(uv), str(battery), str(signal) ) )
+			sys.stdout.flush()
+
 		# TRIGGER
 		if config.trigger:
 			for trigger in triggerlist.data:
@@ -2241,20 +2548,13 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$uv$", str(temperature) )
 					if subtype == '03':
-						action = action.replace("$temp$", str(humidity) )
+						action = action.replace("$temperature$", str(humidity) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					return_code = subprocess.call(action, shell=True)
-
-		# CSV
-		if cmdarg.printout_csv == True:
-			if subtype == '03':
-				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(uv), temperature, str(battery), str(signal) ) )
-			else:
-				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(uv), str(battery), str(signal) ) )
-			sys.stdout.flush()
 
 		# MYSQL
 		if cmdarg.mysql:
@@ -2265,11 +2565,10 @@ def decodePacket(message):
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, str(uv), 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# xPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index')
 			if subtype == "03":
 				xpl.send(config.xplhost, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius')
-			
 
 	# ---------------------------------------
 	# 0x59 Current Sensor
@@ -2300,8 +2599,19 @@ def decodePacket(message):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 	
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# XPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A')
 			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel2\ncurrent='+str(channel2)+'\nunits=A')
 			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A')
@@ -2339,9 +2649,20 @@ def decodePacket(message):
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id,
 							str(instant), str(usage), str(battery), str(signal)) )
 			sys.stdout.flush()
-			
+		
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+		
 		# XPL
-		if cmdarg.xpl == True:
+		if cmdarg.xpl:
 			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(instant)+'\nunits=W')
 			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(usage)+'\nunits=Wh')
 			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
@@ -2371,6 +2692,17 @@ def decodePacket(message):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_58[subtype]
 			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
 	# 0x70 RFXsensor
@@ -2417,7 +2749,18 @@ def decodePacket(message):
 			if subtype == '01' or subtype == '02':
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
 			sys.stdout.flush()
-			
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+					
 		# MYSQL
 		if cmdarg.mysql:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
@@ -2442,6 +2785,17 @@ def decodePacket(message):
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + id1
 
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
+
 	# ---------------------------------------
 	# 0x72 FS20
 	# ---------------------------------------
@@ -2453,6 +2807,17 @@ def decodePacket(message):
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_70[subtype]
 			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
+
+		# TRIGGER
+		if config.trigger:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					action = action.replace("$id$", str(sensor_id) )
+					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
 	# Not decoded message
@@ -2481,20 +2846,10 @@ def read_socket():
 	global messageQueue
 	
 	if not messageQueue.empty():
-		message = messageQueue.get().replace(' ', '')
-
-	#if len(readable) == 1:
-	#	message,addr = serversocket.recvfrom(128)
-	#	message = message.replace(' ', '')
+		message = stripped(messageQueue.get())
 
 		if test_rfx( message ):
 		
-			# Message good, send acknowledgment
-			#try:
-			#	serversocket.sendto('1',(addr[0],addr[1]))
-			#except Exception, e:
-			#	print "Error: " + str(e)
-
 			# Flush buffer
 			serial_param.port.flushOutput()
 			serial_param.port.flushInput()
@@ -2511,9 +2866,9 @@ def read_socket():
 				except KeyError:
 					print "Error: unrecognizable packet"
 
-			serial_param.port.write( message.decode('hex') )
-			time.sleep(1)
-			read_rfx()
+			serial_param.port.write( stripped(message) )
+			#time.sleep(1)
+			#read_rfx()
 			
 		else:
 			if cmdarg.printout_complete == True:
