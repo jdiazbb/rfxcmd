@@ -68,7 +68,7 @@ import xml.dom.minidom as minidom
 from optparse import OptionParser
 
 # Needed for Graphite communication
-from socket import socket
+import socket
 
 # ----------------------------------------------------------------------------
 # CONFIG CLASS
@@ -332,7 +332,7 @@ def send_graphite(CARBON_SERVER, CARBON_PORT, lines):
 		break
 
 	if sock is None:
-		print 'could not open socket'
+		print "Error: could not open socket for Graphite"
 		sys.exit(1)
 	
 	message = '\n'.join(lines) + '\n' #all lines must end in a newline
@@ -872,12 +872,45 @@ def decodePacket( message ):
 
 		decoded = True
 		
+		# DATA
+		sensor_id = id1 + id2 + ByteToHex(message[6])
+		unitcode = int(ByteToHex(message[7]),16)
+		
+		if subtype == '00':
+			command = rfx.rfx_subtype_14_cmnd0[ByteToHex(message[8])]
+		elif subtype == '01':
+			command = rfx.rfx_subtype_14_cmnd1[ByteToHex(message[8])]
+		elif subtype == '02':
+			command = rfx.rfx_subtype_14_cmnd2[ByteToHex(message[8])]
+		else:
+			command = "Unknown"
+		
+		if subtype == "00":
+			level = ByteToHex(message[9])
+		
+		signal = decodeSignal(message[10])
+		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_14[subtype]
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_14[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com"
+			print "Id\t\t\t= " + sensor_id
+			print "Unitcode\t\t= " + str(unitcode)
+			print "Command\t\t\t= " + command
+			
+			if subtype == '00':
+				print "Level\t\t\t= " + level
+			
+			print "Signal level\t\t= " + str(signal)
 
+		# CSV
+		if cmdarg.printout_csv == True:
+			if subtype == '00':
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(unitcode), command, level, str(signal) ))
+			else:
+				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(unitcode), command, str(signal) ))
+			sys.stdout.flush()
+		
 		# TRIGGER
 		if config.trigger:
 			for trigger in triggerlist.data:
@@ -1409,10 +1442,10 @@ def decodePacket( message ):
 		if cmdarg.graphite == True:
 			now = int( time.time() )
 			linesg=[]
-			linesg.append("%s.%s.temperature %s %d" % ( id1, id2, temperature,now))
-			linesg.append("%s.%s.humidity %s %d" % ( id1, id2, humidity,now))
-			linesg.append("%s.%s.battery %s %d" % ( id1, id2, battery,now))
-			linesg.append("%s.%s.signal %s %d"% ( id1, id2, signal,now))
+			linesg.append("%s.%s.%s.temperature %s %d" % ( 'rfxcmd', id1, id2, temperature,now))
+			linesg.append("%s.%s.%s.humidity %s %d" % ( 'rfxcmd', id1, id2, humidity,now))
+			linesg.append("%s.%s.%s.battery %s %d" % ( 'rfxcmd', id1, id2, battery,now))
+			linesg.append("%s.%s.%s.signal %s %d"% ( 'rfxcmd', id1, id2, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
 		# MYSQL
