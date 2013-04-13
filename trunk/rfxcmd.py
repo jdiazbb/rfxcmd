@@ -975,7 +975,7 @@ def split_len(seq, length):
 
 # ----------------------------------------------------------------------------
 
-def insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
+def insert_mysql(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
 	data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
 	"""
 	Insert data to MySQL.
@@ -991,10 +991,10 @@ def insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, data1,
 		db = MySQLdb.connect(config.mysql_server, config.mysql_username, config.mysql_password, config.mysql_database)
 		cursor = db.cursor()
 		sql = """
-			INSERT INTO rfxcmd (datetime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
+			INSERT INTO rfxcmd (datetime, unixtime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
 				data5, data6, data7, data8, data9, data10, data11, data12, data13)
-			VALUES ('%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
-			""" % (timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, data4, data5, data6, data7, 
+			VALUES ('%s','%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
+			""" % (timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, data4, data5, data6, data7, 
 				data8, data9, data10, data11, data12, data13)
 		
 		cursor.execute(sql)
@@ -1012,7 +1012,7 @@ def insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, data1,
 
 # ----------------------------------------------------------------------------
 
-def insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
+def insert_sqlite(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
 	data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
 	"""
 	Insert data to SqLite.
@@ -1025,10 +1025,10 @@ def insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, data1
 		cx = sqlite3.connect(config.sqlite_database)
 		cu = cx.cursor()
 		sql = """
-			INSERT INTO '%s' (datetime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
+			INSERT INTO '%s' (datetime, unixtime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
 				data5, data6, data7, data8, data9, data10, data11, data12, data13)
-			VALUES('%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
-			""" % (config.sqlite_table, timestamp, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
+			VALUES('%s','%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')
+			""" % (config.sqlite_table, timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
 				data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
 
 		cu.executescript(sql)
