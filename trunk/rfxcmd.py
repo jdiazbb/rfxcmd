@@ -109,7 +109,7 @@ try:
 	import MySQLdb
 except ImportError:
 	pass
-
+	
 # Serial
 try:
 	import serial
@@ -3613,6 +3613,13 @@ def main():
 	# MySQL
 	if options.mysql == True:
 		cmdarg.mysql = True
+
+		# Check that library is installed
+		try:
+			import MySQLdb
+		except ImportError:
+			print "Error: MySQL for python is not installed"
+			sys.exit(1)		
 
 	# SqLite
 	if options.sqlite == True:
