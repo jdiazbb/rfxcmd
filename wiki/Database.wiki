@@ -76,6 +76,16 @@ Sensor specific data fields:
 
 MySQL is a open source database. For easy managament via web interface the [http://www.phpmyadmin.net/ PHPMyAdmin] can be used.
 
+=== Install MySQL Python library ===
+
+To be able to use MySQL with python, the MySQLdb library must be installed.
+
+Debian/Ubuntu:
+
+{{{
+sudo apt-get install python-mysqldb
+}}}
+
 === Create table ===
 
 Use the text file 'rfxcmd_mysql.txt' which contains the table setup for Mysql.
