@@ -124,39 +124,47 @@ class config_data:
 	def __init__(
 		self, 
 		undecoded = False,
+		mysql_active = False,
 		mysql_server = '',
 		mysql_database = '',
 		mysql_username = "",
 		mysql_password = "",
 		trigger = False,
 		triggerfile = "",
+		sqlite_active = False,
 		sqlite_database = "",
 		sqlite_table = "",
 		loglevel = "info",
 		logfile = "rfxcmd.log",
+		graphite_active = False,
 		graphite_server = "",
 		graphite_port = "",
 		program_path = "",
-		xplhost = "",
+		xpl_active = False,
+		xpl_host = "",
 		socketserver = False,
 		socketport = ""
 		):
         
 		self.undecoded = undecoded
+		self.mysql_active = mysql_active
 		self.mysql_server = mysql_server
 		self.mysql_database = mysql_database
 		self.mysql_username = mysql_username
 		self.mysql_password = mysql_password
 		self.trigger = trigger
 		self.triggerfile = triggerfile
+		self.sqlite_active = sqlite_active
 		self.sqlite_database = sqlite_database
 		self.sqlite_table = sqlite_table
 		self.loglevel = loglevel
 		self.logfile = logfile
+		self.graphite_active = graphite_active
 		self.graphite_server = graphite_server
 		self.graphite_port = graphite_port
 		self.program_path = program_path
-		self.xplhost = xplhost
+		self.xpl_active = xpl_active
+		self.xpl_host = xpl_host
 		self.socketserver = socketserver
 		self.socketport = socketport
 
@@ -171,10 +179,10 @@ class cmdarg_data:
 		pidfile = "",
 		printout_complete = True,
 		printout_csv = False,
-		mysql = False,
-		sqlite = False,
-		graphite = False,
-		xpl = False
+		#mysql = False,
+		#sqlite = False,
+		#graphite = False,
+		#xpl = False
 		):
 
 		self.configfile = configfile
@@ -185,10 +193,10 @@ class cmdarg_data:
 		self.pidfile = pidfile
 		self.printout_complete = printout_complete
 		self.printout_csv = printout_csv
-		self.mysql = mysql
-		self.sqlite = sqlite
-		self.graphite = graphite
-		self.xpl = xpl
+		#self.mysql = mysql
+		#self.sqlite = sqlite
+		#self.graphite = graphite
+		#self.xpl = xpl
 
 class rfx_data(dict):
 
@@ -1323,14 +1331,14 @@ def decodePacket(message):
 			sys.stdout.flush()
 			
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			if subtype == '00':
 				insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			else:
 				insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			if subtype == '00':
 				insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			else:
@@ -1374,11 +1382,11 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
@@ -1420,11 +1428,11 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
@@ -1468,11 +1476,11 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
@@ -1539,11 +1547,11 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
@@ -1647,11 +1655,11 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, 0, sensor_id, 0, command, str(unitcode), level, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, 0, sensor_id, 0, command, str(unitcode), level, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
@@ -1687,11 +1695,11 @@ def decodePacket(message):
 			sys.stdout.flush()
 			
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# TRIGGER
@@ -1781,11 +1789,11 @@ def decodePacket(message):
 			sys.stdout.flush()
 			
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# TRIGGER
@@ -1896,14 +1904,14 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			if subtype == '00' or subtype == '02':
 				insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, id1, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			elif subtype == '04' or subtype == '01' or subtype == '03':
 				command = "Not implemented in RFXCMD"
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			if subtype == '00' or subtype == '02':
 				insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, id1, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			elif subtype == '04' or subtype == '01' or subtype == '03':
@@ -1962,21 +1970,21 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=temperature\ncurrent='+temperature+'\nunits=C')
-			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=temperature_set\ncurrent='+temperature_set+'\nunits=C')
-			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=mode\ncurrent='+mode+'\n')
-			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=status\ncurrent='+mode+'\n')
-			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=Thermostat.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=temperature\ncurrent='+temperature+'\nunits=C')
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=temperature_set\ncurrent='+temperature_set+'\nunits=C')
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=mode\ncurrent='+mode+'\n')
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=status\ncurrent='+mode+'\n')
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x41 Thermostat2
@@ -2051,17 +2059,17 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_config:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=Thermostat.'+unitcode+'\ntype=command\ncurrent='+command+'\nunits=C')
-			xpl.send(config.xplhost, 'device=Thermostat.'+unitcode+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=command\ncurrent='+command+'\nunits=C')
+			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x50 - Temperature sensors
@@ -2105,18 +2113,18 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=Temp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
-			xpl.send(config.xplhost, 'device=Temp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=Temp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
+			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x51 - Humidity sensors
@@ -2164,18 +2172,18 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=Hum.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=Hum.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=Hum.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x52 - Temperature and humidity sensors
@@ -2226,7 +2234,7 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# GRAPHITE
-		if cmdarg.graphite == True:
+		if coonfig.graphite_active == True:
 			now = int( time.time() )
 			linesg=[]
 			linesg.append("%s.%s.temperature %s %d" % ( 'rfxcmd', sensor_id, temperature,now))
@@ -2236,19 +2244,19 @@ def decodePacket(message):
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
-			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
+			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x53 - Barometric
@@ -2324,20 +2332,20 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
-			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(barometric)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=HumTempBaro.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(barometric)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x55 - Rain sensors
@@ -2405,11 +2413,11 @@ def decodePacket(message):
 		
 		"""			
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 		"""
 
@@ -2484,27 +2492,27 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 
 		# xPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=direction\ncurrent='+str(direction)+'\nunits=Degrees')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=direction\ncurrent='+str(direction)+'\nunits=Degrees')
 			
 			if subtype <> "05":
-				xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=Averagewind\ncurrent='+str(av_speed)+'\nunits=mtr/sec')
+				xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=Averagewind\ncurrent='+str(av_speed)+'\nunits=mtr/sec')
 			
 			if subtype == "04":
-				xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=temperature\ncurrent='+str(temperature)+'\nunits=C')
-				xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=windchill\ncurrent='+str(windchill)+'\nunits=C')
+				xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=temperature\ncurrent='+str(temperature)+'\nunits=C')
+				xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=windchill\ncurrent='+str(windchill)+'\nunits=C')
 			
-			xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=windgust\ncurrent='+str(gust)+'\nunits=mtr/sec')
-			xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=windgust\ncurrent='+str(gust)+'\nunits=mtr/sec')
+			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x57 UV Sensor
@@ -2557,18 +2565,18 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, str(uv), 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, str(uv), 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# xPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index')
 			if subtype == "03":
-				xpl.send(config.xplhost, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius')
+				xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius')
 
 	# ---------------------------------------
 	# 0x59 Current Sensor
@@ -2611,12 +2619,12 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# XPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A')
-			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel2\ncurrent='+str(channel2)+'\nunits=A')
-			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A')
-			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A')
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel2\ncurrent='+str(channel2)+'\nunits=A')
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A')
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x5A Energy sensor
@@ -2662,11 +2670,11 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# XPL
-		if cmdarg.xpl:
-			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(instant)+'\nunits=W')
-			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(usage)+'\nunits=Wh')
-			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
-			xpl.send(config.xplhost, 'device=Energy.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(instant)+'\nunits=W')
+			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(usage)+'\nunits=Wh')
+			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x5B Current + Energy sensor
@@ -2762,11 +2770,11 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 					
 		# MYSQL
-		if cmdarg.mysql:
+		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if cmdarg.sqlite:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
@@ -3326,49 +3334,71 @@ def option_bsend():
 
 def read_configfile():
 	"""
-	Read the configuration file
+	Read items from the configuration file
 	"""
 	if os.path.exists( cmdarg.configfile ):
 
+		# ----------------------
 		# RFX configuration
 		if (read_config( cmdarg.configfile, "undecoded") == "yes"):
 			config.undecoded = True
 		else:
 			config.undecoded = False
 
-		# MySQL configuration
+		# ----------------------
+		# MySQL
+		if (read_config(cmdarg.configfile, "mysql_active") == "yes"):
+			config.mysql_active = True
+		else:
+			config.mysql_active = False
 		config.mysql_server = read_config( cmdarg.configfile, "mysql_server")
 		config.mysql_database = read_config( cmdarg.configfile, "mysql_database")
 		config.mysql_username = read_config( cmdarg.configfile, "mysql_username")
 		config.mysql_password = read_config( cmdarg.configfile, "mysql_password")
 	
+		# ----------------------
+		# TRIGGER
 		if (read_config( cmdarg.configfile, "trigger") == "yes"):
 			config.trigger = True
 		else:
 			config.trigger = False
-
 		config.triggerfile = read_config( cmdarg.configfile, "triggerfile")	
 
-		# SQLite configuration
-		config.sqlite_database = read_config( cmdarg.configfile, "sqlite_database")
-		config.sqlite_table = read_config( cmdarg.configfile, "sqlite_table")
+		# ----------------------
+		# SQLITE
+		if (read_config(cmdarg.configfile, "sqlite_active") == "yes"):
+			config.sqlite_active = True
+		else:
+			config.sqlite_active = False		
+		config.sqlite_database = read_config(cmdarg.configfile, "sqlite_database")
+		config.sqlite_table = read_config(cmdarg.configfile, "sqlite_table")
 	
-		# Configuration for Graphite server
-		config.graphite_server = read_config( cmdarg.configfile, "graphite_server")
-		config.graphite_port = read_config( cmdarg.configfile, "graphite_port")
+		# ----------------------
+		# GRAPHITE
+		if (read_config(cmdarg.configfile, "graphite_active") == "yes"):
+			config.graphite_active = True
+		else:
+			config.graphite_active = False
+		config.graphite_server = read_config(cmdarg.configfile, "graphite_server")
+		config.graphite_port = read_config(cmdarg.configfile, "graphite_port")
 
-		# XPL host
-		config.xplhost = read_config( cmdarg.configfile, "xplhost")
+		# ----------------------
+		# XPL
+		if (read_config(cmdarg.configfile, "xpl_active") == "yes"):
+			config.xpl_active = True
+		else:
+			config.xpl_active = False
+		config.xpl_host = read_config( cmdarg.configfile, "xpl_host")
 
-		# Socket server
+		# ----------------------
+		# SOCKET SERVER
 		if (read_config(cmdarg.configfile, "socketserver") == "yes"):
 			config.socketserver = True
 		else:
-			config.socketserver = False
-			
+			config.socketserver = False			
 		config.socketport = read_config( cmdarg.configfile, "socketport")
 		logger.debug("SocketServer: " + str(config.socketserver))
-		logger.debug("SocketServer: " + str(config.socketport))
+		logger.debug("SocketPort: " + str(config.socketport))
 		
 	else:
 
@@ -3490,10 +3520,10 @@ def main():
 	parser.add_option("-x", "--simulate", action="store", type="string", dest="simulate", help="Simulate one incoming data message")
 	parser.add_option("-r", "--rawcmd", action="store", type="string", dest="rawcmd", help="Send raw message (need action SEND)")
 	parser.add_option("-c", "--csv", action="store_true", dest="csv", default=False, help="Output data in CSV format")
-	parser.add_option("-l", "--xpl", action="store_true", dest="xpl", default=False, help="Send data to xPL broadcast network")
-	parser.add_option("-m", "--mysql", action="store_true", dest="mysql", default=False, help="Insert data to MySQL database")
-	parser.add_option("-s", "--sqlite", action="store_true", dest="sqlite", default=False, help="Insert data to SQLite database")
-	parser.add_option("-g", "--graphite", action="store_true", dest="graphite", default=False, help="Send data to graphite server")
+	#parser.add_option("-l", "--xpl", action="store_true", dest="xpl", default=False, help="Send data to xPL broadcast network")
+	#parser.add_option("-m", "--mysql", action="store_true", dest="mysql", default=False, help="Insert data to MySQL database")
+	#parser.add_option("-s", "--sqlite", action="store_true", dest="sqlite", default=False, help="Insert data to SQLite database")
+	#parser.add_option("-g", "--graphite", action="store_true", dest="graphite", default=False, help="Send data to graphite server")
 	parser.add_option("-z", "--daemonize", action="store_true", dest="daemon", default=False, help="Daemonize RFXCMD")
 	parser.add_option("-p", "--pidfile", action="store", type="string", dest="pidfile", help="PID File location and name")
 	parser.add_option("-v", "--version", action="store_true", dest="version", help="Print rfxcmd version information")
@@ -3528,21 +3558,43 @@ def main():
 		cmdarg.printout_complete = False
 		cmdarg.printout_csv = True
 
-	if options.mysql:
-		logger.debug("Option: MySQL chosen")
+	# MYSQL
+	if config.mysql_active:
+		logger.debug("MySQL active")
 		cmdarg.printout_complete = False
 		cmdarg.printout_csv = False
+		logger.debug("Check MySQL")
+		try:
+			import MySQLdb
+		except ImportError:
+			print "Error: You need to install MySQL extension for Python"
+			logger.error("Error: Could not find MySQL extension for Python")
+			logger.debug("Exit 1")
+			sys.exit(1)		
 
-	if options.sqlite:
-		logger.debug("Option: SqLite chosen")
+	# SQLITE
+	if config.sqlite_active:
+		logger.debug("SqLite active")
 		cmdarg.printout_complete = False
 		cmdarg.printout_csv = False
-
+		logger.debug("Check sqlite3")
+		try:
+			logger.debug("SQLite3 version: " + sqlite3.sqlite_version)
+		except ImportError:
+			print "Error: You need to install SQLite extension for Python"
+			logger.error("Error: Could not find MySQL extension for Python")
+			logger.debug("Exit 1")
+			sys.exit(1)
+	
 	# XPL
-	if options.xpl:
-		logger.debug("Option: xPL chosen")
+	if config.xpl_active:
+		logger.debug("XPL active")
 		cmdarg.printout_complete = False
-		cmdarg.xpl = options.xpl
+
+	# GRAPHITE
+	if config.graphite_active:
+		logger.debug("Graphite active")
+		cmdarg.printout_complete = False
 
 	if cmdarg.printout_complete == True:
 		if not options.daemon:
@@ -3553,11 +3605,6 @@ def main():
 		config.device = options.device
 	else:
 		config.device = None
-
-	# Graphite
-	if options.graphite:
-		cmdarg.graphite = True
-		logger.debug("Option: Graphite chosen")
 
 	# Deamon
 	if options.daemon:
@@ -3604,29 +3651,6 @@ def main():
 
 			logger.debug("Start daemon")
 			daemonize()
-
-	# MySQL
-	if options.mysql == True:
-		cmdarg.mysql = True
-
-		# Check that library is installed
-		try:
-			import MySQLdb
-		except ImportError:
-			print "Error: MySQL for python is not installed"
-			sys.exit(1)		
-
-	# SqLite
-	if options.sqlite == True:
-		cmdarg.sqlite = True
-		logger.debug("Check sqlite3")
-		try:
-			logger.debug("SQLite3 version: " + sqlite3.sqlite_version)
-		except ImportError:
-			print "Error: You need to install SQLite extension for Python"
-			logger.debug("Error: Could not find MySQL extension for Python")
-			logger.debug("Exit 1")
-			sys.exit(1)
 
 	# Action
 	if options.action:
