@@ -2911,23 +2911,28 @@ def test_rfx( message ):
 	try:
 		int(message,16)
 	except Exception:
+		logger.debug("Error: Packet not hex format")
 		return False
 	
 	# Check that length is even
 	if len(message) % 2:
+		logger.debug("Error: Packet length not even")
 		return False
 	
 	# Check that first byte is not 00
 	if ByteToHex(message.decode('hex')[0]) == "00":
+		logger.debug("Error: Packet first byte is 00")
 		return False
 	
 	# Length more than one byte
 	if not len(message.decode('hex')) > 1:
+		logger.debug("Error: Packet is not longer than one byte")
 		return False
 	
 	# Check if string is the length that it reports to be
 	cmd_len = int( ByteToHex( message.decode('hex')[0]),16 )
 	if not len(message.decode('hex')) == (cmd_len + 1):
+		logger.debug("Error: Packet length is not valid")
 		return False
 
 	return True
