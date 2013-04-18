@@ -2907,7 +2907,12 @@ def test_rfx( message ):
 	# Remove all invalid characters
 	message = stripped(message)
 	
-	logger.debug("Test packet: " + message)
+	# Remove any whitespaces
+	try:
+		message = message.replace(' ', '')
+	except Exception:
+		logger.debug("Error: Removing white spaces")
+		return False
 	
 	# Test the string if it is hex format
 	try:
@@ -2936,6 +2941,8 @@ def test_rfx( message ):
 	if not len(message.decode('hex')) == (cmd_len + 1):
 		logger.debug("Error: Packet length is not valid")
 		return False
+
+	logger.debug("Test packet: " + message)
 
 	return True
 			
