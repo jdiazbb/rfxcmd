@@ -2907,6 +2907,8 @@ def test_rfx( message ):
 	# Remove all invalid characters
 	message = stripped(message)
 	
+	logger.debug("Test packet: " + message)
+	
 	# Test the string if it is hex format
 	try:
 		int(message,16)
