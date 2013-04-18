@@ -3535,7 +3535,7 @@ def main():
 
 	# Config file
 	if options.config:
-		print options.config
+		cmdarg.configfile = options.config
 	else:
 		cmdarg.configfile = os.path.join(config.program_path, "config.xml")
 
