@@ -178,7 +178,7 @@ class cmdarg_data:
 		createpid = False,
 		pidfile = "",
 		printout_complete = True,
-		printout_csv = False,
+		printout_csv = False
 		#mysql = False,
 		#sqlite = False,
 		#graphite = False,
@@ -3535,7 +3535,7 @@ def main():
 
 	# Config file
 	if options.config:
-		cmdarg.configfile = options.config
+		print options.config
 	else:
 		cmdarg.configfile = os.path.join(config.program_path, "config.xml")
 
