@@ -2190,6 +2190,8 @@ def decodePacket(message):
 	# ---------------------------------------
 	if packettype == '52':
 		
+		logger.debug("PacketType 0x52")
+
 		decoded = True
 
 		# DATA
@@ -2202,6 +2204,7 @@ def decodePacket(message):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
+			logger.debug("Print data stdout")
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_52[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
@@ -2213,6 +2216,7 @@ def decodePacket(message):
 		
 		# CSV
 		if cmdarg.printout_csv == True:
+			logger.debug("CSV Output")
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, humidity_status,
 							temperature, str(humidity), str(battery), str(signal)) )
@@ -2220,12 +2224,14 @@ def decodePacket(message):
 		
 		# TRIGGER
 		if config.trigger:
+			logger.debug("Check trigger")			
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$temperature$", str(temperature) )
 					action = action.replace("$humidity$", str(humidity) )
@@ -2235,6 +2241,7 @@ def decodePacket(message):
 		
 		# GRAPHITE
 		if config.graphite_active == True:
+			logger.debug("Send to Graphite")
 			now = int( time.time() )
 			linesg=[]
 			linesg.append("%s.%s.temperature %s %d" % ( 'rfxcmd', sensor_id, temperature,now))
@@ -2245,14 +2252,17 @@ def decodePacket(message):
 
 		# MYSQL
 		if config.mysql_active:
+			logger.debug("Send to MySQL")
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# SQLITE
 		if config.sqlite_active:
+			logger.debug("Send to Sqlite")
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
+			logger.debug("Send to xPL")
 			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C')
 			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
 			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
@@ -2808,6 +2818,8 @@ def decodePacket(message):
 	# 0x72 FS20
 	# ---------------------------------------
 	if packettype == '72':
+	
+		logger.debug("PacketType 0x72")
 
 		decoded = True
 		
@@ -2833,6 +2845,7 @@ def decodePacket(message):
 	
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
+		logger.debug("Packet not decoded")
 		print timestamp + " " + ByteToHex(message)
 		print "RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ for more information."
 
