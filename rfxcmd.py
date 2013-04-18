@@ -2234,7 +2234,7 @@ def decodePacket(message):
 					return_code = subprocess.call(action, shell=True)
 		
 		# GRAPHITE
-		if coonfig.graphite_active == True:
+		if config.graphite_active == True:
 			now = int( time.time() )
 			linesg=[]
 			linesg.append("%s.%s.temperature %s %d" % ( 'rfxcmd', sensor_id, temperature,now))
