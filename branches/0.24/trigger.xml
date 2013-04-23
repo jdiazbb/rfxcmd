@@ -4,7 +4,11 @@
 	<action>echo TEST</action>
 </trigger>
 <trigger>
-	<message>0A5201..0A020101230079</message>
-	<action>echo TEST</action>
+	<message>085009..36FF00DE79</message>
+	<action>echo Data: $temp$ $battery$ $signal$</action>
+</trigger>
+<trigger>
+	<message>0A5201..7001..........</message>
+	<action>echo Data: $temperature$ $battery$ $signal$</action>
 </trigger>
 </xml>
