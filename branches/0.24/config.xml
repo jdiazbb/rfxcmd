@@ -9,7 +9,7 @@
 	<triggerfile>trigger.xml</triggerfile>
 	<sqlite_database>sqlite.db</sqlite_database>
 	<sqlite_table>rfxcmd</sqlite_table>
-	<loglevel>info</loglevel>
-	<graphite_server>127.0.0.1</graphite_server>
+	<loglevel>error</loglevel>
+	<graphite_server>192.168.106.141</graphite_server>
 	<graphite_port>2003</graphite_port>
 </config>
