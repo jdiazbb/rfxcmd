@@ -2919,7 +2919,8 @@ if options.simulate:
 	
 	# cut into hex chunks
 	try:
-		message = indata.decode("hex")
+		# message = indata.decode("hex")
+		message = binascii.a2b_hex(indata)
 	except:
 		print("Error: the input data is not valid")
 		exit()
