@@ -81,18 +81,19 @@ import select
 try:
 	from rfx_socket import *
 except ImportError:
-	print "Error: module rfx_socket not found"
+	print "Error: module lib/rfx_socket not found"
 	sys.exit(1)
 	
 try:
 	import rfx_logger
 except ImportError:
-	print "Error: module rfx_logger not found"
+	print "Error: module lib/rfx_logger not found"
 	sys.exit(1)
 
 try:
 	import rfx_xplcom
 except ImportError:
+	print "Error: module lib/rfx_xplcom not found"
 	pass
 
 # 3rd party modules
@@ -3079,7 +3080,7 @@ def read_triggerfile():
 	try:
 		xmldoc = minidom.parse( config.triggerfile )
 	except:
-		print "Error in trigger.xml file"
+		print "Error in " + config.triggerfile + " file"
 		sys.exit(1)
 
 	root = xmldoc.documentElement
