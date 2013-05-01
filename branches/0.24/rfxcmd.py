@@ -884,11 +884,11 @@ def decodePacket( message ):
 		unitcode = int(ByteToHex(message[7]),16)
 		
 		if subtype == '00':
-			command = rfx.rfx_subtype_14_cmnd0[ByteToHex(message[8])]
+			command = rfx_subtype_14_cmnd0[ByteToHex(message[8])]
 		elif subtype == '01':
-			command = rfx.rfx_subtype_14_cmnd1[ByteToHex(message[8])]
+			command = rfx_subtype_14_cmnd1[ByteToHex(message[8])]
 		elif subtype == '02':
-			command = rfx.rfx_subtype_14_cmnd2[ByteToHex(message[8])]
+			command = rfx_subtype_14_cmnd2[ByteToHex(message[8])]
 		else:
 			command = "Unknown"
 		
@@ -899,7 +899,7 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print("Subtype\t\t\t= " + rfx.rfx_subtype_14[subtype])
+			print("Subtype\t\t\t= " + rfx_subtype_14[subtype])
 			print("Seqnbr\t\t\t= " + seqnbr)
 			print("Id\t\t\t= " + sensor_id)
 			print("Unitcode\t\t= " + str(unitcode))
@@ -2516,6 +2516,33 @@ rfx_subtype_13 = {"00":"PT2262"}
 rfx_subtype_14 = {"00":"LightwaveRF, Siemens",
 					"01":"EMW100 GAO/Everflourish"}
 					
+rfx_subtype_14_cmnd0 = {"00":"Off",
+						"01":"On",
+						"02":"Group off",
+						"03":"Mood1",
+						"04":"Mood2",
+						"05":"Mood3",
+						"06":"Mood4",
+						"07":"Mood5",
+						"08":"Reserved",
+						"09":"Reserved",
+						"0A":"Unlock",
+						"0B":"Lock",
+						"0C":"All lock",
+						"0D":"Close (inline relay)",
+						"0E":"Stop (inline relay)",
+						"0F":"Open (inline relay)",
+						"10":"Set level"}
+
+rfx_subtype_14_cmnd1 = {"00":"Off",
+						"01":"On",
+						"02":"Learn"}
+
+rfx_subtype_14_cmnd2 = {"00":"Off",
+						"01":"On",
+						"02":"Group Off",
+						"03":"Group On"}
+
 rfx_subtype_15 = {"00":"Blyss"}
 
 rfx_subtype_15_groupcode = {"41":"A",
