@@ -7,3 +7,129 @@ This is work in progress and highly experimental.
 = Details =
 
 Download latest Python: http://www.python.org/download/releases/3.3.1/
+
+Download pySerial from https://pypi.python.org/pypi/pyserial
+
+Extract it and then copy the extracted folder to C:\Python32\Lib\site-packages, or extract it directory to the directory.
+
+{{{
+C:\>cd Python33/Lib/site-packages/pyserial-2.6/
+
+C:\Python33\Lib\site-packages\pyserial-2.6>setup.py install
+running install
+running build
+running build_py
+creating build
+creating build\lib
+creating build\lib\serial
+copying serial\rfc2217.py -> build\lib\serial
+copying serial\serialcli.py -> build\lib\serial
+copying serial\serialjava.py -> build\lib\serial
+copying serial\serialposix.py -> build\lib\serial
+copying serial\serialutil.py -> build\lib\serial
+copying serial\serialwin32.py -> build\lib\serial
+copying serial\sermsdos.py -> build\lib\serial
+copying serial\win32.py -> build\lib\serial
+copying serial\__init__.py -> build\lib\serial
+creating build\lib\serial\tools
+copying serial\tools\list_ports.py -> build\lib\serial\tools
+copying serial\tools\list_ports_posix.py -> build\lib\serial\tools
+copying serial\tools\list_ports_windows.py -> build\lib\serial\tools
+copying serial\tools\miniterm.py -> build\lib\serial\tools
+copying serial\tools\__init__.py -> build\lib\serial\tools
+creating build\lib\serial\urlhandler
+copying serial\urlhandler\protocol_hwgrep.py -> build\lib\serial\urlhandler
+copying serial\urlhandler\protocol_loop.py -> build\lib\serial\urlhandler
+copying serial\urlhandler\protocol_rfc2217.py -> build\lib\serial\urlhandler
+copying serial\urlhandler\protocol_socket.py -> build\lib\serial\urlhandler
+copying serial\urlhandler\__init__.py -> build\lib\serial\urlhandler
+Skipping implicit fixer: buffer
+Skipping implicit fixer: idioms
+Skipping implicit fixer: set_literal
+Skipping implicit fixer: ws_comma
+running build_scripts
+creating build\scripts-3.3
+copying and adjusting serial\tools\miniterm.py -> build\scripts-3.3
+Skipping implicit fixer: buffer
+Skipping implicit fixer: idioms
+Skipping implicit fixer: set_literal
+Skipping implicit fixer: ws_comma
+running install_lib
+creating C:\Python33\Lib\site-packages\serial
+copying build\lib\serial\rfc2217.py -> C:\Python33\Lib\site-packages\serial
+copying build\lib\serial\serialcli.py -> C:\Python33\Lib\site-packages\serial
+copying build\lib\serial\serialjava.py -> C:\Python33\Lib\site-packages\serial
+copying build\lib\serial\serialposix.py -> C:\Python33\Lib\site-packages\serial
+copying build\lib\serial\serialutil.py -> C:\Python33\Lib\site-packages\serial
+copying build\lib\serial\serialwin32.py -> C:\Python33\Lib\site-packages\serial
+copying build\lib\serial\sermsdos.py -> C:\Python33\Lib\site-packages\serial
+creating C:\Python33\Lib\site-packages\serial\tools
+copying build\lib\serial\tools\list_ports.py -> C:\Python33\Lib\site-packages\se
+rial\tools
+copying build\lib\serial\tools\list_ports_posix.py -> C:\Python33\Lib\site-packa
+ges\serial\tools
+copying build\lib\serial\tools\list_ports_windows.py -> C:\Python33\Lib\site-pac
+kages\serial\tools
+copying build\lib\serial\tools\miniterm.py -> C:\Python33\Lib\site-packages\seri
+al\tools
+copying build\lib\serial\tools\__init__.py -> C:\Python33\Lib\site-packages\seri
+al\tools
+creating C:\Python33\Lib\site-packages\serial\urlhandler
+copying build\lib\serial\urlhandler\protocol_hwgrep.py -> C:\Python33\Lib\site-p
+ackages\serial\urlhandler
+copying build\lib\serial\urlhandler\protocol_loop.py -> C:\Python33\Lib\site-pac
+kages\serial\urlhandler
+copying build\lib\serial\urlhandler\protocol_rfc2217.py -> C:\Python33\Lib\site-
+packages\serial\urlhandler
+copying build\lib\serial\urlhandler\protocol_socket.py -> C:\Python33\Lib\site-p
+ackages\serial\urlhandler
+copying build\lib\serial\urlhandler\__init__.py -> C:\Python33\Lib\site-packages
+\serial\urlhandler
+copying build\lib\serial\win32.py -> C:\Python33\Lib\site-packages\serial
+copying build\lib\serial\__init__.py -> C:\Python33\Lib\site-packages\serial
+byte-compiling C:\Python33\Lib\site-packages\serial\rfc2217.py to rfc2217.cpytho
+n-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\serialcli.py to serialcli.cp
+ython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\serialjava.py to serialjava.
+cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\serialposix.py to serialposi
+x.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\serialutil.py to serialutil.
+cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\serialwin32.py to serialwin3
+2.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\sermsdos.py to sermsdos.cpyt
+hon-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\tools\list_ports.py to list_
+ports.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\tools\list_ports_posix.py to
+ list_ports_posix.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\tools\list_ports_windows.py
+to list_ports_windows.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\tools\miniterm.py to miniter
+m.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\tools\__init__.py to __init_
+_.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\urlhandler\protocol_hwgrep.p
+y to protocol_hwgrep.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\urlhandler\protocol_loop.py
+to protocol_loop.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\urlhandler\protocol_rfc2217.
+py to protocol_rfc2217.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\urlhandler\protocol_socket.p
+y to protocol_socket.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\urlhandler\__init__.py to __
+init__.cpython-33.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\win32.py to win32.cpython-33
+.pyc
+byte-compiling C:\Python33\Lib\site-packages\serial\__init__.py to __init__.cpyt
+hon-33.pyc
+running install_scripts
+creating C:\Python33\Scripts
+copying build\scripts-3.3\miniterm.py -> C:\Python33\Scripts
+running install_egg_info
+Writing C:\Python33\Lib\site-packages\pyserial_py3k-2.6-py3.3.egg-info
+
+C:\Python33\Lib\site-packages\pyserial-2.6>
+}}}
