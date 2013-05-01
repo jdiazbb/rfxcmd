@@ -1,0 +1,7 @@
+#summary Installation for windows
+
+= Introduction =
+
+This is work in progress and highly experimental.
+
+= Details =
