@@ -5,3 +5,5 @@
 This is work in progress and highly experimental.
 
 = Details =
+
+Download latest Python: http://www.python.org/download/releases/3.3.1/
