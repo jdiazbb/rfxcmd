@@ -763,6 +763,10 @@ def decodePacket( message ):
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$unitcode$", str(unitcode) )
+					action = action.replace("$command$", command )
+					action = action.replace("$dimlevel$", dimlevel )
+					action = action.replace("$signal$", str(signal) )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
