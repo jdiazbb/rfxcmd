@@ -7,4 +7,8 @@
 	<message>0A5201..0A020101230079</message>
 	<action>echo TEST</action>
 </trigger>
+<trigger>
+	<message>0A5201..7001..........</message>
+	<action>echo TEST</action>
+</trigger>
 </xml>
