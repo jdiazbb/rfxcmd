@@ -33,10 +33,9 @@ import logging
 import xml.dom.minidom as minidom
 
 # ----------------------------------------------------------------------------
-
 def init(configfile, name, debug):
 	"""
-	
+
 	Init loghandler and logging
 	
 	Input: 
@@ -90,7 +89,7 @@ def init(configfile, name, debug):
 				handler = logging.StreamHandler()
 			else:
 				handler = logging.FileHandler(logfile)
-								
+							
 			handler.setFormatter(formatter)
 
 			logger = logging.getLogger(name)
