@@ -1068,7 +1068,7 @@ def decodePacket( message ):
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$status$", status )
-					action = action.replace("$batteyr$", str(battery) )
+					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					return_code = subprocess.call(action, shell=True)
 
