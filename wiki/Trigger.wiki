@@ -65,7 +65,7 @@ Following sensors will forward parameters to the trigger script. This will be ex
 ||0x02||Receiver/Transmitter Msg||n/a||
 ||0x03||Undecoed Msg||n/a||
 ||0x10||Lightning1||$id$||
-||0x11||Lightning2||$id$||
+||0x11||Lightning2||$id$, $unitcode$, $command$, $dimlevel$, $signal$||
 ||0x12||Lightning3||$id$||
 ||0x13||Lightning4||$id$||
 ||0x14||Lightning5||$id$, $unitcode$, $command$, $level$ (only subtype 00), $signal$||
