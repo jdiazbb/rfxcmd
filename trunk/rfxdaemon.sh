@@ -5,9 +5,13 @@
 # processname: rfxcmd.py
 
 DAEMON_PATH="/opt/rfxcmd/"
+SERIAL_DEVICE="/dev/rfxcom"
+CONFIG_FILE="/opt/rfxcmd/config.xml"
+OTHER_SWITCH="-m"
+DAEMON_SWITCH="-z -p /var/run/rfxcmd.pid"
 
 DAEMON=rfxcmd.py
-DAEMONOPTS="-d /dev/rfxcom -a listen -o config-rpi.xml -m -z -p /var/run/rfxcmd.pid"
+DAEMONOPTS="-d $SERIAL_DEVICE -a listen -o $CONFIG_FILE $OTHER_SWITCH $DAEMON_SWITCH"
 
 NAME=rfxcmd
 DESC="rfxcmd daemon startup script"
