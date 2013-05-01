@@ -285,7 +285,7 @@ def daemonize():
 		pid = os.fork()
 		if pid != 0:
 			sys.exit(0)
-	except OSError, e:
+	except OSError as e:
 		raise RuntimeError("1st fork failed: %s [%d]" % (e.strerror, e.errno))
 
 	os.setsid() 
@@ -297,7 +297,7 @@ def daemonize():
 		pid = os.fork() 
 		if pid != 0:
 			sys.exit(0)
-	except OSError, e:
+	except OSError as e:
 		raise RuntimeError("2nd fork failed: %s [%d]" % (e.strerror, e.errno))
 
 	dev_null = file('/dev/null', 'r')
@@ -416,7 +416,7 @@ def insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, data1
 		cu.executescript(sql)
 		cx.commit()
 				
-	except sqlite3.Error, e:	
+	except sqlite3.Error as e:	
 		if cx:
 			cx.rollback()
 			
@@ -1188,7 +1188,7 @@ def decodePacket( message ):
 
 				db.commit()
 
-			except MySQLdb.Error, e:
+			except MySQLdb.Error as e:
 				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
@@ -1299,7 +1299,7 @@ def decodePacket( message ):
 				
 				db.commit()
 
-			except MySQLdb.Error, e:
+			except MySQLdb.Error as e:
 
 				print("Error: (MySQL Query) %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
@@ -1313,7 +1313,7 @@ def decodePacket( message ):
 		if cmdarg.sqlite:
 			try:
 				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, id1, id2, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-			except Exception, e:
+			except Exception as e:
 				raise e
 
 	# ---------------------------------------
@@ -1386,7 +1386,7 @@ def decodePacket( message ):
 				
 				db.commit()
 
-			except MySQLdb.Error, e:
+			except MySQLdb.Error as e:
 				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
@@ -1476,7 +1476,7 @@ def decodePacket( message ):
 				
 				db.commit()
 
-			except MySQLdb.Error, e:
+			except MySQLdb.Error as e:
 				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
@@ -1488,7 +1488,7 @@ def decodePacket( message ):
 		if cmdarg.sqlite:
 			try:
 				insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, id1, id2, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-			except Exception, e:
+			except Exception as e:
 				raise e
 
 	# ---------------------------------------
@@ -1630,7 +1630,7 @@ def decodePacket( message ):
 				
 				db.commit()
 
-			except MySQLdb.Error, e:
+			except MySQLdb.Error as e:
 				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
@@ -1707,7 +1707,7 @@ def decodePacket( message ):
 				
 				db.commit()
 
-			except MySQLdb.Error, e:
+			except MySQLdb.Error as e:
 				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
@@ -1728,13 +1728,13 @@ def decodePacket( message ):
 		# Direction (6 & 7)
 		direction_high = int(ByteToHex(message[6]), 16)
 		direction_low = int(ByteToHex(message[7]), 16)
-		if direction_high <> 0:
+		if direction_high != 0:
 			direction_high = direction_high + 255
 		direction = direction_high + direction_low
 		direction_str = str(direction)
 		
 		# AV Speed (8 & 9) (not used in WIND5)
-		if subtype <> "05":
+		if subtype != "05":
 			av_high = ByteToHex(message[8])
 			av_low = ByteToHex(message[9])
 			av = ( int(av_high,16) + int(av_low,16) ) * 0.1
@@ -1795,7 +1795,7 @@ def decodePacket( message ):
 			print("Id\t\t\t= " + sensor_id)
 			print("Wind direction\t\t= " + direction_str + " degrees")
 
-			if subtype <> "05":
+			if subtype != "05":
 				print("Average wind\t\t= " + av_str + " mtr/sec")
 			
 			if subtype == "04":
@@ -1826,7 +1826,7 @@ def decodePacket( message ):
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$winddirection$", direction_str )
 
-					if subtype <> "05":
+					if subtype != "05":
 						action = action.replace("$averagewind$", av_str )
 			
 					if subtype == "04":
@@ -1853,7 +1853,7 @@ def decodePacket( message ):
 				
 				db.commit()
 
-			except MySQLdb.Error, e:
+			except MySQLdb.Error as e:
 				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
@@ -1988,7 +1988,7 @@ def decodePacket( message ):
 				
 				db.commit()
 
-			except MySQLdb.Error, e:
+			except MySQLdb.Error as e:
 				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
@@ -2056,7 +2056,7 @@ def decodePacket( message ):
 				
 				db.commit()
 
-			except MySQLdb.Error, e:
+			except MySQLdb.Error as e:
 				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
@@ -2198,7 +2198,7 @@ def read_rfx():
 			message = byte + readbytes( ord(byte) )
 			logdebug('Message: ' + str(ByteToHex(message)))
 			
-			if ByteToHex(message[0]) <> "00":
+			if ByteToHex(message[0]) != "00":
 			
 				# Verify length
 				logdebug('Verify length')
@@ -2231,7 +2231,7 @@ def read_rfx():
 						print("Received\t\t= " + ByteToHex( message ))
 						print("Incoming packet not valid, waiting for next...")
 				
-	except OSError, e:
+	except OSError as e:
 		logdebug('Error in message: ' + str(ByteToHex(message)))
 		logdebug('Traceback: ' + traceback.format_exc())
 		print("------------------------------------------------")
@@ -2793,7 +2793,7 @@ if options.daemon:
 		try:
 			logdebug("Write PID file")
 			file(cmdarg.pidfile, 'w').write("pid\n")
-		except IOError, e:
+		except IOError as e:
 			logdebug("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
 			raise SystemExit("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
 
