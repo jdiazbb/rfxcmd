@@ -22,9 +22,9 @@ Python 2.7.4
 C:\Python27>
 }}}
 
-==PySerial==
+==pySerial==
 
-PySerial extension is needed for the serial communication.
+pySerial extension is needed for the serial communication.
 
 Download pySerial from https://pypi.python.org/pypi/pyserial
 
@@ -117,4 +117,3 @@ Signal level            = 8
 
 C:\rfxcmd>
 }}}
-
