@@ -2218,10 +2218,10 @@ def read_rfx():
 						logerror('Error: unrecognizable packet')
 						if cmdarg.printout_complete == True:
 							print("Error: unrecognizable packet")
-
+					
 					rawcmd = ByteToHex ( message )
 					rawcmd = rawcmd.replace(' ', '')
-
+					
 					return rawcmd
 				
 				else:
