@@ -87,7 +87,7 @@ Following sensors will forward parameters to the trigger script. This will be ex
 ||0x56||Wind||$id$, $direction$, $average$(not 05), $temperature$(only 04), $windchill$(only 04), $windgust$, $battery$, $signal$||
 ||0x57||UV||$id$, $temperature$, $battery$, $signal$||
 ||0x59||Current||$id$||
-||0x5A||Energy||$id$||
+||0x5A||Energy||$id$, $instant$, $total$, $battery$, $signal$||
 ||0x5B||Current and Energy||$id$||
 ||0x70||RFXSensor||$id$||
 ||0x71||RFXMeter||$id$||
