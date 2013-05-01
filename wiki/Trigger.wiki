@@ -72,7 +72,7 @@ Following sensors will forward parameters to the trigger script. This will be ex
 ||0x15||Lightning6||$id$||
 ||0x18||Curtain1||$id$||
 ||0x19||Blinds1||$id$||
-||0x20||Security1||$id$||
+||0x20||Security1||$id$, $status$, $battery$, $signal$||
 ||0x28||Camera1||$id$||
 ||0x30||Remote Control||$id$||
 ||0x40||Thermostat1||$id$, $temperature$, $temperature_set$, $mode$, $status$, $signal$||
