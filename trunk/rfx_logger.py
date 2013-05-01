@@ -35,8 +35,9 @@ import xml.dom.minidom as minidom
 # ----------------------------------------------------------------------------
 def logger_init(configfile, name, debug):
 	"""
-	Init loghandler and logging
 
+	Init loghandler and logging
+	
 	Input: 
 	
 		- configfile = location of the config.xml
@@ -89,14 +90,14 @@ def logger_init(configfile, name, debug):
 			else:
 				handler = logging.FileHandler(logfile)
 							
-			handler.setFormatter(formatter)	
-			
+			handler.setFormatter(formatter)
+
 			logger = logging.getLogger(name)
 			logger.setLevel(loglevel)
 			logger.addHandler(handler)
 			
 			return logger
-			
+	
 # ------------------------------------------------------------------------------
 # END
 # ------------------------------------------------------------------------------
