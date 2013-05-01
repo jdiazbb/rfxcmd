@@ -5,7 +5,7 @@ RFXCMD is Python script that interfaces the RFX USB devices from RFXcom [http://
 
 ==REQUIREMENTS==
 
- * Python 2.6+
+ * Python 2.7, does not work with Python 3.x
  * Tested on Raspberry Pi (Debian Squeezy) with Python 2.6
  * Tested on Mac OSX 10.8.2 with Python 2.7.2
  * Tested with RFXCOM device RFXtrx433-USB (v2.1)
