@@ -2244,10 +2244,10 @@ def read_rfx():
 
 def read_config( configFile, configItem):
  
- 	xmlData = ""
+	xmlData = ""
 
- 	logdebug('Open configuration file')
- 	logdebug('File: ' + configFile)
+	logdebug('Open configuration file')
+	logdebug('File: ' + configFile)
 	
 	if os.path.exists( configFile ):
 
@@ -2257,7 +2257,7 @@ def read_config( configFile, configItem):
 		f.close()
 	
 		# xml parse file data
- 		logdebug('Parse config XML data')
+		logdebug('Parse config XML data')
 		try:
 			dom = parseString(data)
 		except:
@@ -2265,7 +2265,7 @@ def read_config( configFile, configItem):
 			logdebug('Error in config.xml file')
 			
 		# Get config item
-	 	logdebug('Get the configuration item: ' + configItem)
+		logdebug('Get the configuration item: ' + configItem)
 		
 		try:
 			xmlTag = dom.getElementsByTagName( configItem )[0].toxml()
@@ -2276,11 +2276,11 @@ def read_config( configFile, configItem):
 			logdebug('The item tag not found in the config file')
 			xmlData = ""
 			
- 		logdebug('Return')
- 		
- 	else:
- 		logdebug('Error: Config file does not exists')
- 		
+		logdebug('Return')
+		
+	else:
+		logdebug('Error: Config file does not exists')
+		
 	return xmlData
 
 # ----------------------------------------------------------------------------
