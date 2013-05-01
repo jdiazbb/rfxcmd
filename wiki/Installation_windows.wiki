@@ -35,8 +35,8 @@ Download pySerial from https://pypi.python.org/pypi/pyserial
 Extract it and then copy the extracted folder to C:\Python27\Lib\site-packages, or extract it directory to the directory.
 
 {{{
-C:\>cd Python33/Lib/site-packages/pyserial-2.6/
-C:\Python33\Lib\site-packages\pyserial-2.6>setup.py install
+C:\>cd Python27/Lib/site-packages/pyserial-2.6/
+C:\Python27\Lib\site-packages\pyserial-2.6>setup.py install
 }}}
 
 ==Download rfxcmd==
