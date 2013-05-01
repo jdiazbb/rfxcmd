@@ -2967,7 +2967,7 @@ if cmdarg.action == "listen":
 	# If trigger is activated in config, then read the triggerfile
 	if config.trigger:
 		read_triggerfile()
-			
+		
 	# Flush buffer
 	logdebug('Serialport flush output')
 	serial.port.flushOutput()
@@ -2976,7 +2976,8 @@ if cmdarg.action == "listen":
 
 	# Send RESET
 	logdebug('Send rfx_reset (' + rfx_reset + ')')
-	serial.port.write( rfx_reset.decode('hex') )
+	#serial.port.write( rfx_reset.decode('hex') )
+	serial.port.write( binascii.a2b_hex(rfx_reset) )
 	logdebug('Sleep 1 sec')
 	time.sleep(1)
 
@@ -2988,7 +2989,8 @@ if cmdarg.action == "listen":
 
 	if config.undecoded:
 		logdebug('Send rfx_undecoded (' + rfx_undecoded + ')')
-		send_rfx( rfx_undecoded.decode('hex') )
+		# send_rfx( rfx_undecoded.decode('hex') )
+		send_rfx(binascii.a2b_hex(rfx_undecoded))
 		logdebug('Sleep 1 sec')
 		time.sleep(1)
 		logdebug('Read_rfx')
@@ -2996,7 +2998,8 @@ if cmdarg.action == "listen":
 		
 	# Send STATUS
 	logdebug('Send rfx_status (' + rfx_status + ')')
-	serial.port.write( rfx_status.decode('hex') )
+	# serial.port.write( rfx_status.decode('hex') )
+	serial.port.write(binascii.a2b_hex(rfx_status))
 	logdebug('Sleep 1 sec')
 	time.sleep(1)
 
@@ -3021,7 +3024,8 @@ if cmdarg.action == "status":
 	serial.port.flushInput()
 
 	# Send RESET
-	serial.port.write( rfx_reset.decode('hex') )
+	# serial.port.write( rfx_reset.decode('hex') )
+	serial.port.write(binascii.a2b_hex(rfx_reset))
 	time.sleep(1)
 
 	# Flush buffer
@@ -3029,12 +3033,14 @@ if cmdarg.action == "status":
 	serial.port.flushInput()
 
 	if config.undecoded:
-		send_rfx( rfx_undecoded.decode('hex') )
+		# send_rfx( rfx_undecoded.decode('hex') )
+		send_rfx(binascii.a2b_hex(rfx_undecoded))
 		time.sleep(1)
 		read_rfx()
 		
 	# Send STATUS
-	send_rfx( rfx_status.decode('hex') )
+	# send_rfx( rfx_status.decode('hex') )
+	send_rfx(binascii.a2b_hex(rfx_status))
 	time.sleep(1)
 	read_rfx()
 
