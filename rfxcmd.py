@@ -79,7 +79,7 @@ import select
 
 # RFXCMD modules
 try:
-	from rfx_socket import *
+	from lib.rfx_socket import *
 except ImportError:
 	print "Error: module lib/rfx_socket not found"
 	sys.exit(1)
@@ -87,11 +87,11 @@ except ImportError:
 try:
 	import rfx_logger
 except ImportError:
-	print "Error: module lib/rfx_logger not found"
+	print "Error: module rfx_logger not found"
 	sys.exit(1)
 
 try:
-	import rfx_xplcom
+	from lib import rfx_xplcom
 except ImportError:
 	print "Error: module lib/rfx_xplcom not found"
 	pass
@@ -3548,10 +3548,6 @@ def main():
 	parser.add_option("-x", "--simulate", action="store", type="string", dest="simulate", help="Simulate one incoming data message")
 	parser.add_option("-r", "--rawcmd", action="store", type="string", dest="rawcmd", help="Send raw message (need action SEND)")
 	parser.add_option("-c", "--csv", action="store_true", dest="csv", default=False, help="Output data in CSV format")
-	#parser.add_option("-l", "--xpl", action="store_true", dest="xpl", default=False, help="Send data to xPL broadcast network")
-	#parser.add_option("-m", "--mysql", action="store_true", dest="mysql", default=False, help="Insert data to MySQL database")
-	#parser.add_option("-s", "--sqlite", action="store_true", dest="sqlite", default=False, help="Insert data to SQLite database")
-	#parser.add_option("-g", "--graphite", action="store_true", dest="graphite", default=False, help="Send data to graphite server")
 	parser.add_option("-z", "--daemonize", action="store_true", dest="daemon", default=False, help="Daemonize RFXCMD")
 	parser.add_option("-p", "--pidfile", action="store", type="string", dest="pidfile", help="PID File location and name")
 	parser.add_option("-v", "--version", action="store_true", dest="version", help="Print rfxcmd version information")
@@ -3569,9 +3565,9 @@ def main():
 
 	# Start loghandler
 	if options.debug:
-		logger = rfx_logger.init(cmdarg.configfile,'rfxcmd', True)
+		logger = rfx_logger.logger_init(cmdarg.configfile,'rfxcmd', True)
 	else:
-		logger = rfx_logger.init(cmdarg.configfile,'rfxcmd', False)
+		logger = rfx_logger.logger_init(cmdarg.configfile,'rfxcmd', False)
 	
 	logger.debug("Python version: %s.%s.%s" % sys.version_info[:3])
 	logger.debug("RFXCMD Version: " + __version__)
