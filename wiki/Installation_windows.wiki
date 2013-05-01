@@ -4,19 +4,117 @@
 
 This is work in progress and highly experimental.
 
-== Install python and serial library ==
+==Limitations==
 
-Download latest Python: http://www.python.org/download/releases/3.3.1/
+ * The daemon mode does not work under windows.
+ * Python 3 is not supported.
+
+==Install Python==
+
+Download latest Python 2.7.x release from: http://python.org/download/releases/2.7.4/ and install the package.
+
+From command line you should now be able to run python;
+
+{{{
+C:\Python27>python --version
+Python 2.7.4
+
+C:\Python27>
+}}}
+
+==PySerial==
+
+PySerial extension is needed for the serial communication.
 
 Download pySerial from https://pypi.python.org/pypi/pyserial
 
-Extract it and then copy the extracted folder to C:\Python32\Lib\site-packages, or extract it directory to the directory.
+Extract it and then copy the extracted folder to C:\Python27\Lib\site-packages, or extract it directory to the directory.
 
 {{{
 C:\>cd Python33/Lib/site-packages/pyserial-2.6/
 C:\Python33\Lib\site-packages\pyserial-2.6>setup.py install
 }}}
 
-== Download rfxcmd ==
+==Download rfxcmd==
 
-Download rfxcmd, the latest release at 
+Download rfxcmd, the latest release at http://rfxcmd.googlecode.com/files/rfxcmd-v024.zip
+
+extract the package and place the files, example in C:\rfxcmd
+
+==Serial port==
+
+You need to find out which serial port the rfxcmd is connected to.
+
+Run the python script list_ports_windows.py which is located in C:\Python27\Lib\site-packages\serial\tools
+
+{{{
+C:\Python27\Lib\site-packages\serial\tools>list_ports_windows.py
+COM1: Communications Port (COM1) [ACPI\PNP0501]
+COM2: Communications Port (COM2) [ACPI\PNP0501]
+COM4: USB Serial Port (COM4) [FTDIBUS\COMPORT&VID_0403&PID_6001]
+
+C:\Python27\Lib\site-packages\serial\tools>
+}}}
+
+COM4 in this case is the port that the RFXtrx433 is connected to.
+
+==Test==
+
+Test rfxcmd, and listen to the device. The status message should always be the first printout, after that the sensor printouts will follow.
+
+{{{
+C:\rfxcmd>rfxcmd.py -d COM4
+RFXCMD version 0.24
+------------------------------------------------
+Received                = 0D 01 00 00 02 53 3C 00 0C 2F 01 00 00 00
+Date/Time               = 2013-05-01 20:07:27
+Packet Length           = 0D
+Packettype              = Interface Message
+Subtype                 = Interface response
+Sequence nbr            = 00
+Response on cmnd        = Get Status, return firmware versions and configuration
+ of the interface.
+Transceiver type        = 433.92MHz (Transceiver)
+Firmware version        = 60
+Display undecoded       = Off
+Protocols:
+Disabled                AE (433.92)
+Disabled                Rubicson (433.92)
+Disabled                FineOffset / Viking (433.92)
+Disabled                RFU3
+Disabled                RFU4
+Disabled                RFU5
+Disabled                RFU6
+Disabled                Mertik (433.92)
+Disabled                AD (433.92)
+Enabled                 Hideki/UPM (433.92)
+Enabled                 La Crosse (433.92/868.30)
+Disabled                FS20 (868.35)
+Disabled                ProGuard (868.35 FSK)
+Disabled                BlindsT0 (433.92)
+Disabled                BlindsT1/T2/T3 (433.92)
+Enabled                 X10 (310/433.92)
+Enabled                 ARC (433.92)
+Enabled                 AC (433.92)
+Enabled                 HomeEasy EU (433.92)
+Disabled                Meiantech (433.92)
+Enabled                 Oregon Scientific (433.92)
+Disabled                ATI (433.92)
+Disabled                Visonic (315/868.95)
+------------------------------------------------
+Received                = 0A 52 01 00 70 01 01 03 0F 02 89
+Date/Time               = 2013-05-01 20:07:27
+Packet Length           = 0A
+Packettype              = Temperature and humidity sensors
+Subtype                 = THGN122/123, THGN132, THGR122/228/238/268
+Seqnbr                  = 00
+Id                      = 7001
+Temperature             = 25.9 C
+Humidity                = 15
+Humidity Status         = Normal
+Battery                 = 9
+Signal level            = 8
+
+C:\rfxcmd>
+}}}
+
