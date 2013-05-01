@@ -8,6 +8,7 @@ Details how to install RFXcmd on various platforms.
 
  * Tested on Debian 6 (i386)
  * Tested on Raspbian (Latest) Raspberry Pi
+ * Python 2.7, does not work with Python 3
 
 === unzip and python-serial ===
 
