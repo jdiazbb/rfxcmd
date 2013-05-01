@@ -198,7 +198,7 @@ if os.path.exists( os.path.join(config.program_path, "config.xml") ):
 	try:
 		dom = parseString(data)
 	except:
-		print "Error: problem in the config.xml file, cannot process it"
+		print("Error: problem in the config.xml file, cannot process it")
 	
 	# Get loglevel from configuration file
 	try:
