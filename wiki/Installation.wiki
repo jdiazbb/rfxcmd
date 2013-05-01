@@ -28,17 +28,17 @@ cd /opt/rfxcmd
 
 === Download RFXcmd ===
 
-Check webpage for the latest release, this example will download version 0.23
+Check webpage for the latest release, this example will download version 0.24
 
 {{{
-wget http://rfxcmd.googlecode.com/files/rfxcmd-v023.zip
+wget http://rfxcmd.googlecode.com/files/rfxcmd-v024.zip
 }}}
 
 === Unzip files ===
 
 Unzip downloaded files
 {{{
-unzip rfxcmd-v023.zip
+unzip rfxcmd-v024.zip
 }}}
 
 === Test ===
