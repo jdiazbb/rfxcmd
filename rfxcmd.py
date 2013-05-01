@@ -198,7 +198,7 @@ if os.path.exists( os.path.join(config.program_path, "config.xml") ):
 	try:
 		dom = parseString(data)
 	except:
-		print "Error: problem in the config.xml file, cannot process it"
+		print("Error: problem in the config.xml file, cannot process it")
 	
 	# Get loglevel from configuration file
 	try:
@@ -233,7 +233,7 @@ try:
 	import serial
 	logdebug("Serial extension version: " + serial.VERSION)
 except ImportError:
-	print "Error: You need to install Serial extension for Python"
+	print("Error: You need to install Serial extension for Python")
 	logdebug("Error: Serial extension for Python could not be loaded")
 	logdebug("Exit 1")
 	sys.exit(1)
@@ -332,7 +332,7 @@ def send_graphite(CARBON_SERVER, CARBON_PORT, lines):
 		break
 
 	if sock is None:
-		print "Error: could not open socket for Graphite"
+		print("Error: could not open socket for Graphite")
 		sys.exit(1)
 	
 	message = '\n'.join(lines) + '\n' #all lines must end in a newline
@@ -421,7 +421,7 @@ def insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, data1
 			cx.rollback()
 			
 			logerror("SqLite error: " + str(e))
-			print "SqLite error: " + str(e)
+			print("SqLite error: " + str(e))
 			sys.exit(1)
 			
 	finally:	
@@ -490,7 +490,7 @@ def decodePacket( message ):
 		id2 = ByteToHex(message[5])
 	
 	if cmdarg.printout_complete == True:
-		print "Packettype\t\t= " + rfx_packettype[packettype]
+		print("Packettype\t\t= " + rfx_packettype[packettype])
 
 	# ---------------------------------------
 	# 0x0 - Interface Control
@@ -528,146 +528,146 @@ def decodePacket( message ):
 
 			# Subtype
 			if data['subtype'] == '00':
-				print "Subtype\t\t\t= Interface response"
+				print("Subtype\t\t\t= Interface response")
 			else:
-				print "Subtype\t\t\t= Unknown type (" + data['packettype'] + ")"
+				print("Subtype\t\t\t= Unknown type (" + data['packettype'] + ")")
 		
 			# Seq
-			print "Sequence nbr\t\t= " + data['seqnbr']
+			print("Sequence nbr\t\t= " + data['seqnbr'])
 		
 			# Command
-			print "Response on cmnd\t= " + rfx_cmnd[data['cmnd']]
+			print("Response on cmnd\t= " + rfx_cmnd[data['cmnd']])
 		
 			# MSG 1
-			print "Transceiver type\t= " + rfx_subtype_01_msg1[data['msg1']]
+			print("Transceiver type\t= " + rfx_subtype_01_msg1[data['msg1']])
 		
 			# MSG 2
-			print "Firmware version\t= " + str(int(data['msg2'],16))
+			print("Firmware version\t= " + str(int(data['msg2'],16)))
 			
 			if testBit(int(data['msg3'],16),7) == 128:
-				print "Display undecoded\t= On"
+				print("Display undecoded\t= On")
 			else:
-				print "Display undecoded\t= Off"
+				print("Display undecoded\t= Off")
 
-			print "Protocols:"
+			print("Protocols:")
 		
 			# MSG 3
 			if testBit(int(data['msg3'],16),0) == 1:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg3['1']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg3['1'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg3['1']
+				print("Disabled\t\t" + rfx_subtype_01_msg3['1'])
 				
 			if testBit(int(data['msg3'],16),1) == 2:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg3['2']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg3['2'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg3['2']
+				print("Disabled\t\t" + rfx_subtype_01_msg3['2'])
 				
 			if testBit(int(data['msg3'],16),2) == 4:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg3['4']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg3['4'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg3['4']
+				print("Disabled\t\t" + rfx_subtype_01_msg3['4'])
 				
 			if testBit(int(data['msg3'],16),3) == 8:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg3['8']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg3['8'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg3['8']
+				print("Disabled\t\t" + rfx_subtype_01_msg3['8'])
 				
 			if testBit(int(data['msg3'],16),4) == 16:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg3['16']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg3['16'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg3['16']
+				print("Disabled\t\t" + rfx_subtype_01_msg3['16'])
 				
 			if testBit(int(data['msg3'],16),5) == 32:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg3['32']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg3['32'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg3['32']
+				print("Disabled\t\t" + rfx_subtype_01_msg3['32'])
 				
 			if testBit(int(data['msg3'],16),6) == 64:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg3['64']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg3['64'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg3['64']
+				print("Disabled\t\t" + rfx_subtype_01_msg3['64'])
 		
 			# MSG 4
 			if testBit(int(data['msg4'],16),0) == 1:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg4['1']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg4['1'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg4['1']
+				print("Disabled\t\t" + rfx_subtype_01_msg4['1'])
 
 			if testBit(int(data['msg4'],16),1) == 2:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg4['2']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg4['2'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg4['2']
+				print("Disabled\t\t" + rfx_subtype_01_msg4['2'])
 
 			if testBit(int(data['msg4'],16),2) == 4:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg4['4']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg4['4'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg4['4']
+				print("Disabled\t\t" + rfx_subtype_01_msg4['4'])
 
 			if testBit(int(data['msg4'],16),3) == 8:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg4['8']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg4['8'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg4['8']
+				print("Disabled\t\t" + rfx_subtype_01_msg4['8'])
 
 			if testBit(int(data['msg4'],16),4) == 16:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg4['16']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg4['16'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg4['16']
+				print("Disabled\t\t" + rfx_subtype_01_msg4['16'])
 
 			if testBit(int(data['msg4'],16),5) == 32:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg4['32']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg4['32'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg4['32']
+				print("Disabled\t\t" + rfx_subtype_01_msg4['32'])
 
 			if testBit(int(data['msg4'],16),6) == 64:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg4['64']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg4['64'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg4['64']
+				print("Disabled\t\t" + rfx_subtype_01_msg4['64'])
 
 			if testBit(int(data['msg4'],16),7) == 128:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg4['128']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg4['128'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg4['128']
+				print("Disabled\t\t" + rfx_subtype_01_msg4['128'])
 
 			# MSG 5
 			if testBit(int(data['msg5'],16),0) == 1:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg5['1']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg5['1'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg5['1']
+				print("Disabled\t\t" + rfx_subtype_01_msg5['1'])
 
 			if testBit(int(data['msg5'],16),1) == 2:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg5['2']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg5['2'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg5['2']
+				print("Disabled\t\t" + rfx_subtype_01_msg5['2'])
 
 			if testBit(int(data['msg5'],16),2) == 4:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg5['4']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg5['4'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg5['4']
+				print("Disabled\t\t" + rfx_subtype_01_msg5['4'])
 
 			if testBit(int(data['msg5'],16),3) == 8:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg5['8']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg5['8'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg5['8']
+				print("Disabled\t\t" + rfx_subtype_01_msg5['8'])
 
 			if testBit(int(data['msg5'],16),4) == 16:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg5['16']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg5['16'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg5['16']
+				print("Disabled\t\t" + rfx_subtype_01_msg5['16'])
 
 			if testBit(int(data['msg5'],16),5) == 32:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg5['32']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg5['32'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg5['32']
+				print("Disabled\t\t" + rfx_subtype_01_msg5['32'])
 
 			if testBit(int(data['msg5'],16),6) == 64:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg5['64']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg5['64'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg5['64']
+				print("Disabled\t\t" + rfx_subtype_01_msg5['64'])
 
 			if testBit(int(data['msg5'],16),7) == 128:
-				print "Enabled\t\t\t" + rfx_subtype_01_msg5['128']
+				print("Enabled\t\t\t" + rfx_subtype_01_msg5['128'])
 			else:
-				print "Disabled\t\t" + rfx_subtype_01_msg5['128']
+				print("Disabled\t\t" + rfx_subtype_01_msg5['128'])
 		
 	# ---------------------------------------
 	# 0x02 - Receiver/Transmitter Message
@@ -678,9 +678,9 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_02[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Message\t\t\t= " + rfx_subtype_02_msg1[id1]
+			print("Subtype\t\t\t= " + rfx_subtype_02[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Message\t\t\t= " + rfx_subtype_02_msg1[id1])
 		
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -702,12 +702,12 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_10[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Housecode\t\t= " + housecode
-			print "Unitcode\t\t= " + str(unitcode)
-			print "Command\t\t\t= " + command
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_10[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Housecode\t\t= " + housecode)
+			print("Unitcode\t\t= " + str(unitcode))
+			print("Command\t\t\t= " + command)
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -741,13 +741,13 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_11[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Unitcode\t\t= " + str(unitcode)
-			print "Command\t\t\t= " + command
-			print "Dim level\t\t= " + dimlevel + "%"
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_11[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("Unitcode\t\t= " + str(unitcode))
+			print("Command\t\t\t= " + command)
+			print("Dim level\t\t= " + dimlevel + "%")
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -805,13 +805,13 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_12[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "System\t\t\t= " + str(system)
-			print "Channel\t\t\t= " + str(channel)
-			print "Command\t\t\t= " + command
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_12[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("System\t\t\t= " + str(system))
+			print("Channel\t\t\t= " + str(channel))
+			print("Command\t\t\t= " + command)
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -849,12 +849,12 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_13[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Code\t\t\t= " + code
-			print "S1-S24\t\t\t= "  + code_bin
-			print "Pulse\t\t\t= " + str(pulse) + " usec"
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_13[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Code\t\t\t= " + code)
+			print("S1-S24\t\t\t= "  + code_bin)
+			print("Pulse\t\t\t= " + str(pulse) + " usec")
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -899,16 +899,16 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx.rfx_subtype_14[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Unitcode\t\t= " + str(unitcode)
-			print "Command\t\t\t= " + command
+			print("Subtype\t\t\t= " + rfx.rfx_subtype_14[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("Unitcode\t\t= " + str(unitcode))
+			print("Command\t\t\t= " + command)
 			
 			if subtype == '00':
-				print "Level\t\t\t= " + level
+				print("Level\t\t\t= " + level)
 			
-			print "Signal level\t\t= " + str(signal)
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -948,14 +948,14 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_15[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= "  + sensor_id
-			print "Groupcode\t\t= " + groupcode
-			print "Unitcode\t\t= " + unitcode
-			print "Command\t\t\t= " + command
-			print "Command seqnbr\t\t= " + command_seqnbr
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_15[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= "  + sensor_id)
+			print("Groupcode\t\t= " + groupcode)
+			print("Unitcode\t\t= " + unitcode)
+			print("Command\t\t\t= " + command)
+			print("Command seqnbr\t\t= " + command_seqnbr)
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -983,9 +983,9 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_18[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com"
+			print("Subtype\t\t\t= " + rfx_subtype_18[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com")
 
 		# TRIGGER
 		if config.trigger:
@@ -1006,9 +1006,9 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_19[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com"
+			print("Subtype\t\t\t= " + rfx_subtype_19[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com")
 
 		# TRIGGER
 		if config.trigger:
@@ -1036,12 +1036,12 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_20[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= "  + sensor_id
-			print "Status\t\t\t= " + status
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_20[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= "  + sensor_id)
+			print("Status\t\t\t= " + status)
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1069,9 +1069,9 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_28[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com"
+			print("Subtype\t\t\t= " + rfx_subtype_28[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com")
 
 		# TRIGGER
 		if config.trigger:
@@ -1092,9 +1092,9 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_30[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com"
+			print("Subtype\t\t\t= " + rfx_subtype_30[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com")
 
 		# TRIGGER
 		if config.trigger:
@@ -1144,14 +1144,14 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_40[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Temperature\t\t= " + str(temperature) + " C"
-			print "Temperature set\t\t= " + str(temperature_set) + " C"
-			print "Mode\t\t\t= " + mode
-			print "Status\t\t\t= " + status
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_40[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("Temperature\t\t= " + str(temperature) + " C")
+			print("Temperature set\t\t= " + str(temperature_set) + " C")
+			print("Mode\t\t\t= " + mode)
+			print("Status\t\t\t= " + status)
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1189,7 +1189,7 @@ def decodePacket( message ):
 				db.commit()
 
 			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
+				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
 			finally:
@@ -1205,9 +1205,9 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_41[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com"
+			print("Subtype\t\t\t= " + rfx_subtype_41[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com")
 
 		# TRIGGER
 		if config.trigger:
@@ -1228,9 +1228,9 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_42[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com"
+			print("Subtype\t\t\t= " + rfx_subtype_42[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com")
 
 		# TRIGGER
 		if config.trigger:
@@ -1257,12 +1257,12 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_50[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Temperature\t\t= " + temperature + " C"
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_50[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("Temperature\t\t= " + temperature + " C")
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1301,7 +1301,7 @@ def decodePacket( message ):
 
 			except MySQLdb.Error, e:
 
-				print "Error: (MySQL Query) %d: %s" % (e.args[0], e.args[1])
+				print("Error: (MySQL Query) %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
 			finally:
@@ -1332,24 +1332,24 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_51[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t\t= " + sensor_id
-			print "Humidity\t\t= " + str(humidity)
+			print("Subtype\t\t\t= " + rfx_subtype_51[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t\t= " + sensor_id)
+			print("Humidity\t\t= " + str(humidity))
 			
 			if humidity_status == '00':
-				print "Humidity Status\t\t= Dry"
+				print("Humidity Status\t\t= Dry")
 			elif humidity_status == '01':
-				print "Humidity Status\t\t= Comfort"
+				print("Humidity Status\t\t= Comfort")
 			elif humidity_status == '02':
-				print "Humidity Status\t\t= Normal"
+				print("Humidity Status\t\t= Normal")
 			elif humidity_status == '03':
-				print "Humidity Status\t\t= Wet"
+				print("Humidity Status\t\t= Wet")
 			else:
-				print "Humidity Status\t\t= Unknown"
+				print("Humidity Status\t\t= Unknown")
 			
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 		
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1387,7 +1387,7 @@ def decodePacket( message ):
 				db.commit()
 
 			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
+				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
 			finally:
@@ -1411,25 +1411,25 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_52[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Temperature\t\t= " + temperature + " C"
-			print "Humidity\t\t= " + str(humidity)
+			print("Subtype\t\t\t= " + rfx_subtype_52[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("Temperature\t\t= " + temperature + " C")
+			print("Humidity\t\t= " + str(humidity))
 			
 			if humidity_status == 0:
-				print "Humidity Status\t\t= Dry"
+				print("Humidity Status\t\t= Dry")
 			elif humidity_status == 1:
-				print "Humidity Status\t\t= Comfort"
+				print("Humidity Status\t\t= Comfort")
 			elif humidity_status == 2:
-				print "Humidity Status\t\t= Normal"
+				print("Humidity Status\t\t= Normal")
 			elif humidity_status == 3:
-				print "Humidity Status\t\t= Wet"
+				print("Humidity Status\t\t= Wet")
 			else:
-				print "Humidity Status\t\t= Unknown "
+				print("Humidity Status\t\t= Unknown")
 			
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 		
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1477,7 +1477,7 @@ def decodePacket( message ):
 				db.commit()
 
 			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
+				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
 			finally:
@@ -1500,9 +1500,9 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_53[subtype]
-			print "Not supported, reserved for future use."
-			print "Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com"
+			print("Subtype\t\t\t= " + rfx_subtype_53[subtype])
+			print("Not supported, reserved for future use.")
+			print("Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com")
 
 		# TRIGGER
 		if config.trigger:
@@ -1560,38 +1560,38 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_54[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Temperature\t\t= " + temperature_str + " C"
-			print "Humidity\t\t= " + str(humidity)
+			print("Subtype\t\t\t= " + rfx_subtype_54[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("Temperature\t\t= " + temperature_str + " C")
+			print("Humidity\t\t= " + str(humidity))
 			
 			if humidity_status == '00':
-				print "Humidity Status\t\t= Dry"
+				print("Humidity Status\t\t= Dry")
 			elif humidity_status == '01':
-				print "Humidity Status\t\t= Comfort"
+				print("Humidity Status\t\t= Comfort")
 			elif humidity_status == '02':
-				print "Humidity Status\t\t= Normal"
+				print("Humidity Status\t\t= Normal")
 			elif humidity_status == '03':
-				print "Humidity Status\t\t= Wet"
+				print("Humidity Status\t\t= Wet")
 			else:
-				print "Humidity Status\t\t= Unknown"
+				print("Humidity Status\t\t= Unknown")
 			
-			print "Barometric pressure\t= " + str(barometric)
+			print("Barometric pressure\t= " + str(barometric))
 			
 			if forecast_status == '01':
-				print "Forecast Status\t\t= Sunny"
+				print("Forecast Status\t\t= Sunny")
 			elif forecast_status == '02':
-				print "Forecast Status\t\t= Partly cloudy"
+				print("Forecast Status\t\t= Partly cloudy")
 			elif forecast_status == '03':
-				print "Forecast Status\t\t= Cloudy"
+				print("Forecast Status\t\t= Cloudy")
 			elif forecast_status == '04':
-				print "Forecast Status\t\t= Rainy"
+				print("Forecast Status\t\t= Rainy")
 			else:
-				print "Forecast Status\t\t= Unknown"
+				print("Forecast Status\t\t= Unknown")
 			
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 		
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1631,7 +1631,7 @@ def decodePacket( message ):
 				db.commit()
 
 			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
+				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
 			finally:
@@ -1659,20 +1659,20 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_55[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
+			print("Subtype\t\t\t= " + rfx_subtype_55[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
 			
 			if subtype == '01':
-				print "Rain rate\t\t= " + str(rainrate) + " mm/h"
+				print("Rain rate\t\t= " + str(rainrate) + " mm/h")
 			elif subtype == '02':
-				print "Rain rate\t\t= " + str((rainrate / 100)) + " mm/h"
+				print("Rain rate\t\t= " + str((rainrate / 100)) + " mm/h")
 			else:
-				print "Rain rate\t\t= Not supported"
+				print("Rain rate\t\t= Not supported")
 
-			print "Raintotal:\t\t= " + str(raintotal) + " mm"
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Raintotal:\t\t= " + str(raintotal) + " mm")
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 		
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1708,7 +1708,7 @@ def decodePacket( message ):
 				db.commit()
 
 			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
+				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
 			finally:
@@ -1790,21 +1790,21 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_56[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Wind direction\t\t= " + direction_str + " degrees"
+			print("Subtype\t\t\t= " + rfx_subtype_56[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("Wind direction\t\t= " + direction_str + " degrees")
 
 			if subtype <> "05":
-				print "Average wind\t\t= " + av_str + " mtr/sec"
+				print("Average wind\t\t= " + av_str + " mtr/sec")
 			
 			if subtype == "04":
-				print "Temperature\t\t= " + temperature_str + " C"
-				print "Wind chill\t\t= " + windchill_str + " C" 
+				print("Temperature\t\t= " + temperature_str + " C")
+				print("Wind chill\t\t= " + windchill_str + " C")
 			
-			print "Windgust\t\t= " + gust_str + " mtr/sec"			
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Windgust\t\t= " + gust_str + " mtr/sec")
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1854,7 +1854,7 @@ def decodePacket( message ):
 				db.commit()
 
 			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
+				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
 			finally:
@@ -1889,15 +1889,15 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_57[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "UV level\t\t= " + str(uv)
+			print("Subtype\t\t\t= " + rfx_subtype_57[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("UV level\t\t= " + str(uv))
 			if subtype == '03':
-				print "Temperature\t\t= " + temperature + " C"
-			print "Description\t\t= " + uvdesc
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+				print("Temperature\t\t= " + temperature + " C")
+			print("Description\t\t= " + uvdesc)
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1942,15 +1942,15 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_5A[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Counter\t\t\t= " + str(count)
-			print "Channel 1\t\t= " + str(channel1) + "A"
-			print "Channel 2\t\t= " + str(channel2) + "A"
-			print "Channel 3\t\t= " + str(channel3) + "A"
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_5A[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("Counter\t\t\t= " + str(count))
+			print("Channel 1\t\t= " + str(channel1) + "A")
+			print("Channel 2\t\t= " + str(channel2) + "A")
+			print("Channel 3\t\t= " + str(channel3) + "A")
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -1989,7 +1989,7 @@ def decodePacket( message ):
 				db.commit()
 
 			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
+				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
 			finally:
@@ -2013,13 +2013,13 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_5A[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Instant usage\t\t= " + str(instant) + " Watt"
-			print "Total usage\t\t= " + str(usage) + " Wh"
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= " + rfx_subtype_5A[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id\t\t\t= " + sensor_id)
+			print("Instant usage\t\t= " + str(instant) + " Watt")
+			print("Total usage\t\t= " + str(usage) + " Wh")
+			print("Battery\t\t\t= " + str(battery))
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -2057,7 +2057,7 @@ def decodePacket( message ):
 				db.commit()
 
 			except MySQLdb.Error, e:
-				print "Error %d: %s" % (e.args[0], e.args[1])
+				print("Error %d: %s" % (e.args[0], e.args[1]))
 				sys.exit(1)
 
 			finally:
@@ -2073,9 +2073,9 @@ def decodePacket( message ):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_5B[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com"
+			print("Subtype\t\t\t= " + rfx_subtype_5B[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Not completed in RFXcmd, please send printout to sebastian.sjoholm@gmail.com")
 
 		# TRIGGER
 		if config.trigger:
@@ -2108,20 +2108,20 @@ def decodePacket( message ):
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx_subtype_70[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id 1\t\t\t= " + id1
+			print("Subtype\t\t\t= " + rfx_subtype_70[subtype])
+			print("Seqnbr\t\t\t= " + seqnbr)
+			print("Id 1\t\t\t= " + id1)
 
 			if subtype == '00':
-				print "Temperature\t\t= " + str(temperature) + " C"
+				print("Temperature\t\t= " + str(temperature) + " C")
 
 			if subtype == '01' or subtype == '02':
-				print "Voltage\t\t\t= " + str(voltage) + " mV"
+				print("Voltage\t\t\t= " + str(voltage) + " mV")
 
 			if subtype == '03':
-				print "Message\t\t\t= " + rfx_subtype_70_msg03[message[6]]
+				print("Message\t\t\t= " + rfx_subtype_70_msg03[message[6]])
 
-			print "Signal level\t\t= " + str(signal)
+			print("Signal level\t\t= " + str(signal))
 
 		# CSV
 		if cmdarg.printout_csv == True:
@@ -2153,8 +2153,8 @@ def decodePacket( message ):
 	
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
-		print timestamp + " " + ByteToHex(message)
-		print "RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ReadMe for more information."
+		print(timestamp + " " + ByteToHex(message))
+		print("RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ReadMe for more information.")
 
 	# decodePackage END
 	return
@@ -2168,14 +2168,14 @@ def send_rfx( message ):
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 	
 	if cmdarg.printout_complete == True:
-		print "------------------------------------------------"
-		print "Send\t\t\t= " + ByteToHex( message )
-		print "Date/Time\t\t= " + timestamp
-		print "Packet Length\t\t= " + ByteToHex( message[0] )
+		print("------------------------------------------------")
+		print("Send\t\t\t= " + ByteToHex( message ))
+		print("Date/Time\t\t= " + timestamp)
+		print("Packet Length\t\t= " + ByteToHex( message[0] ))
 		try:
 			decodePacket( message )
 		except KeyError:
-			print "Error: unrecognizable packet"
+			print("Error: unrecognizable packet")
 	
 	serial.port.write( message )
 	time.sleep(1)
@@ -2206,10 +2206,10 @@ def read_rfx():
 				
 					logdebug('Length OK')
 					if cmdarg.printout_complete == True:
-						print "------------------------------------------------"
-						print "Received\t\t= " + ByteToHex( message )
-						print "Date/Time\t\t= " + timestamp
-						print "Packet Length\t\t= " + ByteToHex( message[0] )
+						print("------------------------------------------------")
+						print("Received\t\t= " + ByteToHex( message ))
+						print("Date/Time\t\t= " + timestamp)
+						print("Packet Length\t\t= " + ByteToHex( message[0] ))
 					
 					logdebug('Decode packet')
 					try:
@@ -2217,7 +2217,7 @@ def read_rfx():
 					except KeyError:
 						logerror('Error: unrecognizable packet')
 						if cmdarg.printout_complete == True:
-							print "Error: unrecognizable packet"
+							print("Error: unrecognizable packet")
 
 					rawcmd = ByteToHex ( message )
 					rawcmd = rawcmd.replace(' ', '')
@@ -2227,15 +2227,15 @@ def read_rfx():
 				else:
 					logerror('Error: Incoming packet not valid length')
 					if cmdarg.printout_complete == True:
-						print "------------------------------------------------"
-						print "Received\t\t= " + ByteToHex( message )
-						print "Incoming packet not valid, waiting for next..."
+						print("------------------------------------------------")
+						print("Received\t\t= " + ByteToHex( message ))
+						print("Incoming packet not valid, waiting for next...")
 				
 	except OSError, e:
 		logdebug('Error in message: ' + str(ByteToHex(message)))
 		logdebug('Traceback: ' + traceback.format_exc())
-		print "------------------------------------------------"
-		print "Received\t\t= " + ByteToHex( message )
+		print("------------------------------------------------")
+		print("Received\t\t= " + ByteToHex( message ))
 		traceback.format_exc()
 
 # ----------------------------------------------------------------------------
@@ -2261,7 +2261,7 @@ def read_config( configFile, configItem):
 		try:
 			dom = parseString(data)
 		except:
-			print "Error: problem in the config.xml file, cannot process it"
+			print("Error: problem in the config.xml file, cannot process it")
 			logdebug('Error in config.xml file')
 			
 		# Get config item
@@ -2292,7 +2292,7 @@ def read_triggerfile():
 	try:
 		xmldoc = minidom.parse( config.triggerfile )
 	except:
-		print "Error in trigger.xml file"
+		print("Error in trigger.xml file")
 		sys.exit(1)
 
 	root = xmldoc.documentElement
@@ -2304,10 +2304,10 @@ def read_triggerfile():
 # ----------------------------------------------------------------------------
 
 def print_version():
- 	print sw_name + " Version: " + sw_version
- 	print "Path: " + config.program_path
- 	print "$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $"
- 	print "$Rev: 153 $"
+ 	print(sw_name + " Version: " + sw_version)
+ 	print("Path: " + config.program_path)
+ 	print("$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $")
+ 	print("$Rev: 153 $")
  	sys.exit(0)
 
 # ----------------------------------------------------------------------------
@@ -2698,7 +2698,7 @@ rfx_save="0d00000006000000000000000000"
 logdebug("Python version: %s.%s.%s" % sys.version_info[:3])
 if sys.hexversion < 0x02060000:
 	logerror("Error: Your Python need to be 2.6 or newer, please upgrade.")
-	print "Error: Your Python need to be 2.6 or newer, please upgrade."
+	print("Error: Your Python need to be 2.6 or newer, please upgrade.")
 	logdebug("Exit 1")
 	sys.exit(1)
 
@@ -2744,7 +2744,7 @@ if options.sqlite:
 
 if cmdarg.printout_complete == True:
 	if not options.daemon:
-		print sw_name + " version " + sw_version
+		print(sw_name + " version " + sw_version)
 
 # Config file
 if options.config:
@@ -2784,7 +2784,7 @@ if options.daemon:
 
 	logdebug("Check platform")
 	if sys.platform == 'win32':
-		print "Daemonize not supported under Windows. Exiting."
+		print("Daemonize not supported under Windows. Exiting.")
 		logdebug("Daemonize not supported under Windows.")
 		logdebug("Exit 1")
 		sys.exit(1)
@@ -2810,7 +2810,7 @@ if options.mysql == True:
 	try:
 		import MySQLdb
 	except ImportError:
-		print "Error: You need to install MySQL extension for Python"
+		print("Error: You need to install MySQL extension for Python")
 		logdebug("Error: Could not find MySQL extension for Python")
 		logdebug("Exit 1")
 		sys.exit(1)
@@ -2822,7 +2822,7 @@ if options.sqlite == True:
 	try:
 		import sqlite3
 	except ImportError:
-		print "Error: You need to install SQLite extension for Python"
+		print("Error: You need to install SQLite extension for Python")
 		logdebug("Exit 1")
 		sys.exit(1)
 
@@ -2843,7 +2843,7 @@ if cmdarg.action == "send" or cmdarg.action == "bsend":
 	cmdarg.rawcmd = options.rawcmd
 	logdebug("Rawcmd: " + cmdarg.rawcmd)
 	if not cmdarg.rawcmd:
-		print "Error: You need to specify message to send with -r <rawcmd>. Exiting."
+		print("Error: You need to specify message to send with -r <rawcmd>. Exiting.")
 		logerror("Error: You need to specify message to send with -r <rawcmd>")
 		logdebug("Exit 1")
 		sys.exit(1)
@@ -2884,7 +2884,7 @@ if os.path.isfile( cmdarg.configfile ):
 else:
 
 	# config file not found, set default values
-	print "Error: Configuration file not found (" + cmdarg.configfile + ")"
+	print("Error: Configuration file not found (" + cmdarg.configfile + ")")
 	logerror('Error: Configuration file not found (' + cmdarg.configfile + ')')
 
 # ----------------------------------------------------------------------------
@@ -2906,29 +2906,29 @@ if options.simulate:
 	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 	
 	if cmdarg.printout_complete == True:
-		print "------------------------------------------------"
-		print "Received\t\t= " + indata
-		print "Date/Time\t\t= " + timestamp
+		print("------------------------------------------------")
+		print("Received\t\t= " + indata)
+		print("Date/Time\t\t= " + timestamp)
 	
 	# Verify that the incoming value is hex
 	try:
 		hexval = int(indata, 16)
 	except:
-		print "Error: the input data is invalid hex value"
+		print("Error: the input data is invalid hex value")
 		exit()
 	
 	# cut into hex chunks
 	try:
 		message = indata.decode("hex")
 	except:
-		print "Error: the input data is not valid"
+		print("Error: the input data is not valid")
 		exit()
 	
 	# decode it
 	try:
 		decodePacket( message )
 	except KeyError:
-		print "Error: unrecognizable packet"
+		print("Error: unrecognizable packet")
 
 	logdebug('Exit 0')
 	sys.exit(0)
@@ -2948,7 +2948,7 @@ else:
 try:  
 	serial.port = serial.Serial(config.device, 38400, timeout=9)
 except:  
-	print "Error: Failed to connect on " + device
+	print("Error: Failed to connect on " + device)
 	logdebug('sys.exit(1)')
 	sys.exit(1)
 
@@ -3007,7 +3007,7 @@ if cmdarg.action == "listen":
 
 	except KeyboardInterrupt:
 		logdebug('Received keyboard interrupt')
-		print "\nExit..."
+		print("\nExit...")
 		pass
 
 # ----------------------------------------------------------------------------
@@ -3054,18 +3054,18 @@ if cmdarg.action == "send":
 	try:
 		int(cmdarg.rawcmd,16)
 	except ValueError:
-		print "Error: invalid rawcmd, not hex format"
+		print("Error: invalid rawcmd, not hex format")
 		sys.exit(1)		
 	
 	# Check that first byte is not 00
 	if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
-		print "Error: invalid rawcmd, first byte is zero"
+		print("Error: invalid rawcmd, first byte is zero")
 		sys.exit(1)
 	
 	# Check if string is the length that it reports to be
 	cmd_len = int( ByteToHex(cmdarg.rawcmd.decode('hex')[0]),16 )
 	if not len(cmdarg.rawcmd.decode('hex')) == (cmd_len + 1):
-		print "Error: invalid rawcmd, invalid length"
+		print("Error: invalid rawcmd, invalid length")
 		sys.exit(1)
 
 	# Flush buffer
@@ -3088,14 +3088,14 @@ if cmdarg.action == "send":
 	if cmdarg.rawcmd:
 		timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 		if cmdarg.printout_complete == True:
-			print "------------------------------------------------"
-			print "Send\t\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex') )
-			print "Date/Time\t\t= " + timestamp
-			print "Packet Length\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex')[0] )
+			print("------------------------------------------------")
+			print("Send\t\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex') ))
+			print("Date/Time\t\t= " + timestamp)
+			print("Packet Length\t\t= " + ByteToHex( cmdarg.rawcmd.decode('hex')[0] ))
 			try:
 				decodePacket( cmdarg.rawcmd.decode('hex') )
 			except KeyError:
-				print "Error: unrecognizable packet"
+				print("Error: unrecognizable packet")
 
 		serial.port.write( cmdarg.rawcmd.decode('hex') )
 		time.sleep(1)
@@ -3117,18 +3117,18 @@ if cmdarg.action == "bsend":
 	try:
 		int(cmdarg.rawcmd,16)
 	except ValueError:
-		print "Error: invalid rawcmd, not hex format"
+		print("Error: invalid rawcmd, not hex format")
 		sys.exit(1)		
 	
 	# Check that first byte is not 00
 	if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
-		print "Error: invalid rawcmd, first byte is zero"
+		print("Error: invalid rawcmd, first byte is zero")
 		sys.exit(1)
 	
 	# Check if string is the length that it reports to be
 	cmd_len = int( ByteToHex( cmdarg.rawcmd.decode('hex')[0]),16 )
 	if not len(cmdarg.rawcmd.decode('hex')) == (cmd_len + 1):
-		print "Error: invalid rawcmd, invalid length"
+		print("Error: invalid rawcmd, invalid length")
 		sys.exit(1)
 
 	if cmdarg.rawcmd:
@@ -3143,7 +3143,7 @@ try:
 	serial.port.close()
 except:
 	logdebug("Failed to close the serial port '" + device + "'")
-	print "Error: Failed to close the port " + device
+	print("Error: Failed to close the port " + device)
 	logdebug("Exit 1")
 	sys.exit(1)
 
