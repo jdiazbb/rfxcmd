@@ -2,7 +2,11 @@
 
 = Introduction =
 
-This is work in progress and highly experimental.
+The RFXcmd is mainly developed for Mac/Linux, but the current version will work under windows as well. This has been tested with rfxcmd 0.24.
+
+==Tested on==
+
+ * Windows XP with rfxcmd 0.24
 
 ==Limitations==
 
