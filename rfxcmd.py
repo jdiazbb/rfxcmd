@@ -83,13 +83,13 @@ try:
 except ImportError:
 	print "Error: module lib/rfx_socket not found"
 	sys.exit(1)
-	
-try:
-	import rfx_logger
-except ImportError:
-	print "Error: module rfx_logger not found"
-	sys.exit(1)
 
+try:
+	import lib.rfx_sensors
+except ImportError:
+	print "Error: module lib/rfx_sensors not found"
+	sys.exit(1)
+	
 try:
 	from lib import rfx_xplcom
 except ImportError:
@@ -180,10 +180,6 @@ class cmdarg_data:
 		pidfile = "",
 		printout_complete = True,
 		printout_csv = False
-		#mysql = False,
-		#sqlite = False,
-		#graphite = False,
-		#xpl = False
 		):
 
 		self.configfile = configfile
@@ -194,597 +190,6 @@ class cmdarg_data:
 		self.pidfile = pidfile
 		self.printout_complete = printout_complete
 		self.printout_csv = printout_csv
-		#self.mysql = mysql
-		#self.sqlite = sqlite
-		#self.graphite = graphite
-		#self.xpl = xpl
-
-class rfx_data(dict):
-
-	rfx_cmnd = {
-				"00":"Reset the receiver/transceiver. No answer is transmitted!",
-				"01":"Not used.",
-				"02":"Get Status, return firmware versions and configuration of the interface.",
-				"03":"Set mode msg1-msg5, return firmware versions and configuration of the interface.",
-				"04":"Enable all receiving modes of the receiver/transceiver.",
-				"05":"Enable reporting of undecoded packets.",
-				"06":"Save receiving modes of the receiver/transceiver in non-volatile memory.",
-				"07":"Not used.",
-				"08":"T1 - for internal use by RFXCOM",
-				"09":"T2 - for internal use by RFXCOM"
-				}
-
-	rfx_packettype = {
-				"00":"Interface Control",
-				"01":"Interface Message",
-				"02":"Receiver/Transmitter Message",
-				"03":"Undecoded RF Message",
-				"10":"Lighting1",
-				"11":"Lighting2",
-				"12":"Lighting3",
-				"13":"Lighting4",
-				"14":"Lighting5",
-				"15":"Lighting6",
-				"18":"Curtain1",
-				"19":"Blinds1",
-				"20":"Security1",
-				"28":"Camera1",
-				"30":"Remote control and IR",
-				"40":"Thermostat1",
-				"41":"Thermostat2 (Receive not implemented)",
-				"42":"Thermostat3",
-				"50":"Temperature sensors",
-				"51":"Humidity sensors",
-				"52":"Temperature and humidity sensors",
-				"53":"Barometric sensors",
-				"54":"Temperature, humidity and barometric sensors",
-				"55":"Rain sensors",
-				"56":"Wind sensors",
-				"57":"UV sensors",
-				"58":"Date/Time sensors",
-				"59":"Current sensors",
-				"5A":"Energy usage sensors",
-				"5B":"Gas usage sensors",
-				"5C":"Water usage sensors",
-				"5D":"Weighting scale",
-				"70":"RFXSensor",
-				"71":"RFXMeter",
-				"72":"FS20"
-				}
-
-	rfx_subtype_01 = {"00":"Response on a mode command"}
-
-	rfx_subtype_01_msg1 = {"50":"310MHz",
-							"51":"315MHz",
-							"52":"433.92MHz (Receiver only)",
-							"53":"433.92MHz (Transceiver)",
-							"55":"868.00MHz",
-							"56":"868.00MHz FSK",
-							"57":"868.30MHz",
-							"58":"868.30MHz FSK",
-							"59":"868.35MHz",
-							"5A":"868.35MHz FSK",
-							"5B":"868.95MHz"}
-
-	rfx_subtype_01_msg3 = {"128":"Display of undecoded packets",
-							"64":"RFU6",
-							"32":"RFU5",
-							"16":"RFU4",
-							"8":"RFU3",
-							"4":"FineOffset / Viking (433.92)",
-							"2":"Rubicson (433.92)",
-							"1":"AE (433.92)"}
-						
-	rfx_subtype_01_msg4 = {"128":"BlindsT1/T2/T3 (433.92)",
-							"64":"BlindsT0 (433.92)",
-							"32":"ProGuard (868.35 FSK)",
-							"16":"FS20 (868.35)",
-							"8":"La Crosse (433.92/868.30)",
-							"4":"Hideki/UPM (433.92)",
-							"2":"AD (433.92)",
-							"1":"Mertik (433.92)"}
-						
-	rfx_subtype_01_msg5 = {"128":"Visonic (315/868.95)",
-							"64":"ATI (433.92)",
-							"32":"Oregon Scientific (433.92)",
-							"16":"Meiantech (433.92)",
-							"8":"HomeEasy EU (433.92)",
-							"4":"AC (433.92)",
-							"2":"ARC (433.92)",
-							"1":"X10 (310/433.92)"}
-
-	rfx_subtype_02 = {"00":"Error, receiver did not lock",
-						"01":"Transmitter response"}
-					
-	rfx_subtype_02_msg1 = {"00":"ACK, transmit OK",
-							"01":"ACK, but transmit started after 3 seconds delay anyway with RF receive data",
-							"02":"NAK, transmitter did not lock on the requested transmit frequency",
-							"03":"NAK, AC address zero in id1-id4 not allowed"}
-
-	rfx_subtype_03 = {"00":"AC",
-					"01":"ARC",
-					"02":"ATI",
-					"03":"Hideki",
-					"04":"LaCrosse",
-					"05":"AD",
-					"06":"Mertik",
-					"07":"Oregon 1",
-					"08":"Oregon 2",
-					"09":"Oregon 3",
-					"0A":"Proguard",
-					"0B":"Visionic",
-					"0C":"NEC",
-					"0D":"FS20",
-					"0E":"Reserved",
-					"0F":"Blinds",
-					"10":"Rubicson",
-					"11":"AE",
-					"12":"Fineoffset"}
-
-	rfx_subtype_10 = {"00":"X10 Lightning",
-					"01":"ARC",
-					"02":"ELRO AB400D (Flamingo)",
-					"03":"Waveman",
-					"04":"Chacon EMW200",
-					"05":"IMPULS",
-					"06":"RisingSun",
-					"07":"Philips SBC"}
-
-	rfx_subtype_10_housecode = {"41":"A",
-								"42":"B",
-								"43":"C",
-								"44":"D",
-								"45":"E",
-								"46":"F",
-								"47":"G",
-								"48":"H",
-								"49":"I",
-								"4A":"J",
-								"4B":"K",
-								"4C":"L",
-								"4D":"M",
-								"4E":"N",
-								"4F":"O",
-								"50":"P"}
-
-	rfx_subtype_10_cmnd = {"00":"Off",
-							"01":"On",
-							"02":"Dim",
-							"03":"Bright",
-							"04":"All/Group Off",
-							"05":"All/Group On",
-							"07":"Chime",
-							"FF":"Illegal cmnd received"}
-
-	rfx_subtype_11 = {"00":"AC",
-						"01":"HomeEasy EU",
-						"02":"Anslut"}
-					
-	rfx_subtype_11_cmnd = {"00":"Off",
-							"01":"On",
-							"02":"Set level",
-							"03":"Group Off",
-							"04":"Group On",
-							"05":"Set Group Level"}
-
-	rfx_subtype_11_dimlevel = {"00":"0",
-								"01":"6",
-								"02":"12",
-								"03":"18",
-								"04":"24",
-								"05":"30",
-								"06":"36",
-								"07":"42",
-								"08":"48",
-								"09":"54",
-								"0A":"60",
-								"0B":"66",
-								"0C":"72",
-								"0D":"78",
-								"0E":"84",
-								"0F":"100"}
-
-	rfx_subtype_12 = {"00":"Ikea Koppla"}
-
-	rfx_subtype_12_cmnd = {"00":"Bright",
-							"08":"Dim",
-							"10":"On",
-							"11":"Level 1",
-							"12":"Level 2",
-							"13":"Level 3",
-							"14":"Level 4",
-							"15":"Level 5",
-							"16":"Level 6",
-							"17":"Level 7",
-							"18":"Level 8",
-							"19":"Level 9",
-							"1A":"Off",
-							"1C":"Program"}
-
-	rfx_subtype_13 = {"00":"PT2262"}
-
-	rfx_subtype_14 = {"00":"LightwaveRF, Siemens",
-						"01":"EMW100 GAO/Everflourish",
-						"02":"BBSB new types"}
-						
-	rfx_subtype_14_cmnd0 = {"00":"Off",
-							"01":"On",
-							"02":"Group off",
-							"03":"Mood1",
-							"04":"Mood2",
-							"05":"Mood3",
-							"06":"Mood4",
-							"07":"Mood5",
-							"08":"Reserved",
-							"09":"Reserved",
-							"0A":"Unlock",
-							"0B":"Lock",
-							"0C":"All lock",
-							"0D":"Close (inline relay)",
-							"0E":"Stop (inline relay)",
-							"0F":"Open (inline relay)",
-							"10":"Set level"}						
-
-	rfx_subtype_14_cmnd1 = {"00":"Off",
-							"01":"On",
-							"02":"Learn"}						
-
-	rfx_subtype_14_cmnd2 = {"00":"Off",
-							"01":"On",
-							"02":"Group Off",
-							"03":"Group On"}						
-					
-	rfx_subtype_15 = {"00":"Blyss"}
-
-	rfx_subtype_15_groupcode = {"41":"A",
-								"42":"B",
-								"43":"C",
-								"44":"D",
-								"45":"E",
-								"46":"F",
-								"47":"G",
-								"48":"H"}
-
-	rfx_subtype_15_cmnd = {"00":"On",
-							"01":"Off",
-							"02":"group On",
-							"03":"group Off"}
-
-	rfx_subtype_18 = {"00":"Harrison Curtain"}
-
-	rfx_subtype_19 = {"00":"BlindsT0 / Rollertrol, Hasta new",
-						"01":"BlindsT1 / Hasta old",
-						"02":"BlindsT2 / A-OK RF01",
-						"03":"BlindsT3 / A-OK AC114"}
-
-	rfx_subtype_20 = {"00":"X10 security door/window sensor",
-						"01":"X10 security motion sensor",
-						"02":"X10 security remote (no alive packets)",
-						"03":"KD101 (no alive packets)",
-						"04":"Visonic PowerCode door/window sensor - Primary contact (with alive packets)",
-						"05":"Visonic PowerCode motion sensor (with alive packets)",
-						"06":"Visonic CodeSecure (no alive packets)",
-						"07":"Visonic PowerCode door/window sensor - auxiliary contact (no alive packets)",
-						"08":"Meiantech"}
-
-	rfx_subtype_20_status = {"00":"Normal",
-							"01":"Normal delayed",
-							"02":"Alarm",
-							"03":"Alarm delayed",
-							"04":"Motion",
-							"05":"No motion",
-							"06":"Panic",
-							"07":"End panic",
-							"08":"IR",
-							"09":"Arm away",
-							"0A":"Arm away delayed",
-							"0B":"Arm home",
-							"0C":"Arm home delayed",
-							"0D":"Disarm",
-							"10":"Light 1 off",
-							"11":"Light 1 on",
-							"12":"Light 2 off",
-							"13":"Light 2 on",
-							"14":"Dark detected",
-							"15":"Light detected",
-							"16":"Batlow (SD18, CO18)",
-							"17":"Pair (KD101)",
-							"80":"Normal + tamper",
-							"81":"Normal delayed + tamper",
-							"82":"Alarm + tamper",
-							"83":"Normal delayed + tamper",
-							"84":"Motion + tamper",
-							"85":"No motion + tamper"}
-
-	rfx_subtype_28 = {"00":"X10 Ninja"}
-
-	rfx_subtype_30 = {"00":"ATI Remote Wonder",
-						"01":"ATI Remote Wonder Plus",
-						"02":"Medion Remote",
-						"03":"X10 PC Remote",
-						"04":"ATI Remote Wonder II (receive only)"}
-
-	rfx_subtype_30_atiremotewonder = {"00":"A",
-									"01":"B",
-									"02":"Power",
-									"03":"TV",
-									"04":"DVD",
-									"05":"?",
-									"06":"Guide",
-									"07":"Drag",
-									"08":"VOL+",
-									"09":"VOL-",
-									"0A":"MUTE",
-									"0B":"CHAN+",
-									"0C":"CHAN-",
-									"0D":"1",
-									"0E":"2",
-									"0F":"3",
-									"10":"4",
-									"11":"5",
-									"12":"6",
-									"13":"7",
-									"14":"8",
-									"15":"9",
-									"16":"txt",
-									"17":"0",
-									"18":"Snapshot ESQ",
-									"19":"C",
-									"1A":"^",
-									"1B":"D",
-									"1C":"TV/RADIO",
-									"1D":"<",
-									"1E":"OK",
-									"1F":">",
-									"20":"<-",
-									"21":"E",
-									"22":"v",
-									"23":"F",
-									"24":"Rewind",
-									"25":"Play",
-									"26":"Fast forward",
-									"27":"Record",
-									"28":"Stop",
-									"29":"Pause",
-									"2C":"TV",
-									"2D":"VCR",
-									"2E":"RADIO",
-									"2F":"TV Preview",
-									"30":"Channel list",
-									"31":"Video Desktop",
-									"32":"red",
-									"33":"green",
-									"34":"yellow",
-									"35":"blue",
-									"36":"rename TAB",
-									"37":"Acquire image",
-									"38":"edit image",
-									"39":"Full Screen",
-									"3A":"DVD Audio",
-									"70":"Cursor-left",
-									"71":"Cursor-right",
-									"72":"Cursor-up",
-									"73":"Cursor-down",
-									"74":"Cursor-up-left",
-									"75":"Cursor-up-right",
-									"76":"Cursor-down-right",
-									"77":"Cursor-down-left",
-									"78":"V",
-									"79":"V-End",
-									"7C":"X",
-									"7D":"X-End"}
-
-	rfx_subtype_30_medion = {"00":"Mute",
-							"01":"B",
-							"02":"Power",
-							"03":"TV",
-							"04":"DVD",
-							"05":"Photo",
-							"06":"Music",
-							"07":"Drag",
-							"08":"VOL-",
-							"09":"VOL+",
-							"0A":"MUTE",
-							"0B":"CHAN+",
-							"0C":"CHAN-",
-							"0D":"1",
-							"0E":"2",
-							"0F":"3",
-							"10":"4",
-							"11":"5",
-							"12":"6",
-							"13":"7",
-							"14":"8",
-							"15":"9",
-							"16":"txt",
-							"17":"0",
-							"18":"snapshot ESQ",
-							"19":"DVD MENU",
-							"1A":"^",
-							"1B":"Setup",
-							"1C":"TV/RADIO",
-							"1D":"<",
-							"1E":"OK",
-							"1F":">",
-							"20":"<-",
-							"21":"E",
-							"22":"v",
-							"23":"F",
-							"24":"Rewind",
-							"25":"Play",
-							"26":"Fast forward",
-							"27":"Record",
-							"28":"Stop",
-							"29":"Pause",
-							"2C":"TV",
-							"2D":"VCR",
-							"2E":"RADIO",
-							"2F":"TV Preview",
-							"30":"Channel List",
-							"31":"Video desktop",
-							"32":"red",
-							"33":"green",
-							"34":"yellow",
-							"35":"blue",
-							"36":"rename TAB",
-							"37":"Acquire image",
-							"38":"edit image",
-							"39":"Full screen",
-							"3A":"DVD Audio",
-							"70":"Cursor-left",
-							"71":"Cursor-right",
-							"72":"Cursor-up",
-							"73":"Cursor-down",
-							"74":"Cursor-up-left",
-							"75":"Cursor-up-right",
-							"76":"Cursor-down-right",
-							"77":"Cursor-down-left",
-							"78":"V",
-							"79":"V-End",
-							"7C":"X",
-							"7D":"X-End"}
-
-	rfx_subtype_40 = {"00":"Digimax",
-						"01":"Digimax with short format (no set point)"}
-
-	rfx_subtype_40_status = {"0":"No status available",
-							"1":"Demand",
-							"2":"No demand",
-							"3":"Initializing"}
-
-	rfx_subtype_40_mode = {"0":"Heating",
-							"1":"Cooling"}
-
-	# 0x41 receive not implemented in RFX
-	rfx_subtype_41 = {"00":"HE105",
-						"01":"RTS10"}
-
-	rfx_subtype_42 = {"00":"Mertik G6R-H4T1",
-						"01":"Mertik G6R-H4TB"}
-
-	rfx_subtype_42_cmd00 = {"0":"Off",
-							"1":"On",
-							"2":"Up",
-							"3":"Down",
-							"4":"Run Up",
-							"5":"Run Down",
-							"6":"Stop"}
-	
-	rfx_subtype_42_cmd01 = {"0":"Off",
-							"1":"On",
-							"2":"Up",
-							"3":"Down",
-							"4":"2nd Off",
-							"5":"2nd On"}
-
-	rfx_subtype_50 = {"01":"THR128/138, THC138",
-						"02":"THC238/268,THN132,THWR288,THRN122,THN122,AW129/131",
-						"03":"THWR800",
-						"04":"RTHN318",
-						"05":"La Crosse TX3, TX4, TX17",
-						"06":"TS15C",
-						"07":"Viking 02811",
-						"08":"La Crosse WS2300",
-						"09":"RUBiCSON",
-						"0A":"TFA 30.3133"}
-
-	rfx_subtype_51 = {"01":"LaCrosse TX3",
-						"02":"LaCrosse WS2300"}
-
-	rfx_subtype_51_humstatus = {"00":"Dry",
-								"01":"Comfort",
-								"02":"Normal",
-								"03":"Wet"}
-
-	rfx_subtype_52 = {"01":"THGN122/123, THGN132, THGR122/228/238/268",
-						"02":"THGR810, THGN800",
-						"03":"RTGR328",
-						"04":"THGR328",
-						"05":"WTGR800",
-						"06":"THGR918, THGRN228, THGN50",
-						"07":"TFA TS34C, Cresta",
-						"08":"WT260,WT260H,WT440H,WT450,WT450H",
-						"09":"Viking 02035, 02038"}
-
-	rfx_subtype_52_humstatus = {"00":"Dry",
-								"01":"Comfort",
-								"02":"Normal",
-								"03":"Wet"}
-
-	rfx_subtype_53 = {"01":"Reserved for future use"}
-
-	rfx_subtype_54 = {"01":"BTHR918",
-						"02":"BTHR918N, BTHR968"}
-
-	rfx_subtype_54_humstatus = {"00":"Dry",
-								"01":"Comfort",
-								"02":"Normal",
-								"03":"Wet"}
-
-	rfx_subtype_54_forecast = {"01":"Sunny",
-								"02":"Partly cloudy",
-								"03":"Cloudy",
-								"04":"Rainy"}
-
-	rfx_subtype_55 = {"01":"RGR126/682/918",
-						"02":"PCR800",
-						"03":"TFA",
-						"04":"UPM RG700",
-						"05":"WS2300"}
-					
-	rfx_subtype_56 = {"01":"WTGR800",
-						"02":"WGR800",
-						"03":"STR918, WGR918",
-						"04":"TFA (WIND4)",
-						"05":"UPM WDS500",
-						"06":"WS2300"}
-
-	rfx_subtype_57 = {"01":"UVN128, UV138",
-						"02":"UVN800",
-						"03":"TFA"}
-					
-	rfx_subtype_58 = {"01":"RTGR328N"}
-
-	rfx_subtype_59 = {"01":"CM113, Electrisave"}
-
-	rfx_subtype_5A = {"01":"CM119/160",
-						"02":"CM180"}
-
-	rfx_subtype_5B = {"01":"CM180i"}
-
-	rfx_subtype_5D = {"01":"BWR101/102",
-						"02":"GR101"}
-					
-	rfx_subtype_70 = {"00":"RFXSensor temperature",
-						"01":"RFXSensor A/S",
-						"02":"RFXSensor voltage",
-						"03":"RFXSensor message"}
-					
-	rfx_subtype_70_msg03 = {"01":"Sensor addresses incremented",
-							"02":"Battery low detected",
-							"81":"No 1-wire device connected",
-							"82":"1-Wire ROM CRC error",
-							"83":"1-Wire device connected is not a DS18B20 or DS2438",
-							"84":"No end of read signal received from 1-Wire device",
-							"85":"1-Wire scratchpad CRC error"}
-					
-	rfx_subtype_71 = {"00":"Normal data packet",
-						"01":"New interval time set",
-						"02":"Calibrate value in <count> in usec",
-						"03":"New address set",
-						"04":"Counter value reset within 5 seconds",
-						"0B":"Counter value reset executed",
-						"0C":"Set interval mode within 5 seconds",
-						"0D":"Calibration mode within 5 seconds",
-						"0E":"Set address mode within 5 seconds",
-						"0F":"Identification packet"}
-					
-	rfx_subtype_72 = {"00":"FS20",
-						"01":"FHT8V valve",
-						"02":"FHT80 door/window sensor"}
-
-	def __getitem__(self, key): return self[key]
-	def keys(self): return self.keys()
 
 class rfxcmd_data:
 	def __init__(
@@ -1426,6 +831,10 @@ def decodePacket(message):
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$housecode$", str(housecode) )
+					action = action.replace("$unitcode$", str(unitcode) )
+					action = action.replace("$command$", command )
+					action = action.replace("$signal$", str(signal) )
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
@@ -2862,8 +2271,6 @@ def read_socket():
 	
 	Credit: Olivier Djian
 	"""
-	# Read incoming socket
-	# readable, writeable, errored = select.select([serversocket],[],[],60)
 
 	global messageQueue
 	
@@ -2889,8 +2296,6 @@ def read_socket():
 					print "Error: unrecognizable packet"
 
 			serial_param.port.write( stripped(message) )
-			#time.sleep(1)
-			#read_rfx()
 			
 		else:
 			if cmdarg.printout_complete == True:
@@ -3492,21 +2897,29 @@ def close_serialport():
 
 # ----------------------------------------------------------------------------
 
-def loghandler():
+def logger_init(configfile, name, debug):
 	"""
-	Loghandler activates the logging.
-	Used mostly for debuging
 
-	Available loglevels are : DEBUG and ERROR
+	Init loghandler and logging
+	
+	Input: 
+	
+		- configfile = location of the config.xml
+		- name	= name
+		- debug = True will send log to stdout, False to file
+		
+	Output:
+	
+		- Returns logger handler
+	
 	"""
-	global logger
-
+	program_path = os.path.dirname(os.path.realpath(__file__))
 	dom = None
-
-	if os.path.exists( os.path.join(config.program_path, "config.xml") ):
+	
+	if os.path.exists( os.path.join(program_path, "config.xml") ):
 
 		# Read config file
-		f = open(os.path.join(config.program_path, "config.xml"),'r')
+		f = open(os.path.join(program_path, "config.xml"),'r')
 		data = f.read()
 		f.close()
 
@@ -3516,21 +2929,39 @@ def loghandler():
 			print "Error: problem in the config.xml file, cannot process it"
 
 		if dom:
+		
+			# Get loglevel from config file
 			try:
 				xmlTag = dom.getElementsByTagName( 'loglevel' )[0].toxml()
-				config.loglevel = xmlTag.replace('<loglevel>','').replace('</loglevel>','')
+				loglevel = xmlTag.replace('<loglevel>','').replace('</loglevel>','')
 			except:
-				pass
+				loglevel = "INFO"
+
+			# Get logfile from config file
+			try:
+				xmlTag = dom.getElementsByTagName( 'logfile' )[0].toxml()
+				logfile = xmlTag.replace('<logfile>','').replace('</logfile>','')
+			except:
+				logfile = os.path.join(program_path, "rfxcmd.log")
+
+			loglevel = loglevel.upper()
+
+			formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 	
-			config.loglevel = config.loglevel.upper()
-	
-			if config.loglevel == 'DEBUG' or config.loglevel == 'ERROR':
-				logger = logging.getLogger('rfxcmd')
-				hdlr = logging.FileHandler( os.path.join(config.program_path, "rfxcmd.log") )
-				formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-				hdlr.setFormatter(formatter)
-				logger.addHandler(hdlr) 
-				logger.setLevel(config.loglevel)
+			if debug:
+				loglevel = "DEBUG"
+				handler = logging.StreamHandler()
+			else:
+				handler = logging.FileHandler(logfile)
+							
+			handler.setFormatter(formatter)
+
+			logger = logging.getLogger(name)
+			logger.setLevel(loglevel)
+			logger.addHandler(handler)
+			
+			return logger
+
 
 # ----------------------------------------------------------------------------
 
@@ -3565,9 +2996,9 @@ def main():
 
 	# Start loghandler
 	if options.debug:
-		logger = rfx_logger.logger_init(cmdarg.configfile,'rfxcmd', True)
+		logger = logger_init(cmdarg.configfile,'rfxcmd', True)
 	else:
-		logger = rfx_logger.logger_init(cmdarg.configfile,'rfxcmd', False)
+		logger = logger_init(cmdarg.configfile,'rfxcmd', False)
 	
 	logger.debug("Python version: %s.%s.%s" % sys.version_info[:3])
 	logger.debug("RFXCMD Version: " + __version__)
@@ -3732,7 +3163,7 @@ if __name__ == '__main__':
 	# Init objects
 	config = config_data()
 	cmdarg = cmdarg_data()
-	rfx = rfx_data()
+	rfx = lib.rfx_sensors.rfx_data()
 	rfxcmd = rfxcmd_data()
 	serial_param = serial_data()
 	triggerlist = trigger_data()
