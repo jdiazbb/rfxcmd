@@ -7,6 +7,7 @@ The RFXcmd is mainly developed for Mac/Linux, but the current version will work 
 ==Tested on==
 
  * Windows XP with rfxcmd 0.24
+ * Windows 7 with rfxcmd 0.24
 
 ==Limitations==
 
