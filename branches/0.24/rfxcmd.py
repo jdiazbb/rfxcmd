@@ -2988,7 +2988,7 @@ else:
 try:  
 	serial.port = serial.Serial(config.device, 38400, timeout=9)
 except:  
-	print("Error: Failed to connect on " + device)
+	print("Error: Failed to connect on " + config.device)
 	logdebug('sys.exit(1)')
 	sys.exit(1)
 
@@ -3167,8 +3167,12 @@ if cmdarg.action == "bsend":
 		sys.exit(1)		
 	
 	# Check that first byte is not 00
-	if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
-		print("Error: invalid rawcmd, first byte is zero")
+	try:
+		if ByteToHex(cmdarg.rawcmd.decode('hex')[0]) == "00":
+			print("Error: invalid rawcmd, first byte is zero")
+			sys.exit(1)
+	except:
+		print("Error: Error: invalid rawcmd sentence")
 		sys.exit(1)
 	
 	# Check if string is the length that it reports to be
