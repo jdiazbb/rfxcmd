@@ -306,7 +306,9 @@ class rfx_data(dict):
 	rfx_subtype_19 = {"00":"BlindsT0 / Rollertrol, Hasta new",
 						"01":"BlindsT1 / Hasta old",
 						"02":"BlindsT2 / A-OK RF01",
-						"03":"BlindsT3 / A-OK AC114"}
+						"03":"BlindsT3 / A-OK AC114",
+						"04":"BlindsT4 / Raex YR1326",
+						"05":"BlindsT5 / Media Mount"}
 
 	rfx_subtype_20 = {"00":"X10 security door/window sensor",
 						"01":"X10 security motion sensor",
@@ -511,22 +513,22 @@ class rfx_data(dict):
 						"01":"RTS10"}
 
 	rfx_subtype_42 = {"00":"Mertik G6R-H4T1",
-						"01":"Mertik G6R-H4TB"}
+						"01":"Mertik G6R-H4TB / G6-H4T"}
 
-	rfx_subtype_42_cmd00 = {"0":"Off",
-							"1":"On",
-							"2":"Up",
-							"3":"Down",
-							"4":"Run Up",
-							"5":"Run Down",
-							"6":"Stop"}
+	rfx_subtype_42_cmd00 = {"00":"Off",
+							"01":"On",
+							"02":"Up",
+							"03":"Down",
+							"04":"Run Up",
+							"05":"Run Down",
+							"06":"Stop"}
 	
-	rfx_subtype_42_cmd01 = {"0":"Off",
-							"1":"On",
-							"2":"Up",
-							"3":"Down",
-							"4":"2nd Off",
-							"5":"2nd On"}
+	rfx_subtype_42_cmd01 = {"00":"Off",
+							"01":"On",
+							"02":"Up",
+							"03":"Down",
+							"04":"2nd Off",
+							"05":"2nd On"}
 
 	rfx_subtype_50 = {"01":"THR128/138, THC138",
 						"02":"THC238/268,THN132,THWR288,THRN122,THN122,AW129/131",
