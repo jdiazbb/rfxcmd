@@ -136,7 +136,6 @@ except ImportError:
 class config_data:
 	def __init__(
 		self, 
-		undecoded = False,
 		mysql_active = False,
 		mysql_server = '',
 		mysql_database = '',
@@ -161,7 +160,6 @@ class config_data:
 		whitelist_file = ""
 		):
         
-		self.undecoded = undecoded
 		self.mysql_active = mysql_active
 		self.mysql_server = mysql_server
 		self.mysql_database = mysql_database
@@ -212,13 +210,11 @@ class rfxcmd_data:
 		self,
 		reset = "0d00000000000000000000000000",
 		status = "0d00000002000000000000000000",
-		undecoded = "0d00000005000000000000000000",
 		save = "0d00000006000000000000000000"
 		):
 
 		self.reset = reset
 		self.status = status
-		self.undecoded = undecoded
 		self.save = save
 
 class serial_data:
@@ -442,6 +438,7 @@ def decodePacket(message):
 	
 	# Verify incoming message
 	if not test_rfx( ByteToHex(message) ):
+		logger.error("The incoming message is invalid (" + ByteToHex(message) + ")")
 		if cmdarg.printout_complete == True:
 			print "Error: The incoming message is invalid"
 			return
@@ -1368,7 +1365,7 @@ def decodePacket(message):
 
 		decoded = True
 		
-		# PRINTOUT		
+		# PRINTOUT
 		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_41[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
@@ -1391,6 +1388,8 @@ def decodePacket(message):
 	# ---------------------------------------
 	if packettype == '42':
 
+		logger.debug("PacketType 0x42")
+		
 		decoded = True
 
 		# DATA
@@ -1400,7 +1399,9 @@ def decodePacket(message):
 			unitcode = ByteToHex(message[4]) + ByteToHex(message[5]) + ByteToHex(message[6])
 		else:
 			unitcode = "00"
-
+		
+		logger.debug("Unitcode: " + unitcode)
+		
 		if subtype == '00':
 			command = rfx.rfx_subtype_42_cmd00[ByteToHex(message[7])]
 		elif subtype == '01':
@@ -1408,23 +1409,28 @@ def decodePacket(message):
 		else:
 			command = '0'
 
+		logger.debug("Command: " + command)
+
 		signal = decodeSignal(message[8])
 
 		# PRINTOUT
 		if cmdarg.printout_complete:
+			logger.debug("Printout data")
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_42[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
-			print "Unitcode\t\t\t= " + unitcode
+			print "Unitcode\t\t= " + unitcode
 			print "Command\t\t\t= " + command
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV 
 		if cmdarg.printout_csv:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, str(signal), unitcode, command))
+			logger.debug("Output in CSV")
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" %(timestamp, packettype, subtype, seqnbr, str(signal), unitcode, command))
 			sys.stdout.flush()
 
 		# TRIGGER
 		if config.trigger:
+			logger.debug("Check trigger")
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1443,13 +1449,15 @@ def decodePacket(message):
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# SQLITE
-		if config.sqlite_config:
+		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=command\ncurrent='+command+'\nunits=C')
 			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+
+		logger.debug("PacketType 0x42, done.")
 
 	# ---------------------------------------
 	# 0x50 - Temperature sensors
@@ -1668,13 +1676,22 @@ def decodePacket(message):
 
 		# Sensor id
 		sensor_id = id1 + id2
+		logger.debug("sensor_id: " + sensor_id)
 
 		# Temperature
 		temperature = decodeTemperature(message[6], message[7])
+		logger.debug("temperature: " + temperature)
 		
 		# Humidity
 		humidity = int(ByteToHex(message[8]),16)
-		humidity_status = rfx.rfx_subtype_54_humstatus[ByteToHex(message[9])]
+		logger.debug("humidity: " + str(humidity))
+		
+		try:
+			humidity_status = rfx.rfx_subtype_54_humstatus[ByteToHex(message[9])]
+			logger.debug("humidity_status: " + humidity_status)
+		except:
+			logger.warning("Humidity status is unknown (" + ByteToHex(message) + ")")
+			humidity_status = "Unknown"
 
 		# Barometric pressure
 		barometric_high = ByteToHex(message[10])
@@ -1692,6 +1709,7 @@ def decodePacket(message):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
+			logger.debug("Printout")
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_54[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
@@ -1705,13 +1723,15 @@ def decodePacket(message):
 		
 		# CSV
 		if cmdarg.printout_csv == True:
+			logger.debug("CSV")
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id,
 							forecast, humidity_status, str(humidity), str(barometric), str(temperature)))
 			sys.stdout.flush()
 		
 		# TRIGGER
-		if config.trigger:
+		if config.trigger:	
+			logger.debug("Trigger")
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2209,7 +2229,7 @@ def decodePacket(message):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx.rfx_subtype_70[subtype]
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_71[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + id1
 
@@ -2236,7 +2256,7 @@ def decodePacket(message):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx.rfx_subtype_70[subtype]
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_72[subtype]
 			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
 
 		# TRIGGER
@@ -2257,7 +2277,8 @@ def decodePacket(message):
 	
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
-		logger.debug("Packet not decoded")
+		logger.error("Packet not decoded")
+		logger.error("Packet: " + ByteToHex(message))
 		print timestamp + " " + ByteToHex(message)
 		print "RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ for more information."
 
@@ -2387,7 +2408,13 @@ def read_rfx():
 	message = None
 
 	try:
-		byte = serial_param.port.read()
+		
+		try:
+			byte = serial_param.port.read()
+		except IOError, e:
+			print("Error: %s" % e)
+			logger.error("serial read error: %s" %e)
+		
 		logger.debug('Byte: ' + str(ByteToHex(byte)))
 		
 		if byte:
@@ -2412,7 +2439,7 @@ def read_rfx():
 					try:
 						decodePacket( message )
 					except KeyError:
-						logger.error('Error: unrecognizable packet')
+						logger.error("Error: unrecognizable packet (" + ByteToHex(message) + ")")
 						if cmdarg.printout_complete == True:
 							print "Error: unrecognizable packet"
 
@@ -2589,10 +2616,11 @@ def option_simulate(indata):
 	# Decode it
 	try:
 		decodePacket( message )
-	except KeyError:
-		logger.error("Error: unrecognizable packet")
+	except Exception as err:
+		logger.error("Error: unrecognizable packet (" + ByteToHex(message) + ")")
+		logger.error("Error: %s" %err)
 		print "Error: unrecognizable packet"
-	
+		
 	logger.debug('Exit 0')
 	sys.exit(0)
 
@@ -2634,14 +2662,6 @@ def option_listen():
 	logger.debug('Serialport flush input')
 	serial_param.port.flushInput()
 
-	if config.undecoded:
-		logger.debug('Send rfxcmd_undecoded (' + rfxcmd.undecoded + ')')
-		send_rfx( rfxcmd.undecoded.decode('hex') )
-		logger.debug('Sleep 1 sec')
-		time.sleep(1)
-		logger.debug('Read_rfx')
-		read_rfx()
-		
 	# Send STATUS
 	logger.debug('Send rfxcmd_status (' + rfxcmd.status + ')')
 	serial_param.port.write( rfxcmd.status.decode('hex') )
@@ -2683,11 +2703,6 @@ def option_getstatus():
 	serial_param.port.flushOutput()
 	serial_param.port.flushInput()
 
-	if config.undecoded:
-		send_rfx(rfxcmd.undecoded.decode('hex'))
-		time.sleep(1)
-		read_rfx()
-		
 	# Send STATUS
 	send_rfx(rfxcmd.status.decode('hex'))
 	time.sleep(1)
@@ -2740,11 +2755,6 @@ def option_send():
 	serial_param.port.flushOutput()
 	serial_param.port.flushInput()
 
-	if config.undecoded:
-		send_rfx( rfxcmd.undecoded.decode('hex') )
-		time.sleep(1)
-		read_rfx()
-		
 	if cmdarg.rawcmd:
 		timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 		if cmdarg.printout_complete == True:
@@ -2808,13 +2818,6 @@ def read_configfile():
 	Read items from the configuration file
 	"""
 	if os.path.exists( cmdarg.configfile ):
-
-		# ----------------------
-		# RFX configuration
-		if (read_config( cmdarg.configfile, "undecoded") == "yes"):
-			config.undecoded = True
-		else:
-			config.undecoded = False
 
 		# ----------------------
 		# MySQL
