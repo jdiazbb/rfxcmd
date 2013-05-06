@@ -1,23 +1,40 @@
 <config>
 	<version>1</version>
-	<undecoded>no</undecoded>
+	
+	<!-- MySQL -->
 	<mysql_active>no</mysql_active>
 	<mysql_server>localhost</mysql_server>
 	<mysql_database>rfxcmd</mysql_database>
 	<mysql_username>user</mysql_username>
 	<mysql_password>password</mysql_password>
+	
+	<!-- Trigger -->
 	<trigger>no</trigger>
 	<triggerfile>trigger.xml</triggerfile>
+	
+	<!-- Sqlite -->
 	<sqlite_active>no</sqlite_active>
 	<sqlite_database>sqlite.db</sqlite_database>
 	<sqlite_table>rfxcmd</sqlite_table>
-	<loglevel>info</loglevel>
+	
+	<!-- Logging -->
+	<loglevel>error</loglevel>
 	<logfile>rfxcmd.log</logfile>
+	
+	<!-- Graphite -->
 	<graphite_active>no</graphite_active>
 	<graphite_server>127.0.0.1</graphite_server>
 	<graphite_port>2003</graphite_port>
+	
+	<!-- xPL -->
 	<xpl_active>no</xpl_active>
 	<xpl_host>127.0.0.1</xpl_host>
+	
+	<!-- Socket server -->
 	<socketserver>yes</socketserver>
 	<socketport>55000</socketport>
+	
+	<!-- Whitelist -->
+	<whitelist_active>no</whitelist_active>
+	<whitelist_file>whitelist.xml</whitelist_file>
 </config>
