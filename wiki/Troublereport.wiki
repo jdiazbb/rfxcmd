@@ -2,6 +2,14 @@
 
 = Introduction =
 
-Description how to report trouble/issue with RFXcmd.
+Description how to report trouble/issue with RFXcmd 0.3 and later.
+
+= General recommendations =
+
+It is recommended to have the loglevel "error" activated in the config.xml, this will write the RFXcmd generated error to the logfile each time it occurs.
 
 = Details =
+
+If a problem, crash or any other issue is occurring with RFXcmd, then it always good to write a issue report, to write a issue report on GoogleCode an account is needed, if you don't have a GoogleCode account and don't want to create one, then send me the issue by email (email can be found in the source code).
+
+...under work...
