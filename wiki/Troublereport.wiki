@@ -1,0 +1,7 @@
+#summary Report a issue regarding RFXcmd
+
+= Introduction =
+
+Description how to report trouble/issue with RFXcmd.
+
+= Details =
