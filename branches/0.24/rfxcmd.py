@@ -668,7 +668,7 @@ def decodePacket( message ):
 				print("Enabled\t\t\t" + rfx_subtype_01_msg5['128'])
 			else:
 				print("Disabled\t\t" + rfx_subtype_01_msg5['128'])
-		
+			
 	# ---------------------------------------
 	# 0x02 - Receiver/Transmitter Message
 	# ---------------------------------------
@@ -722,7 +722,10 @@ def decodePacket( message ):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$housecode$", housecode )
+					action = action.replace("$unitcode$", str(unitcode) )
+					action = action.replace("$command$", command )
+					action = action.replace("$signal$", str(signal) )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
