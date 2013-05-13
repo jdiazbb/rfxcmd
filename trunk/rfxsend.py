@@ -178,9 +178,9 @@ if __name__ == '__main__':
 		socket_server = 'localhost'
 
 	if options.port:
-		socket_port = options_port
+		socket_port = int(options.port)
 	else:
-		socket_port = 50000
+		socket_port = 55000
 	
 	if options.rawcmd:
 		message = options.rawcmd
@@ -189,8 +189,11 @@ if __name__ == '__main__':
 		sys.exit(1)
 	
 	if test_message(options.rawcmd):
-		if send_message(socket_server, socket_port, message):
-			print "Command sent successfully"
+		try:
+			send_message(socket_server, socket_port, message)
+		except socket.error as err:
+			print "Error: Could not send message: %s " % err
+			
 	else:
 		print "Command not sent, invalid format"
 	
