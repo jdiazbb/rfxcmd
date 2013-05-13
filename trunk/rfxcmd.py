@@ -155,6 +155,7 @@ class config_data:
 		xpl_active = False,
 		xpl_host = "",
 		socketserver = False,
+		sockethost = "",
 		socketport = "",
 		whitelist_active = False,
 		whitelist_file = ""
@@ -179,6 +180,7 @@ class config_data:
 		self.xpl_active = xpl_active
 		self.xpl_host = xpl_host
 		self.socketserver = socketserver
+		self.sockethost = sockethost
 		self.socketport = socketport
 		self.whitelist_active = whitelist_active
 		self.whitelist_file = whitelist_file
@@ -2640,7 +2642,7 @@ def option_listen():
 	logger.debug('Action: Listen')
 
 	if config.socketserver:
-		serversocket = RFXcmdSocketAdapter('localhost',int(config.socketport))
+		serversocket = RFXcmdSocketAdapter(config.sockethost,int(config.socketport))
 		if serversocket.netAdapterRegistered:
 			logger.debug("Socket interface started")
 		else:
@@ -2876,8 +2878,10 @@ def read_configfile():
 			config.socketserver = True
 		else:
 			config.socketserver = False			
+		config.sockethost = read_config( cmdarg.configfile, "sockethost")
 		config.socketport = read_config( cmdarg.configfile, "socketport")
 		logger.debug("SocketServer: " + str(config.socketserver))
+		logger.debug("SocketHost: " + str(config.sockethost))
 		logger.debug("SocketPort: " + str(config.socketport))
 		
 		# -----------------------
