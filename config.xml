@@ -32,6 +32,7 @@
 	
 	<!-- Socket server -->
 	<socketserver>yes</socketserver>
+	<sockethost>127.0.0.1</sockethost>
 	<socketport>55000</socketport>
 	
 	<!-- Whitelist -->
