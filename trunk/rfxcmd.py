@@ -2096,10 +2096,10 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$unit$", packettype + subtype )
 					action = action.replace("$id$", str(sensor_id) )
-					action = action.replace("$instant$", str(sensor_id) )
-					action = action.replace("$total$", str(sensor_id) )
-					action = action.replace("$battery$", str(sensor_id) )
-					action = action.replace("$signal$", str(sensor_id) )
+					action = action.replace("$instant$", str(instant) )
+					action = action.replace("$total$", str(total) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
 					return_code = subprocess.call(action, shell=True)
 		
 		# XPL
@@ -2298,13 +2298,16 @@ def read_socket():
 	global messageQueue
 	
 	if not messageQueue.empty():
+		logger.debug("Message received in socket messageQueue")
 		message = stripped(messageQueue.get())
 
 		if test_rfx( message ):
 		
 			# Flush buffer
 			serial_param.port.flushOutput()
+			logger.debug("SerialPort flush output")
 			serial_param.port.flushInput()
+			logger.debug("SerialPort flush input")
 
 			timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 			if cmdarg.printout_complete == True:
@@ -2314,16 +2317,20 @@ def read_socket():
 				print "Date/Time\t\t= " + timestamp
 				print "Packet Length\t\t= " + ByteToHex( message.decode('hex')[0] )
 				try:
+					logger.debug("Decode message to screen")
 					decodePacket( message.decode('hex') )
 				except KeyError:
+					logger.error("Unrecognizable packet")
 					print "Error: unrecognizable packet"
-
-			serial_param.port.write( stripped(message) )
+			
+			logger.debug("Write message to serial port")
+			serial_param.port.write( message.decode('hex') )
 			
 		else:
+			logger.error("Invalid message from socket")
 			if cmdarg.printout_complete == True:
 				print "------------------------------------------------"
-				print "Invalid message from socket"			
+				print "Invalid message from socket"
 
 # ----------------------------------------------------------------------------
 
