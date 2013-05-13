@@ -2097,7 +2097,7 @@ def decodePacket(message):
 					action = action.replace("$unit$", packettype + subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$instant$", str(instant) )
-					action = action.replace("$total$", str(total) )
+					action = action.replace("$total$", str(usage) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					return_code = subprocess.call(action, shell=True)
@@ -2640,8 +2640,7 @@ def option_listen():
 	logger.debug('Action: Listen')
 
 	if config.socketserver:
-		#serversocket = open_socket(config.socketport)
-		serversocket = RFXcmdSocketAdapter()
+		serversocket = RFXcmdSocketAdapter('localhost',int(config.socketport))
 		if serversocket.netAdapterRegistered:
 			logger.debug("Socket interface started")
 		else:
