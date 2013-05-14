@@ -48,12 +48,12 @@ class NetRequestHandler(StreamRequestHandler):
     logger.debug("Client connected to [%s:%d]" % self.client_address)
     lg = self.rfile.readline()
     messageQueue.put(lg)
-    logger.debug("Message read from socket : " + lg)
+    logger.debug("Message read from socket: " + lg)
     self.netAdapterClientConnected = False
     logger.debug("Client disconnected from [%s:%d]" % self.client_address)
 
 class RFXcmdSocketAdapter(object, StreamRequestHandler):
-  def __init__(self, address='localhost', port=50000):
+  def __init__(self, address='localhost', port=55000):
     self.Address = address
     self.Port = port
 
@@ -63,10 +63,10 @@ class RFXcmdSocketAdapter(object, StreamRequestHandler):
       threading.Thread(target=self.loopNetServer, args=()).start()
 
   def loopNetServer(self):
-    logger.debug("loopNetServer Thread started")
-    logger.debug("Listening on : [%s:%d]" % (self.Address, self.Port))
+    logger.debug("LoopNetServer Thread started")
+    logger.debug("Listening on: [%s:%d]" % (self.Address, self.Port))
     self.netAdapter.serve_forever()
-    logger.debug("loopNetServer Thread stopped")
+    logger.debug("LoopNetServer Thread stopped")
 
 # ------------------------------------------------------------------------------
 # END
