@@ -2412,19 +2412,21 @@ def read_rfx():
 	"""
 	Read message from RFXtrx and decode the decode the message
 	"""
-	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-	logger.debug('Timestamp: ' + timestamp)
 	message = None
-
+	byte = None
+	
 	try:
 		
 		try:
-			byte = serial_param.port.read()
+			if serial_param.port.inWaiting() != 0:
+				timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+				logger.debug('Timestamp: ' + timestamp)
+				logger.debug("SerWaiting: " + str(serial_param.port.inWaiting()))
+				byte = serial_param.port.read()
+				logger.debug('Byte: ' + str(ByteToHex(byte)))
 		except IOError, e:
 			print("Error: %s" % e)
 			logger.error("serial read error: %s" %e)
-		
-		logger.debug('Byte: ' + str(ByteToHex(byte)))
 		
 		if byte:
 			message = byte + readbytes( ord(byte) )
@@ -2681,16 +2683,17 @@ def option_listen():
 		
 			# Read serial port
 			rawcmd = read_rfx()
-			logger.debug('Received: ' + str(rawcmd))
+			if rawcmd:
+				logger.debug("Received: " + str(rawcmd))
 			
 			# Read socket
 			if config.socketserver:
 				read_socket()
 			
 	except KeyboardInterrupt:
-		logger.debug('Received keyboard interrupt')
+		logger.debug("Received keyboard interrupt")
 		serversocket.netAdapter.shutdown()
-		print "\nExit..."
+		print("\nExit...")
 		pass
 
 # ----------------------------------------------------------------------------
