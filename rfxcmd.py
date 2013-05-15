@@ -709,7 +709,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$message$", indata )
 					return_code = subprocess.call(action, shell=True)
 		
@@ -756,8 +757,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$housecode$", str(housecode) )
 					action = action.replace("$unitcode$", str(unitcode) )
 					action = action.replace("$command$", command )
@@ -809,7 +810,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$unitcode$", str(unitcode) )
 					action = action.replace("$command$", command )
@@ -884,11 +886,12 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$system$", str(system) )
 					action = action.replace("$channel$", str(channel) )
 					action = action.replace("$command$", command )
+					action = action.replace("$signal$", str(signal) )
 					return_code = subprocess.call(action, shell=True)
 		
 		# MYSQL
@@ -937,10 +940,11 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$code$", code_bin )
 					action = action.replace("$pulse$", str(pulse) )
+					action = action.replace("$signal$", str(signal) )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
@@ -999,7 +1003,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$unitcode$", str(unitcode) )
 					action = action.replace("$command$", command )
@@ -1055,7 +1060,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$groupcode$", groupcode )
 					action = action.replace("$unitcode$", str(unitcode) )
@@ -1092,8 +1098,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
@@ -1117,8 +1123,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
@@ -1157,7 +1163,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$status$", status )
 					action = action.replace("$battery$", str(battery) )
@@ -1193,8 +1200,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
@@ -1267,8 +1274,9 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					action = action.replace("$id$", id1 )
 					action = action.replace("$command$", command )
 					if subtype == '04':
 						action = action.replace("$toggle$", toggle )
@@ -1334,7 +1342,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$temperature$", str(temperature) )
 					action = action.replace("$temperatureset$", str(temperature_set) )
@@ -1381,8 +1390,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
@@ -1439,8 +1448,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$unitcode$", unitcode )
 					action = action.replace("$command$", command )
 					action = action.replace("$signal$", str(signal) )
@@ -1496,7 +1505,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$temperature$", str(temperature) )
 					action = action.replace("$battery$", str(battery) )
@@ -1556,7 +1566,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$humidity$", str(humidity) )
 					action = action.replace("$battery$", str(battery) )
@@ -1582,9 +1593,8 @@ def decodePacket(message):
 	# ---------------------------------------
 	if packettype == '52':
 		
-		logger.debug("PacketType 0x52")
-
 		decoded = True
+		logger.debug("PacketType 0x52")
 
 		# DATA
 		sensor_id = id1 + id2
@@ -1624,13 +1634,15 @@ def decodePacket(message):
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
-					action = action.replace("$unit$", packettype + subtype )
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$temperature$", str(temperature) )
 					action = action.replace("$humidity$", str(humidity) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
-					return_code = subprocess.call(action, shell=True)
+					#return_code = subprocess.call(action, shell=True)
 		
 		# GRAPHITE
 		if config.graphite_active == True:
@@ -1740,7 +1752,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$temperature$", str(temperature) )
 					action = action.replace("$humidity$", str(humidity) )
@@ -1826,7 +1839,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
@@ -1900,7 +1914,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$direction$", str(direction) )
 					if subtype <> "05":
@@ -1978,7 +1993,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$uv$", str(temperature) )
 					if subtype == '03':
@@ -2038,7 +2054,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$counter$", str(count) )
 					action = action.replace("$channel1$", str(channel1) )
@@ -2096,7 +2113,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$instant$", str(instant) )
 					action = action.replace("$total$", str(usage) )
@@ -2144,8 +2162,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
@@ -2202,8 +2220,9 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					action = action.replace("$id$", id1 )
 					if subtype == '00':
 						action = action.replace("$temperature$", str(temperature) )
 					if subtype == '01' or subtype == '02':
@@ -2243,8 +2262,9 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					action = action.replace("$id$", id1 )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
@@ -2269,8 +2289,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
-					action = action.replace("$unit$", packettype + subtype )
-					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
 					return_code = subprocess.call(action, shell=True)
 
 	# ---------------------------------------
@@ -2279,8 +2299,8 @@ def decodePacket(message):
 	
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
-		logger.error("Packet not decoded")
-		logger.error("Packet: " + ByteToHex(message))
+		logger.error("Message not decoded")
+		logger.error("Message: " + ByteToHex(message))
 		print timestamp + " " + ByteToHex(message)
 		print "RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ for more information."
 
@@ -2292,7 +2312,6 @@ def decodePacket(message):
 def read_socket():
 	"""
 	Check socket for messages
-	Input: socket handler
 	
 	Credit: Olivier Djian
 	"""
@@ -2440,6 +2459,27 @@ def read_rfx():
 				if (len(message) - 1) == ord(message[0]):
 				
 					logger.debug('Length OK')
+					
+					# Whitelist
+					if config.whitelist_active:
+						logger.debug("Check whitelist")
+						whitelist_match = False
+						for sensor in whitelist.data:
+							sensor = sensor.childNodes[0].nodeValue
+							logger.debug("Tag: " + sensor)
+							rawcmd = ByteToHex ( message )
+							rawcmd = rawcmd.replace(' ', '')
+							if re.match(sensor, rawcmd):
+								logger.debug("Whitelist match")
+								whitelist_match = True
+								pass
+					
+					if whitelist_match == False:
+						if cmdarg.printout_complete:
+							print("Sensor not included in whitelist")
+						logger.debug("No match in whitelist, no process")
+						return rawcmd
+					
 					if cmdarg.printout_complete == True:
 						print "------------------------------------------------"
 						print "Received\t\t= " + ByteToHex( message )
@@ -2528,10 +2568,11 @@ def read_whitelistfile():
 		print "Error in " + config.whitelist_file + " file"
 		sys.exit(1)
 
-	root = xmldoc.documentElement
+	whitelist.data = xmldoc.documentElement.getElementsByTagName('sensor')
 
-	whitelist.data = root.getElementsByTagName('whitelist')
-
+	for sensor in whitelist.data:
+		logger.debug("Tags: " + sensor.childNodes[0].nodeValue)
+		
 # ----------------------------------------------------------------------------
 
 def read_triggerfile():
@@ -2544,9 +2585,12 @@ def read_triggerfile():
 		print "Error in " + config.triggerfile + " file"
 		sys.exit(1)
 
-	root = xmldoc.documentElement
+	triggerlist.data = xmldoc.documentElement.getElementsByTagName('trigger')
 
-	triggerlist.data = root.getElementsByTagName('trigger')
+	for trigger in triggerlist.data:
+		message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+		action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+		logger.debug("Message: " + message + ", Action: " + action)
 
 # ----------------------------------------------------------------------------
 
@@ -2577,27 +2621,12 @@ def option_simulate(indata):
 	Simulate incoming packet, decode and process
 	"""
 	# If trigger is activated in config, then read the triggerfile
-	if config.trigger:
-		read_triggerfile()
+	#if config.trigger:
+	#	read_triggerfile()
 
 	# Remove all spaces
 	for x in string.whitespace:
 		indata = indata.replace(x,"")
-	
-	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-	
-	if cmdarg.printout_complete:
-		print "------------------------------------------------"
-		print "Received\t\t= " + indata
-		print "Date/Time\t\t= " + timestamp
-	
-	# Verify that the incoming value is hex
-	try:
-		hexval = int(indata, 16)
-	except:
-		logger.error("Error: the input data is invalid hex value")
-		print "Error: the input data is invalid hex value"
-		exit()
 	
 	# Cut into hex chunks
 	try:
@@ -2605,8 +2634,10 @@ def option_simulate(indata):
 	except:
 		logger.error("Error: the input data is not valid")
 		print "Error: the input data is not valid"
-		exit()
+		sys.exit(1)
 	
+	timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+
 	# Whitelist
 	if config.whitelist_active:
 		logger.debug("Check whitelist")
@@ -2620,9 +2651,25 @@ def option_simulate(indata):
 				whitelist_match = True
 		
 		if whitelist_match == False:
+			if cmdarg.printout_complete:
+				print("Sensor not included in whitelist")
 			logger.debug("No match in whitelist")
 			logger.debug("Exit 0")
 			sys.exit(0)
+
+	# Printout	
+	if cmdarg.printout_complete:
+		print "------------------------------------------------"
+		print "Received\t\t= " + indata
+		print "Date/Time\t\t= " + timestamp
+	
+	# Verify that the incoming value is hex
+	try:
+		hexval = int(indata, 16)
+	except:
+		logger.error("Error: the input data is invalid hex value")
+		print "Error: the input data is invalid hex value"
+		exit()
 				
 	# Decode it
 	try:
@@ -2651,8 +2698,8 @@ def option_listen():
 			logger.debug("Cannot start socket interface")
 
 	# If trigger is activated in config, then read the triggerfile
-	if config.trigger:
-		read_triggerfile()
+	#if config.trigger:
+	#	read_triggerfile()
 			
 	# Flush buffer
 	logger.debug('Serialport flush output')
@@ -3076,6 +3123,11 @@ def main():
 	if config.whitelist_active:
 		logger.debug("Read whitelist file")
 		read_whitelistfile()
+
+	# Triggerlist
+	if config.trigger:
+		logger.debug("Read triggerlist file")
+		read_triggerfile()
 
 	if options.csv:
 		logger.debug("Option: CSV chosen")
