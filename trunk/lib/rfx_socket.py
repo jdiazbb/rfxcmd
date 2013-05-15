@@ -44,29 +44,30 @@ logger = logging.getLogger('rfxcmd')
 # ------------------------------------------------------------------------------
 
 class NetRequestHandler(StreamRequestHandler):
-  def handle(self):    
-    logger.debug("Client connected to [%s:%d]" % self.client_address)
-    lg = self.rfile.readline()
-    messageQueue.put(lg)
-    logger.debug("Message read from socket: " + lg)
-    self.netAdapterClientConnected = False
-    logger.debug("Client disconnected from [%s:%d]" % self.client_address)
-
+	
+	def handle(self):
+		logger.debug("Client connected to [%s:%d]" % self.client_address)
+		lg = self.rfile.readline()
+		messageQueue.put(lg)
+		logger.debug("Message read from socket: " + lg)
+		self.netAdapterClientConnected = False
+		logger.debug("Client disconnected from [%s:%d]" % self.client_address)
+	
 class RFXcmdSocketAdapter(object, StreamRequestHandler):
-  def __init__(self, address='localhost', port=55000):
-    self.Address = address
-    self.Port = port
+	def __init__(self, address='localhost', port=55000):
+		self.Address = address
+		self.Port = port
 
-    self.netAdapter = TCPServer((self.Address, self.Port), NetRequestHandler)
-    if self.netAdapter:
-      self.netAdapterRegistered = True
-      threading.Thread(target=self.loopNetServer, args=()).start()
+		self.netAdapter = TCPServer((self.Address, self.Port), NetRequestHandler)
+		if self.netAdapter:
+			self.netAdapterRegistered = True
+			threading.Thread(target=self.loopNetServer, args=()).start()
 
-  def loopNetServer(self):
-    logger.debug("LoopNetServer Thread started")
-    logger.debug("Listening on: [%s:%d]" % (self.Address, self.Port))
-    self.netAdapter.serve_forever()
-    logger.debug("LoopNetServer Thread stopped")
+	def loopNetServer(self):
+		logger.debug("LoopNetServer Thread started")
+		logger.debug("Listening on: [%s:%d]" % (self.Address, self.Port))
+		self.netAdapter.serve_forever()
+		logger.debug("LoopNetServer Thread stopped")
 
 # ------------------------------------------------------------------------------
 # END
