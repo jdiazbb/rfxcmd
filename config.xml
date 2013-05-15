@@ -9,8 +9,9 @@
 	<mysql_password>password</mysql_password>
 	
 	<!-- Trigger -->
-	<trigger>no</trigger>
-	<triggerfile>trigger.xml</triggerfile>
+	<trigger_active>no</trigger_active>
+	<trigger_onematch>no</trigger_onematch>
+	<trigger_file>trigger.xml</trigger_file>
 	
 	<!-- Sqlite -->
 	<sqlite_active>no</sqlite_active>
