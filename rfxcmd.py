@@ -141,8 +141,9 @@ class config_data:
 		mysql_database = '',
 		mysql_username = "",
 		mysql_password = "",
-		trigger = False,
-		triggerfile = "",
+		trigger_active = False,
+		trigger_onematch = False,
+		trigger_file = "",
 		sqlite_active = False,
 		sqlite_database = "",
 		sqlite_table = "",
@@ -166,8 +167,9 @@ class config_data:
 		self.mysql_database = mysql_database
 		self.mysql_username = mysql_username
 		self.mysql_password = mysql_password
-		self.trigger = trigger
-		self.triggerfile = triggerfile
+		self.trigger_active = trigger_active
+		self.trigger_onematch = trigger_onematch
+		self.trigger_file = trigger_file
 		self.sqlite_active = sqlite_active
 		self.sqlite_database = sqlite_database
 		self.sqlite_table = sqlite_table
@@ -702,7 +704,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 			
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -712,7 +714,12 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$message$", indata )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -750,7 +757,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 		
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -763,7 +770,12 @@ def decodePacket(message):
 					action = action.replace("$unitcode$", str(unitcode) )
 					action = action.replace("$command$", command )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -803,7 +815,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -816,7 +828,12 @@ def decodePacket(message):
 					action = action.replace("$unitcode$", str(unitcode) )
 					action = action.replace("$command$", command )
 					action = action.replace("$dimlevel$", dimlevel )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -879,7 +896,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -892,7 +909,12 @@ def decodePacket(message):
 					action = action.replace("$channel$", str(channel) )
 					action = action.replace("$command$", command )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -933,7 +955,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -945,7 +967,12 @@ def decodePacket(message):
 					action = action.replace("$code$", code_bin )
 					action = action.replace("$pulse$", str(pulse) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 	# ---------------------------------------
 	# 0x14 Lighting5
@@ -996,7 +1023,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1010,7 +1037,12 @@ def decodePacket(message):
 					action = action.replace("$command$", command )
 					if subtype == '00':			
 						action = action.replace("$level$", level )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 		# MYSQL
 		if config.mysql_active:
@@ -1053,7 +1085,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 			
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1067,7 +1099,12 @@ def decodePacket(message):
 					action = action.replace("$unitcode$", str(unitcode) )
 					action = action.replace("$command$", command )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 		# MYSQL
 		if config.mysql_active:
@@ -1091,7 +1128,7 @@ def decodePacket(message):
 			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1100,7 +1137,12 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 	# ---------------------------------------
 	# 0x19 Blinds1
@@ -1116,7 +1158,7 @@ def decodePacket(message):
 			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1125,7 +1167,12 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 	# ---------------------------------------
 	# 0x20 Security1
@@ -1156,7 +1203,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1169,7 +1216,12 @@ def decodePacket(message):
 					action = action.replace("$status$", status )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 			
 		# MYSQL
 		if config.mysql_active:
@@ -1193,7 +1245,7 @@ def decodePacket(message):
 			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1202,7 +1254,12 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 	# ---------------------------------------
 	# 0x30 Remote control and IR
@@ -1267,7 +1324,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1282,7 +1339,12 @@ def decodePacket(message):
 						action = action.replace("$toggle$", toggle )
 						action = action.replace("$command$", cmndtype )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -1335,7 +1397,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 	
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1350,7 +1412,12 @@ def decodePacket(message):
 					action = action.replace("$mode$", mode )
 					action = action.replace("$status$", status )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -1383,7 +1450,7 @@ def decodePacket(message):
 			# TODO
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1392,7 +1459,12 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 	# ---------------------------------------
 	# 0x42 Thermostat3
@@ -1440,7 +1512,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			logger.debug("Check trigger")
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
@@ -1453,7 +1525,12 @@ def decodePacket(message):
 					action = action.replace("$unitcode$", unitcode )
 					action = action.replace("$command$", command )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -1498,7 +1575,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 			
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1511,7 +1588,12 @@ def decodePacket(message):
 					action = action.replace("$temperature$", str(temperature) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -1559,7 +1641,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 		
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1572,7 +1654,12 @@ def decodePacket(message):
 					action = action.replace("$humidity$", str(humidity) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -1625,7 +1712,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 		
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			logger.debug("Check trigger")			
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
@@ -1642,7 +1729,12 @@ def decodePacket(message):
 					action = action.replace("$humidity$", str(humidity) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
-					#return_code = subprocess.call(action, shell=True)
+					logger.debug("Execute shell")
+					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# GRAPHITE
 		if config.graphite_active == True:
@@ -1744,7 +1836,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 		
 		# TRIGGER
-		if config.trigger:	
+		if config.trigger_active:	
 			logger.debug("Trigger")
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
@@ -1760,7 +1852,12 @@ def decodePacket(message):
 					action = action.replace("$baromatric$", str(baromatric) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -1832,7 +1929,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 		
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1844,7 +1941,12 @@ def decodePacket(message):
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		"""			
 		# MYSQL
@@ -1907,7 +2009,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1926,7 +2028,12 @@ def decodePacket(message):
 					action = action.replace("$windgust$", str(windgust) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# MYSQL
 		if config.mysql_active:
@@ -1986,7 +2093,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2001,7 +2108,12 @@ def decodePacket(message):
 						action = action.replace("$temperature$", str(humidity) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 		# MYSQL
 		if config.mysql_active:
@@ -2047,7 +2159,7 @@ def decodePacket(message):
 			print "Signal level\t\t= " + str(signal)
 	
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2063,7 +2175,12 @@ def decodePacket(message):
 					action = action.replace("$channel3$", str(channel3) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# XPL
 		if config.xpl_active:
@@ -2106,7 +2223,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 		
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2120,7 +2237,12 @@ def decodePacket(message):
 					action = action.replace("$total$", str(usage) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 		
 		# XPL
 		if config.xpl_active:
@@ -2155,7 +2277,7 @@ def decodePacket(message):
 			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2164,7 +2286,12 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 	# ---------------------------------------
 	# 0x70 RFXsensor
@@ -2213,7 +2340,7 @@ def decodePacket(message):
 			sys.stdout.flush()
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2228,7 +2355,12 @@ def decodePacket(message):
 					if subtype == '01' or subtype == '02':
 						action = action.replace("$voltage$", str(voltage) )
 					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 					
 		# MYSQL
 		if config.mysql_active:
@@ -2255,7 +2387,7 @@ def decodePacket(message):
 			print "Id\t\t\t= " + id1
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2265,7 +2397,12 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", id1 )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 	# ---------------------------------------
 	# 0x72 FS20
@@ -2282,7 +2419,7 @@ def decodePacket(message):
 			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
 
 		# TRIGGER
-		if config.trigger:
+		if config.trigger_active:
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2291,7 +2428,12 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
 					return_code = subprocess.call(action, shell=True)
+					logger.debug("Done, returncode = " + str(return_code))
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
 
 	# ---------------------------------------
 	# Not decoded message
@@ -2462,6 +2604,7 @@ def read_rfx():
 					
 					# Whitelist
 					if config.whitelist_active:
+					
 						logger.debug("Check whitelist")
 						whitelist_match = False
 						for sensor in whitelist.data:
@@ -2474,11 +2617,11 @@ def read_rfx():
 								whitelist_match = True
 								pass
 					
-					if whitelist_match == False:
-						if cmdarg.printout_complete:
-							print("Sensor not included in whitelist")
-						logger.debug("No match in whitelist, no process")
-						return rawcmd
+						if whitelist_match == False:
+							if cmdarg.printout_complete:
+								print("Sensor not included in whitelist")
+							logger.debug("No match in whitelist, no process")
+							return rawcmd
 					
 					if cmdarg.printout_complete == True:
 						print "------------------------------------------------"
@@ -2580,9 +2723,9 @@ def read_triggerfile():
  	Read trigger file to list
  	"""
 	try:
-		xmldoc = minidom.parse( config.triggerfile )
+		xmldoc = minidom.parse( config.trigger_file )
 	except:
-		print "Error in " + config.triggerfile + " file"
+		print "Error in " + config.trigger_file + " file"
 		sys.exit(1)
 
 	triggerlist.data = xmldoc.documentElement.getElementsByTagName('trigger')
@@ -2620,9 +2763,6 @@ def option_simulate(indata):
 	"""
 	Simulate incoming packet, decode and process
 	"""
-	# If trigger is activated in config, then read the triggerfile
-	#if config.trigger:
-	#	read_triggerfile()
 
 	# Remove all spaces
 	for x in string.whitespace:
@@ -2697,10 +2837,6 @@ def option_listen():
 		else:
 			logger.debug("Cannot start socket interface")
 
-	# If trigger is activated in config, then read the triggerfile
-	#if config.trigger:
-	#	read_triggerfile()
-			
 	# Flush buffer
 	logger.debug('Serialport flush output')
 	serial_param.port.flushOutput()
@@ -2890,11 +3026,17 @@ def read_configfile():
 	
 		# ----------------------
 		# TRIGGER
-		if (read_config( cmdarg.configfile, "trigger") == "yes"):
-			config.trigger = True
+		if (read_config( cmdarg.configfile, "trigger_active") == "yes"):
+			config.trigger_active = True
 		else:
-			config.trigger = False
-		config.triggerfile = read_config( cmdarg.configfile, "triggerfile")	
+			config.trigger_active = False
+
+		if (read_config( cmdarg.configfile, "trigger_onematch") == "yes"):
+			config.trigger_onematch = True
+		else:
+			config.trigger_onematch = False
+
+		config.trigger_file = read_config( cmdarg.configfile, "trigger_file")
 
 		# ----------------------
 		# SQLITE
@@ -3125,7 +3267,7 @@ def main():
 		read_whitelistfile()
 
 	# Triggerlist
-	if config.trigger:
+	if config.trigger_active:
 		logger.debug("Read triggerlist file")
 		read_triggerfile()
 
