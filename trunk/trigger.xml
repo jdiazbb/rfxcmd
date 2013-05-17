@@ -4,11 +4,11 @@
 	<action>echo TEST</action>
 </trigger>
 <trigger>
-	<message>0A5201..0A020101230079</message>
-	<action>echo TEST</action>
+	<message>0A5201................</message>
+	<action>echo "I'm alive"</action>
 </trigger>
 <trigger>
-	<message>0A5201..7001..........</message>
-	<action>echo TEST</action>
+	<message>0A5201..8E02..........</message>
+	<action>echo Temperature $temperature$</action>
 </trigger>
 </xml>
