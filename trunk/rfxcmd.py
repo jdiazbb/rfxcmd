@@ -151,6 +151,7 @@ class config_data:
 		trigger_active = False,
 		trigger_onematch = False,
 		trigger_file = "",
+		trigger_timeout = 10,
 		sqlite_active = False,
 		sqlite_database = "",
 		sqlite_table = "",
@@ -177,6 +178,7 @@ class config_data:
 		self.trigger_active = trigger_active
 		self.trigger_onematch = trigger_onematch
 		self.trigger_file = trigger_file
+		self.trigger_timeout = trigger_timeout
 		self.sqlite_active = sqlite_active
 		self.sqlite_database = sqlite_database
 		self.sqlite_table = sqlite_table
@@ -724,8 +726,8 @@ def decodePacket(message):
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$message$", indata )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -782,8 +784,8 @@ def decodePacket(message):
 					action = action.replace("$command$", command )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -842,8 +844,8 @@ def decodePacket(message):
 					action = action.replace("$command$", command )
 					action = action.replace("$dimlevel$", dimlevel )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -925,8 +927,8 @@ def decodePacket(message):
 					action = action.replace("$command$", command )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -985,8 +987,8 @@ def decodePacket(message):
 					action = action.replace("$pulse$", str(pulse) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1057,8 +1059,8 @@ def decodePacket(message):
 					if subtype == '00':			
 						action = action.replace("$level$", level )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1121,8 +1123,8 @@ def decodePacket(message):
 					action = action.replace("$command$", command )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1161,8 +1163,8 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1193,8 +1195,8 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1244,8 +1246,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1284,8 +1286,8 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1371,8 +1373,8 @@ def decodePacket(message):
 						action = action.replace("$command$", cmndtype )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1446,8 +1448,8 @@ def decodePacket(message):
 					action = action.replace("$status$", status )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1495,8 +1497,8 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1563,8 +1565,8 @@ def decodePacket(message):
 					action = action.replace("$command$", command )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1628,8 +1630,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1696,8 +1698,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1772,7 +1774,7 @@ def decodePacket(message):
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
 					command = Command(action)
-					command.run(timeout=10)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1896,8 +1898,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1987,8 +1989,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -2076,8 +2078,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -2158,8 +2160,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -2227,8 +2229,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -2291,8 +2293,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -2342,8 +2344,8 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -2413,8 +2415,8 @@ def decodePacket(message):
 						action = action.replace("$voltage$", str(voltage) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -2457,8 +2459,8 @@ def decodePacket(message):
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", id1 )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -2490,8 +2492,8 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -3098,6 +3100,7 @@ def read_configfile():
 			config.trigger_onematch = False
 
 		config.trigger_file = read_config( cmdarg.configfile, "trigger_file")
+		config.trigger_timeout = read_config( cmdarg.configfile, "trigger_timeout")
 
 		# ----------------------
 		# SQLITE
