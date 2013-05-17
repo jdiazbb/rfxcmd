@@ -84,6 +84,13 @@ except ImportError:
 	print "Error: module lib/rfx_socket not found"
 	sys.exit(1)
 
+# RFXCMD modules
+try:
+	from lib.rfx_command import *
+except ImportError:
+	print "Error: module lib/rfx_command not found"
+	sys.exit(1)
+
 try:
 	import lib.rfx_sensors
 except ImportError:
@@ -711,6 +718,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$message$", indata )
@@ -764,6 +773,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$housecode$", str(housecode) )
@@ -822,6 +833,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -903,6 +916,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$system$", str(system) )
@@ -962,6 +977,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$code$", code_bin )
@@ -1030,6 +1047,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1092,6 +1111,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1135,6 +1156,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -1165,6 +1188,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -1210,6 +1235,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1252,6 +1279,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -1331,6 +1360,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", id1 )
@@ -1404,6 +1435,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1457,6 +1490,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -1520,6 +1555,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$unitcode$", unitcode )
@@ -1582,6 +1619,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1648,6 +1687,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1730,8 +1771,8 @@ def decodePacket(message):
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
-					return_code = subprocess.call(action, shell=True)
-					logger.debug("Done, returncode = " + str(return_code))
+					command = Command(action)
+					command.run(timeout=10)
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
@@ -1844,6 +1885,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1936,6 +1979,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2016,6 +2061,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2100,6 +2147,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2166,6 +2215,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2230,6 +2281,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2284,6 +2337,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -2347,6 +2402,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", id1 )
@@ -2394,6 +2451,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", id1 )
@@ -2426,6 +2485,8 @@ def decodePacket(message):
 				rawcmd = ByteToHex ( message )
 				rawcmd = rawcmd.replace(' ', '')
 				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
