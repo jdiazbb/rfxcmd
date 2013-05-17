@@ -5,7 +5,12 @@
 #	
 #	RFX_COMMAND.PY
 #	
-#	Copyright (C) 2012-2013 Sebastian Sjoholm, sebastian.sjoholm@gmail.com
+#	2013 Sebastian Sjoholm, sebastian.sjoholm@gmail.com
+#
+#	All credits for this code goes to the stackoverflow.com and posting;
+#	http://stackoverflow.com/questions/16542422/asynchronous-subprocess-with-timeout
+#
+#	Author: epicbrew
 #	
 #	This program is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -20,8 +25,8 @@
 #	You should have received a copy of the GNU General Public License
 #	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #	
-#	Version history can be found at 
-#	http://code.google.com/p/rfxcmd/wiki/VersionHistory
+#	Website
+#	http://code.google.com/p/rfxcmd/
 #
 #	$Rev: 464 $
 #	$Date: 2013-05-01 22:41:36 +0200 (Wed, 01 May 2013) $
@@ -43,22 +48,20 @@ class Command(object):
 	
 	def run(self, timeout):
 		def target():
-			logger.debug("Thread started")
+			logger.debug("Thread started, timeout = " + str(timeout))
 			self.process = subprocess.Popen(self.cmd, shell=True)
 			self.process.communicate()
+			logger.debug("Return code: " + str(self.process.returncode))
 			logger.debug("Thread finished")
 		
-		thread = threading.Thread(target=target)
-		thread.start()
-
-		"""
-		thread.join(timeout)
-		if thread.is_alive():
-			logger.debug("Terminating process")
+		def timer_callback():
+			logger.debug("Thread timeout")
 			self.process.terminate()
-			thread.join()
-		"""
-        
-        #logger.debug("Return code: " + str(self.process.returncode))
+			logger.debug("Thread terminated")
+			
+		thread = threading.Thread(target=target)
+		self.timer = threading.Timer(int(timeout), timer_callback)
+		self.timer.start()
+		thread.start()
 
 # ----------------------------------------------------------------------------
