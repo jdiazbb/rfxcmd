@@ -2926,7 +2926,9 @@ def option_listen():
 
 	try:
 		while 1:
-		
+			# let it breath
+			time.sleep(0.01)
+			
 			# Read serial port
 			rawcmd = read_rfx()
 			if rawcmd:
