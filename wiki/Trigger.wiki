@@ -22,25 +22,31 @@ If using the debug log level, the result code from each action run will be seen,
 
 The trigger configuration is made in the config.xml file, which RFXcmd read each time it is started. If any changes are made, the RFXcmd has to be restarted before they take effect.
 
-config tags:
+Config tags:
 
 <trigger_active>
 
  * Set to 'yes' or 'no'
- * default to 'no'
+ * Default to 'no'
  * Activate the trigger function by writing 'yes' inside the trigger_active tag.
 
-<trigger_onematch>no</trigger_onematch>
+<trigger_onematch>
 
-If 'trigger_onematch' is active, then only the first trigger action will be executed, all other matches in the trigger.xml file will not be executed.
+ * Set to 'yes' or 'no'
+ * Default to 'no'
+ * If 'trigger_onematch' is active, then only the first trigger action will be executed, all other matches in the trigger.xml file will not be executed.
 
-<trigger_file>trigger.xml</trigger_file>
+<trigger_file>
 
-The location of the trigger.xml file where all the search patterns and action tags are, if no path is given the RFXcmd will look for it in it's own path.
+ * Set to path and filename of the trigger file
+ * Default is trigger.xml
+ * The location of the trigger.xml file where all the search patterns and action tags are, if no path is given the RFXcmd will look for it in it's own path.
 
-<trigger_timeout>10</trigger_timeout>
+<trigger_timeout>
 
-Trigger timeout in seconds, if a trigger action takes longer to execute than the timer value set here, it will be terminated.
+ * Set to a number in seconds
+ * Default to 10
+ * Trigger timeout in seconds, if a trigger action takes longer to execute than the timer value set here, it will be terminated.
 
 == Trigger file ==
 
