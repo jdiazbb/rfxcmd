@@ -120,6 +120,48 @@ CREATE TABLE `rfxcmd` (
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
 }}}
 
+=== MySQL Configuration in RFXcmd ===
+
+To be able to insert data from RFXcmd, the MySQL has to be configured in the RFXcmd config file, config.xml. There are five XML tags that needs to be filled.
+
+<mysql_active>
+
+ * Values 'yes' or 'no'
+ * To activate Sqlite it has to be set to 'yes'
+ * Default value = no
+
+<mysql_server>
+
+ * The address of the MySQL server
+ * Default value = localhost
+
+<mysql_username>
+
+ * Username to the MySQL
+ * Default value = user
+
+<mysql_password>
+
+ * Password to the MySQL
+ * Default value = password
+
+<mysql_database>
+
+ * The database that have the RFXcmd table
+ * Default value = rfxcmd
+
+Example
+
+{{{
+<mysql_active>no</mysql_active>
+<mysql_server>localhost</mysql_server>
+<mysql_database>rfxcmd</mysql_database>
+<mysql_username>user</mysql_username>
+<mysql_password>password</mysql_password>
+}}}
+
+Note, if the sqlite configuration is changed when RFXcmd is running, it has to be stopped and started again for the changes to take effect.
+
 = Sqlite =
 
 Sqlite is a lightweight open source database. For easy management via web interface the [http://code.google.com/p/phpliteadmin/ phpliteadmin] can be used.
@@ -198,17 +240,33 @@ sqlite>
 
 Now the Sqlite database is ready to use.
 
-=== Configuration in RFXCMD ===
+=== Sqlite Configuration in RFXcmd ===
 
-To be able to insert data from RFXCMD, the Sqlite has to be configured in the RFXCMD config file, config.xml. There are two XML tags that needs to be filled.
+To be able to insert data from RFXcmd, the Sqlite has to be configured in the RFXcmd config file, config.xml. There are three XML tags that needs to be filled.
 
-<sqlite_database> and <sqlite_table>
+<sqlite_active>
 
-If using the same parameters as the example above, the settings would be following
+ * Values 'yes' or 'no'
+ * To activate Sqlite it has to be set to 'yes'
+ * Default as 'no'
+
+<sqlite_database>
+
+ * The file of the SqLite database with path if it is not in the same path as RFXcmd
+ * Default as 'sqlite.db'
+
+<sqlite_table>
+
+ * Name of the sqlite table
+ * Default as 'rfxcmd'
+ * Name of the table which has the RFXcmd structure
+
+Example
 
 {{{
-<sqlite_database>/temp/database.sqlite</sqlite_database>
+<sqlite_active>no</sqlite_active>
+<sqlite_database>sqlite.db</sqlite_database>
 <sqlite_table>rfxcmd</sqlite_table>
 }}}
 
-Done.
+Note, if the sqlite configuration is changed when RFXcmd is running, it has to be stopped and started again for the changes to take effect.
