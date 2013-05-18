@@ -24,9 +24,11 @@ The trigger configuration is made in the config.xml file, which RFXcmd read each
 
 config tags:
 
-<trigger_active>no</trigger_active>
+<trigger_active>
 
-Activate the trigger function by writing 'yes' inside the trigger_active tag.
+ * Set to 'yes' or 'no'
+ * default to 'no'
+ * Activate the trigger function by writing 'yes' inside the trigger_active tag.
 
 <trigger_onematch>no</trigger_onematch>
 
