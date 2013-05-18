@@ -6,8 +6,13 @@
  * Added 0x30 (ATI Remote Wonder and Medion)
  * Common database structure for all sensors (Mysql and Sqlite)
  * Possible to send data to xPL network
+ * TCP socket server for incoming (send) messages
+ * Trigger actions in own thread
 
-== v0.24 (xx-xx-xxxx) ==
+== v0.24b (19-MAY-2013 ==
+ * Fixed issue with lightning5
+
+== v0.24 (23-APR-2013) ==
  * Fixed, "Issue 14 : rfxcmd impossible to pipe to another script"
  * Fixed, "Issue 15: Unable to specify a diiferent path for log file"
  * Fixed, "Issue 16: Defect on 'subtype switch' in rain sensors"
