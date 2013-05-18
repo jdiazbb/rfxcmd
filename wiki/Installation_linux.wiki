@@ -1,0 +1,53 @@
+#summary Installation of RFXCMD
+
+= Introduction =
+
+Details how to install RFXcmd on various platforms.
+
+= Debian/Ubuntu (i386/AMD64/ARM) =
+
+ * Tested on Debian 6 (i386)
+ * Tested on Raspbian (Latest) Raspberry Pi
+ * Python 2.7, does not work with Python 3
+
+=== unzip and python-serial ===
+
+Install unzip and python-serial
+
+{{{
+apt-get install unzip python-serial
+}}}
+
+=== Create directory ===
+
+It does not matter if the rfxcmd is installed in /opt/ or in your home directory, any directory that is good for you is good for rfxcmd.
+
+{{{
+mkdir /opt/rfxcmd
+cd /opt/rfxcmd
+}}}
+
+=== Download RFXcmd ===
+
+Check webpage for the latest release, this example will download version 0.24
+
+{{{
+wget http://rfxcmd.googlecode.com/files/rfxcmd-v024.zip
+}}}
+
+=== Unzip files ===
+
+Unzip downloaded files
+{{{
+unzip rfxcmd-v024.zip
+}}}
+
+=== Test ===
+
+The default config.xml should work, when you should execute listen to rfx device, for more functions like database you need to edit the config.xml file.
+
+{{{
+./rfxcmd.py -d /dev/ttyUSB0
+}}}
+
+Exit listen mode by pressing CTRL+C.
