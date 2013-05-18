@@ -1,7 +1,8 @@
 #summary RFXCMD version history
 = Version History =
 
-== v0.3 (Not released yet, under work...) ==
+== v0.3 Alpha-1 (18-MAY-2013) ==
+ * First public alpha release.
  * Rewrite, more in object style
  * Added 0x30 (ATI Remote Wonder and Medion)
  * Common database structure for all sensors (Mysql and Sqlite)
