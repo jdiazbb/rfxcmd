@@ -117,7 +117,7 @@ CREATE TABLE `rfxcmd` (
   `data12` float(16,4) DEFAULT NULL,
   `data13` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 }}}
 
 === MySQL Configuration in RFXcmd ===
