@@ -160,7 +160,7 @@ Example
 <mysql_password>password</mysql_password>
 }}}
 
-Note, if the sqlite configuration is changed when RFXcmd is running, it has to be stopped and started again for the changes to take effect.
+Note, if the mysql configuration is changed when RFXcmd is running, it has to be stopped and started again for the changes to take effect.
 
 = Sqlite =
 
