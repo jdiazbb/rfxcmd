@@ -1,0 +1,349 @@
+#summary Instructions for RFXCMD
+==DESCRIPTION==
+
+RFXCMD is Python script that interfaces the RFX USB devices from RFXcom [http://www.rfxcom.com].
+
+==REQUIREMENTS==
+
+ * Python 2.7, does not work with Python 3.x
+ * Tested on Raspberry Pi (Debian Squeezy) with Python 2.6
+ * Tested on Mac OSX 10.8.2 with Python 2.7.2
+ * Tested with RFXCOM device RFXtrx433-USB (v2.1)
+
+==RFXCMD.PY==
+
+Options;
+
+||-d||Serial device of the RFX device||
+||-a||Action: LISTEN, STATUS, SEND, BSEND||
+||-o||Optional path and file for the configuration file||
+||-x||Simulate||
+||-r||Message to be sent to RFX||
+||-c||Output data in CSV format, one line per device data||
+||-m||Insert data to a MySQL database||
+||-s||Insert data to a Sqlite database||
+||-v||Print version and date||
+||-g||Send data to graphite server||
+||-z||Start as an daemon||
+||-p||Pidfile||
+
+
+=== Serial device (-d) ===
+----
+{{{
+option -d <device>
+}}}
+
+Specify the serial device where the RFX device is connected to. On Linux system like
+Ubuntu the name can be like /dev/ttyUSB0, or on OSX it can be /dev/tty.usbserial-03VHG0ZQ
+
+=== Action (-a) ===
+----
+{{{
+option -a <action>
+}}}
+	
+Specify the action you want the script to do, following ACTIONS are available:
+	
+====LISTEN====
+
+The rfxcmd will start listen to the incoming data from the RFX device, this is also the default 
+option if the ACTION switch -a is not specified.
+	
+====STATUS====
+
+The rfxcmd will send the status request and print the current status of the RFX device to the screen,
+this is also requested before the listen starts.
+
+====SEND====
+
+Send command to RFX, specify the message to be sent with option -r, the rfxcmd will printout the message
+to be sent and the response.
+
+====BSEND====
+
+NOTE, DEPRECATED IN VERSION 0.3
+
+This is experimental, it will send a message to RFX but without any response on the screen, this is because
+you might have another process running rfxcmd with LISTEN action, and all printout will occur for that process. The reason when to use it, if you want to keep listening, and send commands at the same time. However, this function is not tested that much, so there might come conflicts. 
+
+=== Config file (-o) ===
+----
+{{{
+option -o <configfile>
+}}}
+
+Optional config file location, default the script will look for config.xml in the same directory as the script itself.
+
+=== Simulate message (-x) ===
+----
+{{{
+option -x <message>
+}}}
+
+Simulate a message, rfxcmd will simply decode it, it does not matter if it is a incoming or outgoing
+message, it should be decoded anyway. The sensor has to be implemented in rfxcmd. 
+
+{{{
+$ ./rfxcmd.py -x "0A5201000A01006A390269"
+RFXCMD version 0.1j
+------------------------------------------------
+Received		= 0A5201000A01006A390269
+Date/Time		= 2012-10-11 18:58:41
+Packettype		= Temperature and humidity sensors
+Subtype			= THGN122/123, THGN132, THGR122/228/238/268
+Seqnbr			= 00
+Id 1 (House)		= 0A
+Id 2 (Channel)		= 01
+Temperature		= 10.6 C
+Humidity		= 57
+Humidity Status		= Normal
+Battery (0-9)		= 9
+Signal level (0-15)	= 6
+}}}
+
+Note, the simulate function will also execute trigger commands, if any are defined for that message.
+
+=== Raw message (-r) ===
+----
+{{{
+option -r <message>
+}}}
+
+Specify the message data to be sent to the RFX, this is used in both "SEND" and "BSEND" action. Note, if the message contains spaces (which is not recommended) please insert them inside quotes.
+
+=== MySQL (-m) ===
+----
+{{{
+option -m
+}}}
+	
+Tell rfxcmd to add the incoming sensor data to MySQL database.
+	
+To be able to use the MySQL function you need to have the MySQL python extension installed, more
+information can be found here; http://mysql-python.sourceforge.net/
+
+You need also to create the compatible tables for RFXCMD to be able to insert the data to the
+database.
+	
+At current moment there are tables made for following messages
+	
+====File mysql_weather.txt====
+
+||0x50||Temperature sensors||
+||0x51||Humidity sensors||
+||0x52||Temperature and humidity sensors||
+||0x53||Barometric sensors||
+||0x54||Temperature, humidity and barometric sensors||
+||0x55||Rain sensors||
+||0x56||Wind sensors||
+||0x57||UV sensors||
+
+====File mysql_energy.txt====
+	
+||0x59||Current sensors||
+||0x5A||Energy usage sensors||
+
+To import the table to MySQL from command line;
+
+{{{	
+$ mysql -u user -p < mysql_weather.txt
+}}}
+	
+You will need to configure the config.xml file to add the MySQL server, database, username and password.
+
+Example;
+
+{{{
+<mysql_server>localhost</mysql_server>
+<mysql_database>rfxcmd</mysql_database>
+<mysql_username>user</mysql_username>
+<mysql_password>pass</mysql_password>
+}}}
+
+The default value for server is localhost and the default value for database is rfxcmd
+
+=== Sqlite (-s) ===
+----
+{{{
+option -s
+}}}
+
+Tell rfxcmd to add the incoming sensor data to Sqlite database.
+
+This will be introduced in version 0.3.
+
+=== Graphite server (-g) ===
+----
+{{{
+option -g
+}}}
+
+Send data to graphite server, more about graphite server can be found here [http://graphite.wikidot.com/]. This is only activated for sensor 0x52 but can be expanded.
+
+Configuration for the graphite server can be found in the config.xml file, the server IP address and the port can be configured.
+
+{{{
+<graphite_server>127.0.0.1</graphite_server>
+<graphite_port>2003</graphite_port>
+}}}
+
+=== Daemon (-z) ===
+----
+{{{
+option -z
+}}}
+
+Start the RFXCDMD as a daemon process, it will run in the background until it is terminated manually.
+
+The switch '-p' for pidfile is mandantory.
+
+example how to start RFXCMD as an daemon and collecting data to MySQL.
+
+{{{
+$ ./rfxcmd.py -d /dev/rfxcom -m -z -p /tmp/rfxcmd.pid
+}}}
+
+=== Version (-v) ===
+----
+{{{
+option -v
+}}}
+
+Print version, revision and date.
+
+Example;
+
+{{{
+RFXCMD Version: 0.2
+$Date: 2012-11-28 17:49:25 +0100 (Wed, 28 Nov 2012) $
+$Rev: 153 $
+}}}
+
+----
+==CONFIG.XML==
+
+The main configuration options are now in config.xml, these are;
+
+<undecoded>
+
+Should be set to 'yes' if you want to print undecoded messages on the screen.
+
+<mysql_server>
+<mysql_database>
+<mysql_username>
+<mysql_password>
+
+See more on mysql settings in the MySQL info above.
+
+<trigger>
+
+Set 'yes' to activate the trigger function, and 'no' for no trigger.
+
+<triggerfile>
+
+File with full path to the trigger file
+
+<sqlite_database>
+<sqlite_table>
+
+The location of the database (file) and the table that should be used.
+
+<loglevel>
+
+At the moment only info, error, debug can be used. This is at the moment only used in development and 'info' will not output any information at all. 'debug' will be very detailed. The logevents from 'error' and 'debug' will be logged in 'rfxcmd.log' file.
+
+<logfile>
+
+Version 0.24 and later. Possibility to add the path and logfile name where the log will be written.
+
+<graphite_server>
+<graphite_port>
+
+The server address and port for the graphite server.
+
+Default config.xml file;
+
+{{{
+<config>
+	<version>1</version>
+	<undecoded>no</undecoded>
+	<mysql_server>localhost</mysql_server>
+	<mysql_database>rfxcmd</mysql_database>
+	<mysql_username>user</mysql_username>
+	<mysql_password>pass</mysql_password>
+	<trigger>no</trigger>
+	<triggerfile>trigger.xml</triggerfile>
+	<sqlite_database>sqlite.db</sqlite_database>
+	<sqlite_table>rfxcmd</sqlite_table>
+	<loglevel>info</loglevel>
+	<graphite_server>127.0.0.1</graphite_server>
+	<graphite_port>2003</graphite_port>
+</config>
+}}}
+
+----
+==TRIGGER.XML==
+
+The file trigger.xml contains the messages and actions that the rfxcmd should executes if the message matches the trigger message.
+
+More about the trigger functionality in the [Trigger] page.
+
+----
+==EXAMPLES==
+
+To listen to the RFX device and print all incoming data on screen
+
+$ ./rfxcmd.py -d /dev/ttyUSB0 -a listen
+
+To insert all received data to a MySQL database. The MySQL parameters are taken from the config.xml file.
+
+$ ./rfxcmd.py -d /dev/ttyUSB0 -a listen -m 
+
+Get current status of the RFX device
+
+$ ./rfxcmd.py -d /dev/ttyUSB0 -a status
+
+----
+==OTHER==
+
+If RFXCMD messages are not processed, you get instead this message;
+
+"RFXCMD does not handle this message, see readme.txt for more information."
+
+That means that I have not included the post process for the specific protocol, most likely 
+because I don't have the sensor and therefor no way to test it. If you want the RFXCMD to 
+handle the message then please send me the raw output, and preferable also from RFXManager, so
+I can accurately integrate the message to RFXCMD.
+
+----
+==THANKS==
+
+Thanks to following users who have helped with testing, patches, ideas, bug reports, and so on (in no special order).
+
+Anders, Dimitri, Patrik, Ludwig, Jean-Michel, Jean-Baptiste, Robert, Fabien, Bert, George, Jean-Francois, Mark, Frederic, Matthew, Arno, Jean-Louis, Christophe, Fredrik
+
+and to [http://www.rfxcom.com RFXCOM] for their support.
+
+----
+==NOTES==
+
+RFXCOM is a Trademark of RFSmartLink.
+
+----
+==COPYRIGHT==
+
+Copyright (C) 2012 Sebastian Sjoholm
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
