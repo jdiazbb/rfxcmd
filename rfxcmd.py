@@ -1058,6 +1058,7 @@ def decodePacket(message):
 					action = action.replace("$command$", command )
 					if subtype == '00':			
 						action = action.replace("$level$", level )
+					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
 					command = Command(action)
 					command.run(timeout=config.trigger_timeout)
@@ -1926,7 +1927,7 @@ def decodePacket(message):
 	
 	if packettype == '55':
 		
-		logger.debug("PacketType 0x55")
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
 
@@ -2004,6 +2005,9 @@ def decodePacket(message):
 		if config.sqlite_active:
 			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 		"""
+
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Done")
+
 
 	# ---------------------------------------
 	# 0x56 - Wind sensors
@@ -2371,6 +2375,9 @@ def decodePacket(message):
 			voltage = 0
 		signal = decodeSignal(message[7])
 
+		if subtype == '03':
+			sensor_message = rfx.rfx_subtype_70_msg03[message[6]]
+
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_70[subtype]
@@ -2384,7 +2391,7 @@ def decodePacket(message):
 				print "Voltage\t\t\t= " + str(voltage) + " mV"
 
 			if subtype == '03':
-				print "Message\t\t\t= " + rfx.rfx_subtype_70_msg03[message[6]]
+				print "Message\t\t\t= " + sensor_message
 
 			print "Signal level\t\t= " + str(signal)
 
@@ -2413,6 +2420,8 @@ def decodePacket(message):
 						action = action.replace("$temperature$", str(temperature) )
 					if subtype == '01' or subtype == '02':
 						action = action.replace("$voltage$", str(voltage) )
+					if subtype == '03':
+						action = action.replace("$message$", sensor_message )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
 					command = Command(action)
