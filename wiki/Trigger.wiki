@@ -68,34 +68,34 @@ Following sensors will forward parameters to the trigger script. This will be ex
 ||0x00||Interface control||n/a||
 ||0x01||Interface message||n/a||
 ||0x02||Receiver/Transmitter Msg||n/a||
-||0x03||Undecoed Msg||n/a||
-||0x10||Lightning1||$id$||
-||0x11||Lightning2||$id$, $unitcode$, $command$, $dimlevel$, $signal$||
-||0x12||Lightning3||$id$||
-||0x13||Lightning4||$id$||
-||0x14||Lightning5||$id$, $unitcode$, $command$, $level$ (only subtype 00), $signal$||
-||0x15||Lightning6||$id$||
-||0x18||Curtain1||$id$||
-||0x19||Blinds1||$id$||
-||0x20||Security1||$id$, $status$, $battery$, $signal$||
-||0x28||Camera1||$id$||
-||0x30||Remote Control||$id$||
-||0x40||Thermostat1||$id$, $temperature$, $temperature_set$, $mode$, $status$, $signal$||
-||0x41||Thermostat2||$id$||
-||0x42||Thermostat3||$id$||
-||0x50||Temperature||$id$, $temperature$, $battery$, $signal$||
-||0x51||Humidity||$id$, $humidity$, $battery$, $signal$||
-||0x52||Temperature and Humidity||$id$, $temperature$, $humidity$, $battery$, $signal$||
-||0x53||Barometric||$id$||
-||0x54||Temperature, Humidity and Barometric||$id$, $temperature$, $humidity$, $barometric$, $battery$, $signal$||
-||0x55||Rain||$id$, $battery$, $signal$||
-||0x56||Wind||$id$, $direction$, $average$(not 05), $temperature$(only 04), $windchill$(only 04), $windgust$, $battery$, $signal$||
-||0x57||UV||$id$, $temperature$, $battery$, $signal$||
-||0x59||Current||$id$||
-||0x5A||Energy||$id$, $instant$, $total$, $battery$, $signal$||
-||0x5B||Current and Energy||$id$||
-||0x70||RFXSensor||$id$||
-||0x71||RFXMeter||$id$||
-||0x72||FS20||$id$||
+||0x03||Undecoded Msg||n/a||
+||0x10||Lightning1||$packettype$, $subtype$, $housecode$, $unitcode$, $command$, $signal$||
+||0x11||Lightning2||$packettype$, $subtype$, $id$, $unitcode$, $command$, $dimlevel$, $signal$||
+||0x12||Lightning3||$packettype$, $subtype$, $system$, $channel$, $command$, $signal$||
+||0x13||Lightning4||$packettype$, $subtype$, $code$, $pulse$, $signal$||
+||0x14||Lightning5||$packettype$, $subtype$, $id$, $unitcode$, $command$, $level$ (only 00), $signal$||
+||0x15||Lightning6||$packettype$, $subtype$, $id$, $groupcode$, $unitcode$, $command$, $signal$||
+||0x18||Curtain1||$packettype$, $subtype$||
+||0x19||Blinds1||$packettype$, $subtype$||
+||0x20||Security1||$packettype$, $subtype$, $id$, $status$, $battery$, $signal$||
+||0x28||Camera1||$packettype$, $subtype$||
+||0x30||Remote Control||$packettype$, $subtype$, $id$, $command$, $signal$||
+||0x40||Thermostat1||$packettype$, $subtype$, $id$, $temperature$, $temperatureset$, $mode$, $status$, $signal$||
+||0x41||Thermostat2||$packettype$, $subtype$||
+||0x42||Thermostat3||$packettype$, $subtype$, $unitcode$, $command$, $signal$||
+||0x50||Temperature||$packettype$, $subtype$, $id$, $temperature$, $battery$, $signal$||
+||0x51||Humidity||$packettype$, $subtype$, $id$, $humidity$, $battery$, $signal$||
+||0x52||Temperature and Humidity||$packettype$, $subtype$, $id$, $temperature$, $humidity$, $battery$, $signal$||
+||0x53||Barometric||n/a||
+||0x54||Temperature, Humidity and Barometric||$packettype$, $subtype$, $id$, $temperature$, $humidity$, $barometric$, $battery$, $signal$||
+||0x55||Rain||$packettype$, $subtype$, $id$, $battery$, $signal$||
+||0x56||Wind||$packettype$, $subtype$, $id$, $direction$, $average$(not 05), $temperature$(only 04), $windchill$(only 04), $windgust$, $battery$, $signal$||
+||0x57||UV||$packettype$, $subtype$, $id$, $uv$, $temperature$ (only 03), $battery$, $signal$||
+||0x59||Current||$packettype$, $subtype$, $id$, $counter$, $channel1$, $channel2$, $channel3$, $battery$, $signal$||
+||0x5A||Energy||$packettype$, $subtype$, $id$, $instant$, $total$, $battery$, $signal$||
+||0x5B||Current and Energy||$packettype$, $subtype$||
+||0x70||RFXSensor||$packettype$, $subtype$, $id$, $temperature$ (only 00], $voltage$ (only 01 and 02), $message$ (only 03), $signal$||
+||0x71||RFXMeter||$packettype$, $subtype$, $id$||
+||0x72||FS20||$packettype$, $subtype$||
 
 Note, if there is a value in (xx) it means that only that subtype will output the value, the "(xx)" should not be included in the "action" statement in the trigger.xml file.
