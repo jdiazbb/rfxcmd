@@ -2,9 +2,7 @@
 
 = Introduction =
 
-This page give detail information about the trigger functionality in the RFXcmd 0.3 and above. The trigger function in 0.24 may not support all functions listed here.
-
-The major change for the trigger in the pre-0.24 was that the trigger code was placed under each sensor decoding function, so that the parameters from the sensor data could be forwarded to the whatever script that is executed in the trigger file.
+This page give detail information about the trigger functionality in the RFXcmd 0.3 and above. The trigger function in 0.24 will not support all functions listed here.
 
 == Version ==
 
@@ -12,9 +10,35 @@ The major change for the trigger in the pre-0.24 was that the trigger code was p
 ||R1A||1-APR-2013||First version, default for 0.24 and 0.3||
 ||R1B||18-MAY-2013||Version 0.3 and above is now the only supported version for this functionality||
 
+== Function ==
+
+When each sensor data is decoded, it will check if the trigger regex pattern match with the list of tags it did load from the trigger.xml at the startup.
+
+If a match is made it will execute the action statement, this will be executed in an own thread, meaning that RFXcmd will continue with it's listening loop and not care how the action statement did proceed. Therefor there is a timeout that can be set, if the action is not terminated by itself after it is finished.
+
+If using the debug log level, the result code from each action run will be seen, and if a timeout is occurred it will printout result code -15. Normally it should be result code 0.
+
 == Configuration ==
 
-to be done...
+The trigger configuration is made in the config.xml file, which RFXcmd read each time it is started. If any changes are made, the RFXcmd has to be restarted before they take effect.
+
+config tags:
+
+<trigger_active>no</trigger_active>
+
+Activate the trigger function by writing 'yes' inside the trigger_active tag.
+
+<trigger_onematch>no</trigger_onematch>
+
+If 'trigger_onematch' is active, then only the first trigger action will be executed, all other matches in the trigger.xml file will not be executed.
+
+<trigger_file>trigger.xml</trigger_file>
+
+The location of the trigger.xml file where all the search patterns and action tags are, if no path is given the RFXcmd will look for it in it's own path.
+
+<trigger_timeout>10</trigger_timeout>
+
+Trigger timeout in seconds, if a trigger action takes longer to execute than the timer value set here, it will be terminated.
 
 == Trigger file ==
 
