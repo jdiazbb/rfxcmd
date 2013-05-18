@@ -2,7 +2,7 @@
 
 = Introduction =
 
-This page give detail information about the trigger functionality in the rfxcmd. The trigger function was changed in version 0.24 and 0.3, and this document is only valid for these versions and above.
+This page give detail information about the trigger functionality in the RFXcmd 0.3 and above. The trigger function in 0.24 may not support all functions listed here.
 
 The major change for the trigger in the pre-0.24 was that the trigger code was placed under each sensor decoding function, so that the parameters from the sensor data could be forwarded to the whatever script that is executed in the trigger file.
 
@@ -10,6 +10,11 @@ The major change for the trigger in the pre-0.24 was that the trigger code was p
 
 ||Version||Date||Info||
 ||R1A||1-APR-2013||First version, default for 0.24 and 0.3||
+||R1B||18-MAY-2013||Version 0.3 and above is now the only supported version for this functionality||
+
+== Configuration ==
+
+to be done...
 
 == Trigger file ==
 
