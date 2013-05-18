@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
 	parser = optparse.OptionParser()
 	parser.add_option("-s", "--server", action="store", type="string", dest="server", help="IP address of the RFXCMD server (default: localhost)")
-	parser.add_option("-p", "--port", action="store", type="string", dest="port", help="Port of the RFXCMD server (default: 50000)")
+	parser.add_option("-p", "--port", action="store", type="string", dest="port", help="Port of the RFXCMD server (default: 55000)")
 	parser.add_option("-r", "--rawcmd", action="store", type="string", dest="rawcmd", help="The raw message to be sent")
 	parser.add_option("-v", "--version", action="store_true", dest="version", help="Print rfxcmd version information")
 
