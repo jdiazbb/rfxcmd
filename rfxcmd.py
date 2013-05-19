@@ -2918,7 +2918,12 @@ def option_listen():
 	open_serialport()
 
 	if config.socketserver:
-		serversocket = RFXcmdSocketAdapter(config.sockethost,int(config.socketport))
+		try:
+			serversocket = RFXcmdSocketAdapter(config.sockethost,int(config.socketport))
+		except:
+			logger.error("Error starting socket server")
+			print("Error: can not start server socket, another instance already running?")
+			exit(1)
 		if serversocket.netAdapterRegistered:
 			logger.debug("Socket interface started")
 		else:
@@ -3517,35 +3522,6 @@ def main():
 			logger.debug("Start daemon")
 			daemonize()
 
-	# ----------------------------------------------------------
-	# ACTION
-	'''
-	if options.action:
-		cmdarg.action = options.action.lower()
-		if not (cmdarg.action == "listen" or cmdarg.action == "send" or
-			cmdarg.action == "bsend" or cmdarg.action == "status"):
-			logger.error("Error: Invalid action")
-			parser.error('Invalid action')
-	else:
-		cmdarg.action = "listen"
-
-	logger.debug("Action chosen: " + cmdarg.action)
-	'''
-	
-	# ----------------------------------------------------------
-	# SEND MESSAGE
-	'''
-	if cmdarg.action == "send" or cmdarg.action == "bsend":
-		cmdarg.rawcmd = options.rawcmd
-		if not cmdarg.rawcmd:
-			print "Error: You need to specify message to send with -r <rawcmd>. Exiting."
-			logger.error("Error: You need to specify message to send with -r <rawcmd>")
-			logger.debug("Exit 1")
-			sys.exit(1)
-	
-		logger.debug("Rawcmd: " + cmdarg.rawcmd)
-	'''
-	
 	# ----------------------------------------------------------
 	# SIMULATE
 	if options.simulate:
