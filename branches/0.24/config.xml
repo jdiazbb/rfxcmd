@@ -5,7 +5,7 @@
 	<mysql_database>rfxcmd</mysql_database>
 	<mysql_username>rfxcmd</mysql_username>
 	<mysql_password>rfxcmd</mysql_password>
-	<trigger>no</trigger>
+	<trigger>yes</trigger>
 	<triggerfile>trigger.xml</triggerfile>
 	<sqlite_database>sqlite.db</sqlite_database>
 	<sqlite_table>rfxcmd</sqlite_table>
