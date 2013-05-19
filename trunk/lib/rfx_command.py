@@ -53,6 +53,7 @@ class Command(object):
 			self.process.communicate()
 			logger.debug("Return code: " + str(self.process.returncode))
 			logger.debug("Thread finished")
+			self.timer.cancel()
 		
 		def timer_callback():
 			logger.debug("Thread timeout")
