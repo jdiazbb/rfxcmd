@@ -11,4 +11,8 @@
 	<message>0A5201..7001..........</message>
 	<action>echo Data: $temperature$ $battery$ $signal$</action>
 </trigger>
+<trigger>
+	<message>082001..C9C6......</message>
+	<action>echo $id$ '$status$' $battery$ $signal$</action>
+</trigger>
 </xml>
