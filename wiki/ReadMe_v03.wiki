@@ -1,7 +1,7 @@
-#summary Instructions for RFXCMD
+#summary Instructions for RFXcmd v0.3
 ==DESCRIPTION==
 
-RFXCMD is Python script that interfaces the RFX USB devices from RFXcom [http://www.rfxcom.com].
+RFXcmd is Python script that interfaces the RFX USB devices from RFXcom [http://www.rfxcom.com].
 
 ==NOTE==
 
@@ -23,15 +23,15 @@ THIS IS UNDER WORK, AND THINGS ARE STILL MISSING...
 Options;
 
 ||-d||Serial device of the RFX device||
-||-a||Action: LISTEN, STATUS, SEND, BSEND||
-||-o||Optional path and file for the configuration file||
+||-l||Listen for messages from RFX device||
 ||-x||Simulate one incoming message||
-||-r||Message to be sent to RFX||
-||-c||Output data in CSV format, one line per device data||
-||-v||Print version and date||
-||-z||Start as an daemon||
-||-p||Pidfile||
-
+||-s||Send one message to RFX device||
+||-f||Get RFX device status||
+||-o||Optional path and file for the configuration file||
+||-v||Output all messages to STDOUT||
+||-c||Output all messages to STDOUT in CSV format||
+||-V||Print version and date||
+||-h||Help||
 
 === Serial device (-d) ===
 ----
@@ -42,20 +42,15 @@ option -d <device>
 Specify the serial device where the RFX device is connected to. On Linux system like
 Ubuntu the name can be like /dev/ttyUSB0, or on OSX it can be /dev/tty.usbserial-03VHG0ZQ
 
-=== Action (-a) ===
+In version 0.3 this switch is now optionally as the serial device can now be specified in the config.xml file. But if it is defined on the command line it will use that instead of the config.xml.
+
+=== Listen (-l) ===
 ----
 {{{
-option -a <action>
+option -l
 }}}
 	
-Specify the action you want the script to do, following ACTIONS are available:
-	
-====LISTEN====
-
-The rfxcmd will start listen to the incoming data from the RFX device, this is also the default 
-option if the ACTION switch -a is not specified.
-	
-====SEND====
+The rfxcmd will start listen to the incoming data from the RFX device, and process the messages according to the settings in the config.xml.
 
 === Config file (-o) ===
 ----
@@ -71,8 +66,8 @@ Optional config file location, default the script will look for config.xml in th
 option -x <message>
 }}}
 
-Simulate a message, rfxcmd will simply decode it, it does not matter if it is a incoming or outgoing
-message, it should be decoded anyway. The sensor has to be implemented in rfxcmd. 
+Simulate a message, RFXcmd will simply decode it, it does not matter if it is a incoming or outgoing
+message, it should be decoded anyway. All settings in the config.xml will apply.
 
 {{{
 $ ./rfxcmd.py -x "0A5201000A01006A390269"
@@ -92,31 +87,13 @@ Battery (0-9)		= 9
 Signal level (0-15)	= 6
 }}}
 
-Note, the simulate function will also execute trigger commands, if any are defined for that message.
-
-=== Send one message (-r) ===
+=== Send one message (-s) ===
 ----
 {{{
-option -r <message>
+option -s <message>
 }}}
 
-Specify the message data to be sent to the RFX, this is used in both "SEND" and "BSEND" action. Note, if the message contains spaces (which is not recommended) please insert them inside quotes.
-
-=== Daemon (-z) ===
-----
-{{{
-option -z
-}}}
-
-Start the RFXCDMD as a daemon process, it will run in the background until it is terminated manually.
-
-The switch '-p' for pidfile is mandantory.
-
-example how to start RFXCMD as an daemon and collecting data to MySQL.
-
-{{{
-$ ./rfxcmd.py -d /dev/rfxcom -m -z -p /tmp/rfxcmd.pid
-}}}
+Specify the message data to be sent to the RFX. If the message contains spaces (which is not recommended) please insert them inside quotes.
 
 === Version (-v) ===
 ----
@@ -134,6 +111,14 @@ RFXCMD Version: 0.3 (515)
 Date: 2013-05-18 14:17:08 +0200 (Sat, 18 May 2013) 
 $
 }}}
+
+=== Help (-h) ===
+----
+{{{
+option -h
+}}}
+
+Will printout list of command switches that are available for the user.
 
 ----
 ==CONFIG.XML==
