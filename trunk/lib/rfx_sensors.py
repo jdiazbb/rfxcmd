@@ -557,7 +557,8 @@ class rfx_data(dict):
 						"06":"THGR918, THGRN228, THGN50",
 						"07":"TFA TS34C, Cresta",
 						"08":"WT260,WT260H,WT440H,WT450,WT450H",
-						"09":"Viking 02035, 02038"}
+						"09":"Viking 02035, 02038",
+						"0A":"Rubicson"}
 
 	rfx_subtype_52_humstatus = {"00":"Dry",
 								"01":"Comfort",
