@@ -3410,7 +3410,7 @@ def main():
 	# ----------------------------------------------------------
 	# VERBOSE OUTPUT
 	if options.verbose:
-		logger.debug("Verbose printout")
+		logger.debug("Verbose printout " + _line())
 		cmdarg.printout_complete = True
 		print "RFXCMD Version " + __version__
 	else:
