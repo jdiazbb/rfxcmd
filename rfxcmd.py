@@ -76,6 +76,7 @@ import xml.dom.minidom as minidom
 from optparse import OptionParser
 import socket
 import select
+import inspect
 
 # RFXCMD modules
 try:
@@ -325,6 +326,15 @@ def daemonize():
 		file(cmdarg.pidfile, 'w').write("%s\n" % pid)
 
 # ----------------------------------------------------------------------------
+# C __LINE__ equivalent in Python by Elf Sternberg
+# http://www.elfsternberg.com/2008/09/23/c-__line__-equivalent-in-python/
+# ----------------------------------------------------------------------------
+
+def _line():
+    info = inspect.getframeinfo(inspect.currentframe().f_back)[0:3]
+    return '[%s:%d]' % (info[2], info[1])
+
+# ----------------------------------------------------------------------------
 
 def send_graphite(CARBON_SERVER, CARBON_PORT, lines):
 	"""
@@ -463,7 +473,7 @@ def decodePacket(message):
 	if not test_rfx( ByteToHex(message) ):
 		logger.error("The incoming message is invalid (" + ByteToHex(message) + ")")
 		if cmdarg.printout_complete == True:
-			print "Error: The incoming message is invalid"
+			print "Error: The incoming message is invalid " + _line()
 			return
 			
 	packettype = ByteToHex(message[1])
