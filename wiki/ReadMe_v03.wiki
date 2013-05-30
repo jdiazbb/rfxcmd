@@ -245,17 +245,7 @@ More about the trigger functionality in the [Trigger] page.
 ----
 ==EXAMPLES==
 
-To listen to the RFX device and print all incoming data on screen
-
-$ ./rfxcmd.py -d /dev/ttyUSB0 -a listen
-
-To insert all received data to a MySQL database. The MySQL parameters are taken from the config.xml file.
-
-$ ./rfxcmd.py -d /dev/ttyUSB0 -a listen -m 
-
-Get current status of the RFX device
-
-$ ./rfxcmd.py -d /dev/ttyUSB0 -a status
+to be written...
 
 ----
 ==OTHER==
@@ -264,17 +254,14 @@ If RFXCMD messages are not processed, you get instead this message;
 
 "RFXCMD does not handle this message, see readme.txt for more information."
 
-That means that I have not included the post process for the specific protocol, most likely 
-because I don't have the sensor and therefor no way to test it. If you want the RFXCMD to 
-handle the message then please send me the raw output, and preferable also from RFXManager, so
-I can accurately integrate the message to RFXCMD.
+That means that I have not included the post process for the specific protocol, most likely because I don't have the sensor and therefor no way to test it. If you want the RFXCMD to handle the message then please send me the raw output, and preferable also from RFXManager, so I can accurately integrate the message to RFXCMD.
 
 ----
 ==THANKS==
 
 Thanks to following users who have helped with testing, patches, ideas, bug reports, and so on (in no special order).
 
-Anders, Dimitri, Patrik, Ludwig, Jean-Michel, Jean-Baptiste, Robert, Fabien, Bert, George, Jean-Francois, Mark, Frederic, Matthew, Arno, Jean-Louis, Christophe, Fredrik
+Anders, Dimitri, Patrik, Ludwig, Jean-Michel, Jean-Baptiste, Robert, Fabien, Bert, George, Jean-Francois, Mark, Frederic, Matthew, Arno, Jean-Louis, Christophe, Fredrik, Neil
 
 and to [http://www.rfxcom.com RFXCOM] for their support.
 
