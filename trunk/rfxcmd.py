@@ -1959,15 +1959,23 @@ def decodePacket(message):
 		# Rain rate
 		rainrate_high = ByteToHex(message[6])
 		rainrate_low = ByteToHex(message[7])
-		rainrate = float( int(rainrate_high,16) * 0x100 + int(rainrate_low,16) ) / 100
-
+		
+		if subtype == '01':
+			rainrate = int(rainrate_high,16) * 0x100 + int(rainrate_low,16)
+		elif subtype == '02':
+			rainrate = float( int(rainrate_high,16) * 0x100 + int(rainrate_low,16) ) / 100
+		else:
+			rainrate = 0
 
 		# Rain total
 		raintotal1 = ByteToHex(message[8])
 		raintotal2 = ByteToHex(message[9])
 		raintotal3 = ByteToHex(message[10])
 		
-		raintotal = float( (int(raintotal1, 16) * 0x1000) + (int(raintotal2, 16) * 0x100) + int(raintotal3, 16) ) / 10
+		if subtype <> '06':
+			raintotal = float( (int(raintotal1, 16) * 0x1000) + (int(raintotal2, 16) * 0x100) + int(raintotal3, 16) ) / 10
+		else:
+			raintotal = 0
 		
 		# Battery & Signal	
 		signal = decodeSignal(message[11])
@@ -1979,12 +1987,8 @@ def decodePacket(message):
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
 			
-			if subtype == '01':
-				print "Rain rate\t\t= Not implemented in rfxcmd, need example data"
-			elif subtype == '02':
+			if subtype == '01' or subtype == '02':
 				print "Rain rate\t\t= " + str(rainrate) + " mm/hr"
-			else:
-				print "Rain rate\t\t= Not supported"
 
 			if subtype <> '06':
 				print "Raintotal:\t\t= " + str(raintotal) + " mm"
@@ -2016,6 +2020,7 @@ def decodePacket(message):
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$rainrate$", str(rainrate) )
+					action = action.replace("$raintotal$", str(raintotal) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
@@ -2025,18 +2030,15 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
-		"""			
 		# MYSQL
 		if config.mysql_active:
-			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
+			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(rainrate), float(raintotal), 0, 0, 0, 0)
 
 		# SQLITE
 		if config.sqlite_active:
-			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
-		"""
+			insert_sqlite(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(rainrate), float(raintotal), 0, 0, 0, 0)
 
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Done")
-
 
 	# ---------------------------------------
 	# 0x56 - Wind sensors
