@@ -411,6 +411,7 @@ def insert_mysql(timestamp, unixtime, packettype, subtype, seqnbr, battery, sign
 
 	except MySQLdb.Error, e:
 
+		logger.error("Line: " + _line())
 		logger.error("SqLite error: %d: %s" % (e.args[0], e.args[1]))
 		print "MySQL error %d: %s" % (e.args[0], e.args[1])
 		sys.exit(1)
@@ -448,6 +449,7 @@ def insert_sqlite(timestamp, unixtime, packettype, subtype, seqnbr, battery, sig
 		if cx:
 			cx.rollback()
 			
+		logger.error("Line: " + _line())
 		logger.error("SqLite error: %s" % e.args[0])
 		print "SqLite error: %s" % e.args[0]
 		sys.exit(1)
@@ -471,7 +473,7 @@ def decodePacket(message):
 	
 	# Verify incoming message
 	if not test_rfx( ByteToHex(message) ):
-		logger.error("The incoming message is invalid (" + ByteToHex(message) + ")")
+		logger.error("The incoming message is invalid (" + ByteToHex(message) + ") Line: " + _line())
 		if cmdarg.printout_complete == True:
 			print "Error: The incoming message is invalid " + _line()
 			return
@@ -1957,11 +1959,15 @@ def decodePacket(message):
 		# Rain rate
 		rainrate_high = ByteToHex(message[6])
 		rainrate_low = ByteToHex(message[7])
+		rainrate = float( int(rainrate_high,16) * 0x100 + int(rainrate_low,16) ) / 100
+
 
 		# Rain total
 		raintotal1 = ByteToHex(message[8])
 		raintotal2 = ByteToHex(message[9])
 		raintotal3 = ByteToHex(message[10])
+		
+		raintotal = float( (int(raintotal1, 16) * 0x1000) + (int(raintotal2, 16) * 0x100) + int(raintotal3, 16) ) / 10
 		
 		# Battery & Signal	
 		signal = decodeSignal(message[11])
@@ -1973,16 +1979,18 @@ def decodePacket(message):
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
 			
-			if subtype == '1':
-				print "Rain rate\t\t= Not implemented in rfxcmd, need example"
-			elif subtype == '2':
-				print "Rain rate\t\t= Not implemented in rfxcmd, need example"
+			if subtype == '01':
+				print "Rain rate\t\t= Not implemented in rfxcmd, need example data"
+			elif subtype == '02':
+				print "Rain rate\t\t= " + str(rainrate) + " mm/hr"
 			else:
 				print "Rain rate\t\t= Not supported"
 
-			print "Raintotal:\t\t= " + str(int(raintotal1,16))
-			print "Raintotal:\t\t= " + str(int(raintotal2,16))
-			print "Raintotal:\t\t= " + str(int(raintotal3,16))
+			if subtype <> '06':
+				print "Raintotal:\t\t= " + str(raintotal) + " mm"
+			else:
+				print "Raintotal:\t\t= Not implemented in rfxcmd, need example data"
+			
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
@@ -1990,7 +1998,7 @@ def decodePacket(message):
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							( timestamp, packettype, subtype, seqnbr, id1, id2,
-							str(int(rainrate_high,16)), str(int(raintotal1,16)), 
+							str(rainrate), str(int(raintotal1,16)), 
 							str(battery), str(signal) ) )
 			sys.stdout.flush()
 		
@@ -2007,6 +2015,7 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$rainrate$", str(rainrate) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
@@ -2533,7 +2542,7 @@ def decodePacket(message):
 	
 	# The packet is not decoded, then print it on the screen
 	if decoded == False:
-		logger.error("Message not decoded")
+		logger.error("Message not decoded. Line: " + _line())
 		logger.error("Message: " + ByteToHex(message))
 		print timestamp + " " + ByteToHex(message)
 		print "RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ for more information."
@@ -2575,14 +2584,14 @@ def read_socket():
 					logger.debug("Decode message to screen")
 					decodePacket( message.decode('hex') )
 				except KeyError:
-					logger.error("Unrecognizable packet")
+					logger.error("Unrecognizable packet. Line: " + _line())
 					print "Error: unrecognizable packet"
 			
 			logger.debug("Write message to serial port")
 			serial_param.port.write( message.decode('hex') )
 			
 		else:
-			logger.error("Invalid message from socket")
+			logger.error("Invalid message from socket. Line: " + _line())
 			if cmdarg.printout_complete == True:
 				print "------------------------------------------------"
 				print "Invalid message from socket"
@@ -2679,9 +2688,9 @@ def read_rfx():
 				logger.debug("SerWaiting: " + str(serial_param.port.inWaiting()))
 				byte = serial_param.port.read()
 				logger.debug("Byte: " + str(ByteToHex(byte)))
-		except IOError, e:
-			print("Error: %s" % e)
-			logger.error("serial read error: %s" %e)
+		except IOError, err:
+			print("Error: " + str(err))
+			logger.error("Serial read error: " + str(err) + " Line: " +  + _line())
 		
 		if byte:
 			message = byte + readbytes( ord(byte) )
@@ -2727,7 +2736,7 @@ def read_rfx():
 					try:
 						decodePacket( message )
 					except KeyError:
-						logger.error("Error: unrecognizable packet (" + ByteToHex(message) + ")")
+						logger.error("Error: unrecognizable packet (" + ByteToHex(message) + ") Line: " + _line())
 						if cmdarg.printout_complete == True:
 							print("Error: unrecognizable packet")
 
@@ -2737,14 +2746,14 @@ def read_rfx():
 					return rawcmd
 				
 				else:
-					logger.error("Error: Incoming packet not valid length")
+					logger.error("Error: Incoming packet not valid length. Line: "  + _line())
 					if cmdarg.printout_complete == True:
 						print("------------------------------------------------")
 						print("Received\t\t= " + ByteToHex( message ))
 						print("Incoming packet not valid, waiting for next...")
 				
 	except OSError, e:
-		logger.error("Error in message: " + str(ByteToHex(message)))
+		logger.error("Error in message: " + str(ByteToHex(message)) + " Line: " + _line())
 		logger.error("Traceback: " + traceback.format_exc())
 		print("------------------------------------------------")
 		print("Received\t\t= " + ByteToHex( message ))
@@ -2789,7 +2798,7 @@ def read_config( configFile, configItem):
  		logger.debug('Return')
  		
  	else:
- 		logger.error('Error: Config file does not exists')
+ 		logger.error("Error: Config file does not exists. Line: " + _line())
  		
 	return xmlData
 
@@ -2866,7 +2875,7 @@ def option_simulate(indata):
 	try:
 		message = indata.decode("hex")
 	except:
-		logger.error("Error: the input data is not valid")
+		logger.error("Error: the input data is not valid. Line: " + _line())
 		print "Error: the input data is not valid"
 		sys.exit(1)
 	
@@ -2901,7 +2910,7 @@ def option_simulate(indata):
 	try:
 		hexval = int(indata, 16)
 	except:
-		logger.error("Error: the input data is invalid hex value")
+		logger.error("Error: the input data is invalid hex value. Line: " + _line())
 		print "Error: the input data is invalid hex value"
 		exit()
 				
@@ -2909,7 +2918,7 @@ def option_simulate(indata):
 	try:
 		decodePacket( message )
 	except Exception as err:
-		logger.error("Error: unrecognizable packet (" + ByteToHex(message) + ")")
+		logger.error("Error: unrecognizable packet (" + ByteToHex(message) + ") Line: " + _line())
 		logger.error("Error: %s" %err)
 		print "Error: unrecognizable packet"
 		
@@ -2931,7 +2940,7 @@ def option_listen():
 		try:
 			serversocket = RFXcmdSocketAdapter(config.sockethost,int(config.socketport))
 		except:
-			logger.error("Error starting socket server")
+			logger.error("Error starting socket server. Line: " + _line())
 			print("Error: can not start server socket, another instance already running?")
 			exit(1)
 		if serversocket.netAdapterRegistered:
@@ -3231,7 +3240,7 @@ def read_configfile():
 
 		# config file not found, set default values
 		print "Error: Configuration file not found (" + cmdarg.configfile + ")"
-		logger.error('Error: Configuration file not found (' + cmdarg.configfile + ')')
+		logger.error("Error: Configuration file not found (" + cmdarg.configfile + ") Line: " + _line())
 
 # ----------------------------------------------------------------------------
 
@@ -3253,7 +3262,7 @@ def open_serialport():
 	if config.device:
 		logger.debug("Device: " + config.device)
 	else:
-		logger.error('Device name missing')
+		logger.error("Device name missing. Line: " + _line())
 		print "Serial device is missing"
 		logger.debug("Exit 1")
 		sys.exit(1)
@@ -3263,7 +3272,7 @@ def open_serialport():
 	try:  
 		serial_param.port = serial.Serial(config.device, serial_param.rate, timeout=serial_param.timeout)
 	except serial.SerialException, e:
-		logger.error("Error: Failed to connect on device " + config.device)
+		logger.error("Error: Failed to connect on device " + config.device + " Line: " + _line())
 		print "Error: Failed to connect on device " + config.device
 		print "Error: " + str(e)
 		logger.debug("Exit 1")
@@ -3284,7 +3293,7 @@ def close_serialport():
 		serial_param.port.close()
 		logger.debug("Serial port closed")
 	except:
-		logger.error("Failed to close the serial port (" + device + ")")
+		logger.error("Failed to close the serial port (" + device + ") Line: " + _line())
 		print "Error: Failed to close the port " + device
 		logger.debug("Exit 1")
 		sys.exit(1)
@@ -3447,7 +3456,7 @@ def main():
 			import MySQLdb
 		except ImportError:
 			print "Error: You need to install MySQL extension for Python"
-			logger.error("Error: Could not find MySQL extension for Python")
+			logger.error("Error: Could not find MySQL extension for Python. Line: " + _line())
 			logger.debug("Exit 1")
 			sys.exit(1)		
 
@@ -3462,7 +3471,7 @@ def main():
 			logger.debug("SQLite3 version: " + sqlite3.sqlite_version)
 		except ImportError:
 			print "Error: You need to install SQLite extension for Python"
-			logger.error("Error: Could not find MySQL extension for Python")
+			logger.error("Error: Could not find MySQL extension for Python. " + _line())
 			logger.debug("Exit 1")
 			sys.exit(1)
 	
@@ -3506,14 +3515,14 @@ def main():
 
 		else:
 			print("You need to set the --pidfile parameter at the startup")
-			logger.error("Command argument --pidfile missing")
+			logger.error("Command argument --pidfile missing. Line: " + _line())
 			logger.debug("Exit 1")
 			sys.exit(1)
 
 		logger.debug("Check platform")
 		if sys.platform == 'win32':
 			print "Daemonize not supported under Windows. Exiting."
-			logger.error("Daemonize not supported under Windows.")
+			logger.error("Daemonize not supported under Windows. Line: " + _line())
 			logger.debug("Exit 1")
 			sys.exit(1)
 		else:
@@ -3523,6 +3532,7 @@ def main():
 				logger.debug("Write PID file")
 				file(cmdarg.pidfile, 'w').write("pid\n")
 			except IOError, e:
+				logger.error("Line: " + _line())
 				logger.error("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
 				raise SystemExit("Unable to write PID file: %s [%d]" % (e.strerror, e.errno))
 
