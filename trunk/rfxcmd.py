@@ -3451,8 +3451,8 @@ def main():
 	# MYSQL
 	if config.mysql_active:
 		logger.debug("MySQL active")
-		cmdarg.printout_complete = False
-		cmdarg.printout_csv = False
+		#cmdarg.printout_complete = False
+		#cmdarg.printout_csv = False
 		logger.debug("Check MySQL")
 		try:
 			import MySQLdb
@@ -3466,8 +3466,8 @@ def main():
 	# SQLITE
 	if config.sqlite_active:
 		logger.debug("SqLite active")
-		cmdarg.printout_complete = False
-		cmdarg.printout_csv = False
+		#cmdarg.printout_complete = False
+		#cmdarg.printout_csv = False
 		logger.debug("Check sqlite3")
 		try:
 			logger.debug("SQLite3 version: " + sqlite3.sqlite_version)
