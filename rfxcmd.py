@@ -111,7 +111,7 @@ except ImportError:
 	sys.exit(1)
 
 try:
-	from lib import rfx_xplcom
+	from lib import rfx_xplcom as xpl
 except ImportError:
 	print "Error: module lib/rfx_xplcom not found"
 	pass
