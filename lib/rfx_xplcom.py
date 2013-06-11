@@ -28,7 +28,11 @@
 #
 # -----------------------------------------------------------------------------
 
+import sys
+import string
+import select
 import socket
+import datetime
 
 # -----------------------------------------------------------------------------
 
@@ -62,7 +66,7 @@ def send(host, message):
 
 # -----------------------------------------------------------------------------
 
-def SendHeartbeat():
+def SendHeartbeat(port):
     """
     Send heartbeat
     Based on John Bent xPL Monitor for Python
@@ -87,13 +91,18 @@ def SendHeartbeat():
 
 # -----------------------------------------------------------------------------
 
-def listen(port):
+def listen():
     """
     Listen to xPL messages and print them to stdout with timestamps
     Based on John Bent xPL Monitor for Python
     http://www.xplproject.org.uk/
     """
+    
+    # Define maximum xPL message size
+    buff = 1500
 
+    port = 3865
+    
     # Initialise the socket
     UDPSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     addr = ("0.0.0.0",port)
@@ -113,7 +122,7 @@ def listen(port):
 
     print "xPLMon, bound to port " + str(port) + ", exit with ctrl+c"
 
-    SendHeartbeat()
+    SendHeartbeat(port)
 
     try:
         while 1==1:
@@ -130,4 +139,4 @@ def listen(port):
         pass
 
 if __name__ == '__main__':
-    listen(port)
+	listen()
