@@ -173,7 +173,8 @@ class config_data:
 		whitelist_active = False,
 		whitelist_file = "",
 		daemon_active = False,
-		daemon_pidfile = "rfxcmd.pid"
+		daemon_pidfile = "rfxcmd.pid",
+		process_rfxmsg = True
 		):
         
 		self.serial_device = serial_device
@@ -206,6 +207,7 @@ class config_data:
 		self.whitelist_file = whitelist_file
 		self.daemon_active = daemon_active
 		self.daemon_pidfile = daemon_pidfile
+		self.process_rfxmsg = process_rfxmsg
 
 class cmdarg_data:
 	def __init__(
@@ -1159,6 +1161,12 @@ def decodePacket(message):
 		# SQLITE
 		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# XPL
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n')
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
@@ -2981,9 +2989,10 @@ def option_listen():
 			time.sleep(0.01)
 			
 			# Read serial port
-			rawcmd = read_rfx()
-			if rawcmd:
-				logger.debug("Processed: " + str(rawcmd))
+			if config.process_rfxmsg == True:
+				rawcmd = read_rfx()
+				if rawcmd:
+					logger.debug("Processed: " + str(rawcmd))
 			
 			# Read socket
 			if config.socketserver:
@@ -3154,6 +3163,14 @@ def read_configfile():
 		logger.debug("Serial rate: " + str(config.serial_rate))
 		logger.debug("Serial timeout: " + str(config.serial_timeout))
 
+		# ----------------------
+		# Process
+		if (read_config(cmdarg.configfile, "process_rfxmsg") == "yes"):
+			config.process_rfxmsg = True
+		else:
+			config.process_rfxmsg = False
+		logger.debug("Process RFXmsg: " + str(config.process_rfxmsg))
+		
 		# ----------------------
 		# MySQL
 		if (read_config(cmdarg.configfile, "mysql_active") == "yes"):
