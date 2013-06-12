@@ -1165,7 +1165,6 @@ def decodePacket(message):
 		# XPL
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n')
-			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
 			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
