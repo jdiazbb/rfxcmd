@@ -6,6 +6,9 @@
 	<serial_rate>38400</serial_rate>
 	<serial_timeout>9</serial_timeout>
 
+	<!-- Process -->
+	<process_rfxmsg>yes</process_rfxmsg>
+
 	<!-- Daemon -->
 	<daemon_active>no</daemon_active>
 	<daemon_pidfile>/var/run/rfxcmd.pid</daemon_pidfile>
