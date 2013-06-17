@@ -31,6 +31,7 @@ Options;
 ||-v||Output all messages to STDOUT||
 ||-c||Output all messages to STDOUT in CSV format||
 ||-V||Print version and date||
+||-D||Debug printout on STDOUT||
 ||-h||Help||
 
 === Serial device (-d) ===
@@ -95,10 +96,10 @@ option -s <message>
 
 Specify the message data to be sent to the RFX. If the message contains spaces (which is not recommended) please insert them inside quotes.
 
-=== Version (-v) ===
+=== Version (-V) ===
 ----
 {{{
-option -v
+option -V
 }}}
 
 Print version, svn revision and date.
@@ -106,11 +107,19 @@ Print version, svn revision and date.
 Example;
 
 {{{
-$ ./rfxcmd.py -v
+$ ./rfxcmd.py -V
 RFXCMD Version: 0.3 (515)
 Date: 2013-05-18 14:17:08 +0200 (Sat, 18 May 2013) 
 $
 }}}
+
+=== Debug (-D) ===
+----
+{{{
+option -D
+}}}
+
+RFXcmd will print extensive debug printouts to STDOUT, this should be used in troubleshooting.
 
 === Help (-h) ===
 ----
