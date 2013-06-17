@@ -479,7 +479,10 @@ def decodePacket(message):
 		if cmdarg.printout_complete == True:
 			print "Error: The incoming message is invalid " + _line()
 			return
-			
+	
+	raw_message = ByteToHex(message)
+	raw_message = raw_message.replace(' ', '')
+	
 	packettype = ByteToHex(message[1])
 
 	if len(message) > 2:
@@ -746,6 +749,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$message$", indata )
@@ -801,6 +805,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$housecode$", str(housecode) )
@@ -821,6 +826,11 @@ def decodePacket(message):
 		# SQLITE
 		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# XPL
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Lightning.'+housecode+str(unitcode)+'\ntype=command\ncurrent='+command+'\n')
+			xpl.send(config.xpl_host, 'device=Lightning.'+housecode+str(unitcode)+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x11 Lighting2
@@ -861,6 +871,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -881,6 +892,11 @@ def decodePacket(message):
 		# SQLITE
 		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# XPL
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n')
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x12 Lighting3
@@ -944,6 +960,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$system$", str(system) )
@@ -964,6 +981,11 @@ def decodePacket(message):
 		# SQLITE
 		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# XPL
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Lightning.'+str(channel)+'\ntype=command\ncurrent='+command+'\n')
+			xpl.send(config.xpl_host, 'device=Lightning.'+str(channel)+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x13 Lighting4
@@ -1005,6 +1027,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$code$", code_bin )
@@ -1075,6 +1098,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1097,6 +1121,11 @@ def decodePacket(message):
 		# SQLITE
 		if config.sqlite_active:
 			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, sensor_id, 0, command, str(unitcode), level, 0, 0, 0, 0, 0, 0, 0, 0)
+
+		# XPL
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n')
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
 	# ---------------------------------------
 	# 0x15 Lighting6
@@ -1140,6 +1169,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1190,6 +1220,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -1269,6 +1300,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1313,6 +1345,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -1394,6 +1427,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", id1 )
@@ -1469,6 +1503,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1524,6 +1559,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -1589,6 +1625,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$unitcode$", unitcode )
@@ -1653,6 +1690,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1721,6 +1759,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1795,6 +1834,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -1919,6 +1959,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2023,6 +2064,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2107,6 +2149,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2193,6 +2236,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2261,6 +2305,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2327,6 +2372,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
@@ -2383,6 +2429,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -2451,6 +2498,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", id1 )
@@ -2502,6 +2550,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", id1 )
@@ -2536,6 +2585,7 @@ def decodePacket(message):
 				if re.match(trigger_message, rawcmd):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					logger.debug("Execute shell")
@@ -3466,10 +3516,7 @@ def main():
 	# ----------------------------------------------------------
 	# MYSQL
 	if config.mysql_active:
-		logger.debug("MySQL active")
-		#cmdarg.printout_complete = False
-		#cmdarg.printout_csv = False
-		logger.debug("Check MySQL")
+		logger.debug("MySQL active, Check MySQL")
 		try:
 			import MySQLdb
 		except ImportError:
@@ -3481,10 +3528,7 @@ def main():
 	# ----------------------------------------------------------
 	# SQLITE
 	if config.sqlite_active:
-		logger.debug("SqLite active")
-		#cmdarg.printout_complete = False
-		#cmdarg.printout_csv = False
-		logger.debug("Check sqlite3")
+		logger.debug("SqLite active, Check sqlite3 version")
 		try:
 			logger.debug("SQLite3 version: " + sqlite3.sqlite_version)
 		except ImportError:
