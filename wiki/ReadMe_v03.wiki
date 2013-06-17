@@ -129,8 +129,16 @@ When a change of settings is made in the config.xml, the RFXcmd as to be restart
 <serial_rate>
 <serial_timeout>
 
+Serial configuration, the rate is default suited for RFXtrx433, as well the timeout. If the serial device is not defined here, it must be defined on the command line. The command line serial device will hold higher priority when device is chosen.
+
+<process_rfxmsg>no</process_rfxmsg>
+
+If the user wants to run RFXcmd without collecting data from RFX device, and only keep it listening via the socket, then this should be set as 'yes'.
+
 <daemon_active>
 <daemon_pidfile>
+
+Run the RFXcmd as a daemon service (works only under unix flavors), if the pidfile is not defined it will be saved in the same path as the RFXcmd.
 
 <mysql_active>
 <mysql_server>
@@ -169,13 +177,19 @@ The server address and port for the graphite server.
 
 <xpl_active>
 <xpl_host>
-	
+
+The host settings to send the incoming data in xPL format. Note, that not all sensors have yet been configured with xPL.
+
 <socketserver>
 <sockethost>
 <socketport>
-	
+
+Configuration for the incoming socket communication, the RFXcmd will open a listening socket to receive RFX commands (raw) and will forward them to the RFX device.
+
 <whitelist_active>
 <whitelist_file>
+
+If the whitelist is active, it will only parse the incoming data that match the regex inside the whitelist file.
 
 Default config.xml file;
 
@@ -187,6 +201,9 @@ Default config.xml file;
 	<serial_device>/dev/ttyUSB0</serial_device>
 	<serial_rate>38400</serial_rate>
 	<serial_timeout>9</serial_timeout>
+
+	<!-- Process -->
+	<process_rfxmsg>no</process_rfxmsg>
 
 	<!-- Daemon -->
 	<daemon_active>no</daemon_active>
