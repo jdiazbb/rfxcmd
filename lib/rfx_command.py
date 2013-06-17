@@ -56,9 +56,15 @@ class Command(object):
 			self.timer.cancel()
 		
 		def timer_callback():
-			logger.debug("Thread timeout")
-			self.process.terminate()
-			logger.debug("Thread terminated")
+			logger.debug("Thread timeout, terminate it")
+			if process.is_alive():
+				try:
+					self.process.terminate()
+				except OSError as error:
+					logger.error("Error: %s " % error)
+				logger.debug("Thread terminated")
+			else:
+				logger.debug("Thread not alive")
 			
 		thread = threading.Thread(target=target)
 		self.timer = threading.Timer(int(timeout), timer_callback)
