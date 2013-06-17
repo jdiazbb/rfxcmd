@@ -131,7 +131,7 @@ When a change of settings is made in the config.xml, the RFXcmd as to be restart
 
 Serial configuration, the rate is default suited for RFXtrx433, as well the timeout. If the serial device is not defined here, it must be defined on the command line. The command line serial device will hold higher priority when device is chosen.
 
-<process_rfxmsg>no</process_rfxmsg>
+<process_rfxmsg>
 
 If the user wants to run RFXcmd without collecting data from RFX device, and only keep it listening via the socket, then this should be set as 'yes'.
 
