@@ -174,7 +174,8 @@ class config_data:
 		whitelist_file = "",
 		daemon_active = False,
 		daemon_pidfile = "rfxcmd.pid",
-		process_rfxmsg = True
+		process_rfxmsg = True,
+		weewx_active = False
 		):
         
 		self.serial_device = serial_device
@@ -208,6 +209,7 @@ class config_data:
 		self.daemon_active = daemon_active
 		self.daemon_pidfile = daemon_pidfile
 		self.process_rfxmsg = process_rfxmsg
+		self.weewx_active = weewx_active
 
 class cmdarg_data:
 	def __init__(
@@ -1703,7 +1705,17 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-		
+
+		# GRAPHITE
+		if config.graphite_active == True:
+			logger.debug("Send to Graphite")
+			now = int( time.time() )
+			linesg=[]
+			linesg.append("%s.%s.temperature %s %d" % ( 'rfxcmd', sensor_id, temperature,now))
+			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
+			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
+			send_graphite(config.graphite_server, config.graphite_port, linesg)
+
 		# MYSQL
 		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
@@ -1772,7 +1784,16 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-		
+		# GRAPHITE
+		if config.graphite_active == True:
+			logger.debug("Send to Graphite")
+			now = int( time.time() )
+			linesg=[]
+			linesg.append("%s.%s.humidity %s %d" % ( 'rfxcmd', sensor_id, humidity,now))
+			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
+			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
+			send_graphite(config.graphite_server, config.graphite_port, linesg)
+	
 		# MYSQL
 		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1975,6 +1996,18 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
+		# GRAPHITE
+		if config.graphite_active == True:
+			logger.debug("Send to Graphite")
+			now = int( time.time() )
+			linesg=[]
+			linesg.append("%s.%s.temperature %s %d" % ( 'rfxcmd', sensor_id, temperature,now))
+			linesg.append("%s.%s.humidity %s %d" % ( 'rfxcmd', sensor_id, humidity,now))
+			linesg.append("%s.%s.barometric %s %d" % ( 'rfxcmd', sensor_id, barometric,now))
+			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
+			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
+			send_graphite(config.graphite_server, config.graphite_port, linesg)
+
 		# MYSQL
 		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
@@ -1991,6 +2024,16 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
 			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
 
+		# WEEWX
+		if config.weewx_active:
+			wwx.wwx_thb_t_in = temperature
+			wwx.wwx_thb_h_in = humidity
+			wwx.wwx_thb_hs_in = humidity_status
+			wwx.wwx_thb_b_in = barometric
+			wwx.wwx_thb_fs_in = forecast
+			wwx.wwx_thb_batt = battery
+			wwx.wwx_thb_sign = signal
+ 
 	# ---------------------------------------
 	# 0x55 - Rain sensors
 	# ---------------------------------------
@@ -2079,6 +2122,17 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
+		# GRAPHITE
+		if config.graphite_active == True:
+			logger.debug("Send to Graphite")
+			now = int( time.time() )
+			linesg=[]
+			linesg.append("%s.%s.rainrate %s %d" % ( 'rfxcmd', sensor_id, rainrate,now))
+			linesg.append("%s.%s.raintotal %s %d" % ( 'rfxcmd', sensor_id, raintotal,now))
+			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
+			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
+			send_graphite(config.graphite_server, config.graphite_port, linesg)
+
 		# MYSQL
 		if config.mysql_active:
 			insert_mysql(timestamp, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(rainrate), float(raintotal), 0, 0, 0, 0)
@@ -2169,6 +2223,22 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
+		# GRAPHITE
+		if config.graphite_active == True:
+			logger.debug("Send to Graphite")
+			now = int( time.time() )
+			linesg=[]
+			linesg.append("%s.%s.direction %s %d" % ( 'rfxcmd', sensor_id, direction,now))
+			if subtype <> "05":
+				linesg.append("%s.%s.average %s %d" % ( 'rfxcmd', sensor_id, av_speed,now))
+			if subtype == "04":
+				linesg.append("%s.%s.chill %s %d" % ( 'rfxcmd', sensor_id, windchill,now))
+				linesg.append("%s.%s.temperature %s %d" % ( 'rfxcmd', sensor_id, temperature,now))
+			linesg.append("%s.%s.gust %s %d" % ( 'rfxcmd', sensor_id, windgust,now))
+			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
+			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
+			send_graphite(config.graphite_server, config.graphite_port, linesg)
+		
 		# MYSQL
 		if config.mysql_active:
 			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
@@ -2240,9 +2310,9 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
-					action = action.replace("$uv$", str(temperature) )
+					action = action.replace("$uv$", str(uv) )
 					if subtype == '03':
-						action = action.replace("$temperature$", str(humidity) )
+						action = action.replace("$temperature$", str(temperature) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
@@ -2251,6 +2321,18 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
+
+		# GRAPHITE
+		if config.graphite_active == True:
+			logger.debug("Send to Graphite")
+			now = int( time.time() )
+			linesg=[]
+			if subtype == "03":
+				linesg.append("%s.%s.temperature %s %d" % ( 'rfxcmd', sensor_id, temperature,now))
+			linesg.append("%s.%s.uv %s %d" % ( 'rfxcmd', sensor_id, uv,now))
+			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
+			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
+			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
 		# MYSQL
 		if config.mysql_active:
@@ -2633,21 +2715,30 @@ def read_socket():
 			logger.debug("SerialPort flush input")
 
 			timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-			if cmdarg.printout_complete == True:
-				print "------------------------------------------------"
-				print "Incoming message from socket"
-				print "Send\t\t\t= " + ByteToHex( message.decode('hex') )
-				print "Date/Time\t\t= " + timestamp
-				print "Packet Length\t\t= " + ByteToHex( message.decode('hex')[0] )
-				try:
-					logger.debug("Decode message to screen")
-					decodePacket( message.decode('hex') )
-				except KeyError:
-					logger.error("Unrecognizable packet. Line: " + _line())
-					print "Error: unrecognizable packet"
+
+			if message == '0A1100FF001100FF001100':
+				logger.debug("Message from WEEWX")
+				if cmdarg.printout_complete == True:
+					print "------------------------------------------------"
+					print "Request received from WEEWX station-driver"
+					print "Request skipped here!"
+
+			else:			
+				if cmdarg.printout_complete == True:
+					print "------------------------------------------------"
+					print "Incoming message from socket"
+					print "Send\t\t\t= " + ByteToHex( message.decode('hex') )
+					print "Date/Time\t\t= " + timestamp
+					print "Packet Length\t\t= " + ByteToHex( message.decode('hex')[0] )
+					try:
+						logger.debug("Decode message to screen")
+						decodePacket( message.decode('hex') )
+					except KeyError:
+						logger.error("Unrecognizable packet. Line: " + _line())
+						print "Error: unrecognizable packet"
 			
-			logger.debug("Write message to serial port")
-			serial_param.port.write( message.decode('hex') )
+				logger.debug("Write message to serial port")
+				serial_param.port.write( message.decode('hex') )
 			
 		else:
 			logger.error("Invalid message from socket. Line: " + _line())
@@ -3303,6 +3394,13 @@ def read_configfile():
 		config.daemon_pidfile = read_config( cmdarg.configfile, "daemon_pidfile")
 		logger.debug("Daemon_active: " + str(config.daemon_active))
 		logger.debug("Daemon_pidfile: " + str(config.daemon_pidfile))
+		
+		# -----------------------
+		# DAEMON
+		if (read_config(cmdarg.configfile, "weewx_active") == "yes"):
+			config.weewx_active = True
+		else:
+			config.weewx_active = False			
 		
 	else:
 
