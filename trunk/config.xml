@@ -53,4 +53,7 @@
 	<whitelist_active>no</whitelist_active>
 	<whitelist_file>whitelist.xml</whitelist_file>
 	
+	<!-- Weewx -->
+	<weewx_active>no</weewx_active>          
+	
 </config>
