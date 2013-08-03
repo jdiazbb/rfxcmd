@@ -98,6 +98,6 @@ class weewx_data:
 		result = result + '|' + str(wwx.wwx_uv_out) + '|' + str(wwx.wwx_uv_batt) + '|' + str(wwx.wwx_uv_sign)
 		return result
 		
-	wwx = weewx_data()
+wwx = weewx_data()
 
 # --------------------------------------------------------------------------
