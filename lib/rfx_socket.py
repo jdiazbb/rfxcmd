@@ -39,6 +39,13 @@ import SocketServer
 SocketServer.TCPServer.allow_reuse_address = True
 from SocketServer import (TCPServer, StreamRequestHandler)
 
+# Import WEEWX extension
+try:
+	from lib.rfx_weewx import *
+except ImportError:
+	print "Error: module lib/weewx.py not found"
+	sys.exit(1)
+                
 logger = logging.getLogger('rfxcmd')
 	
 # ------------------------------------------------------------------------------
@@ -50,6 +57,13 @@ class NetRequestHandler(StreamRequestHandler):
 		lg = self.rfile.readline()
 		messageQueue.put(lg)
 		logger.debug("Message read from socket: " + lg)
+		
+		# WEEWX incoming string
+		if lg.strip() == '0A1100FF001100FF001100':
+			self.wfile.write("Received request weewx weatherstation - ok\n")
+			self.wfile.write(wwx.weewx_result() + '\n')
+			self.wfile.write("Sent result - ok\n")
+		
 		self.netAdapterClientConnected = False
 		logger.debug("Client disconnected from [%s:%d]" % self.client_address)
 	
