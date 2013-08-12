@@ -1,0 +1,39 @@
+/*
+	
+	RFXCMD_PGSQL.TXT
+	
+	PGSAL table configuration for RFXCMD
+	
+	Version history
+	
+	R1A 12-AUG-2013 Pierre-Yves Vitre
+		* Created
+
+*/
+
+CREATE TABLE rfxcmd(
+id serial NOT NULL,
+datetime timestamp with time zone,
+unixtime integer,
+packettype text,
+subtype text,
+seqnbr text,
+battery integer,
+rssi integer,
+processed integer,
+data1 text,
+data2 text,
+data3 text,
+data4 integer,
+data5 integer,
+data6 integer,
+data7 integer,
+data8 numeric,
+data9 numeric,
+data10 numeric,
+data11 numeric,
+data12 numeric,
+data13 timestamp with time zone
+);
+
+ALTER TABLE ONLY rfx.rfxcmd ADD CONSTRAINT rfxcmd_pkey PRIMARY KEY (id);
