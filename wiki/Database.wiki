@@ -12,6 +12,7 @@ This will not work with RFXCMD version 0.2x and lower, this will be implemented 
 ||PA1||1-DEC-2012||First version||
 ||PA2||9-FEB-2013||Added field for Unixtime in UTC||
 ||PA3||1-APR-2013||Added missing 'level' for 0x14 sensor||
+||PA4||12-AUG-2013||Added PostgreSQL from Pierre-Yves||
 
 = Details =
 
@@ -20,8 +21,9 @@ This will not work with RFXCMD version 0.2x and lower, this will be implemented 
 The fields that all sensors have common:
 
 ||DB||id||Datetime||Unixtime||Packettype||Subtype||Seqnbr||Battery||Signal||Processed||
-||MySQL||integer(11)||Datetime||int||varchar(2)||varchar(2)||varchar(2)||integer(2)||integer(2)||integer(1)||
+||MySQL||Datetime||integer(11)||int||varchar(2)||varchar(2)||varchar(2)||integer(2)||integer(2)||integer(1)||
 ||Sqlite||integer||text||integer||text||text||text||integer||integer||integer||
+||PgSQL||timestamp||integer||text||text||text||integer||integer||integer||
 
 Notes
 
@@ -35,6 +37,7 @@ Sensor specific data fields:
 || ||data1||data2||data3||data4||data5||data6||data7||data8||data9||data10||data11||data12||data13||
 ||MySQL||varchar(32)||varchar(32)||varchar(32)||integer||integer||integer||integer||float||float||float||float||float||datetime||
 ||Sqlite||text||text||text||integer||integer||integer||integer||real||real||real||real||real||text||
+||PgSQL||text|text|text||integer|integer||integer||integer||numeric||numeric||numeric||numeric||numeric||timestamp||
 ||0x01||cmnd||msg1||-||msg2||msg3||msg4||msg5||-||-||-||-||-||-||
 ||0x02||msg||-||-||-||-||-||-||-||-||-||-||-||-||
 ||0x03||msg1-msg33||-||-||-||-||-||-||-||-||-||-||-||-||
