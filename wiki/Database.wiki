@@ -270,3 +270,106 @@ Example
 }}}
 
 Note, if the sqlite configuration is changed when RFXcmd is running, it has to be stopped and started again for the changes to take effect.
+
+= PostgreSQL =
+
+
+PostgreSQL is a open source database. For easy managament via web interface the PHPPgAdmin can be used.
+
+=== Install PgSQL Python library === 
+
+To be able to use PgSQL with python, the psycopg2 library must be installed.
+
+Debian/Ubuntu:
+
+{{{
+$ sudo apt-get install python-psycopg2
+}}}
+
+=== Create table ===
+
+Use the text file 'rfxcmd_pgsql.txt' which contains the table setup for Pgsql.
+
+The CREATE TABLE statement:
+
+{{{
+CREATE TABLE rfx.rfxcmd(
+id serial NOT NULL,
+datetime timestamp with time zone,
+unixtime integer,
+packettype text,
+subtype text,
+seqnbr text,
+battery integer,
+rssi integer,
+processed integer,
+data1 text,
+data2 text,
+data3 text,
+data4 integer,
+data5 integer,
+data6 integer,
+data7 integer,
+data8 numeric,
+data9 numeric,
+data10 numeric,
+data11 numeric,
+data12 numeric,
+data13 timestamp with time zone
+);
+
+ALTER TABLE ONLY rfx.rfxcmd ADD CONSTRAINT rfxcmd_pkey PRIMARY KEY (id);
+}}}
+
+=== PgSQL Configuration in RFXcmd ===
+
+To be able to insert data from RFXcmd, the PgSQL has to be configured in the RFXcmd config file, config.xml. There are five XML tags that needs to be filled.
+
+<pgsql_active>
+
+Values 'yes' or 'no'
+To activate PgSQL it has to be set to 'yes'
+Default value = no
+
+<pgsql_server>
+
+ * The address of the PgSQL server
+ * Default value = localhost
+
+<pgsql_database>
+
+ * The database that have the RFXcmd table
+ * Default value = rfxcmd
+
+<pgsql_port>
+
+ * The port of the PgSQL server
+ * Default value = 5432
+
+<pgsql_username>
+
+ * Username to the PgSQL
+ * Default value = user
+
+<pgsql_password>
+
+ * Password to the PgSQL
+ * Default value = password
+
+<pgsql_table>
+
+ * The table name, can contains schemaname
+ * Default value = rfxcmd
+
+Example
+{{{
+<pgsql_active>yes</pgsql_active>
+<pgsql_server>localhost</pgsql_server>
+<pgsql_database>rfxcmd</pgsql_database>
+<pgsql_port>5432</pgsql_port>
+<pgsql_username>user</pgsql_username>
+<pgsql_password>password</pgsql_password>
+<pgsql_table>rfx.rfxcmd</pgsql_table>
+}}}
+
+Note, if the pgsql configuration is changed when RFXcmd is running, it has to be stopped and started again for the changes to take effect.
