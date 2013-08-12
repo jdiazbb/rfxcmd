@@ -149,6 +149,13 @@ If the user wants to run RFXcmd without collecting data from RFX device, and onl
 
 Run the RFXcmd as a daemon service (works only under unix flavors), if the pidfile is not defined it will be saved in the same path as the RFXcmd.
 
+<trigger_active>
+<trigger_onematch>
+<trigger_file>
+<trigger_timeout>
+
+See more on trigger settings on the [Trigger] page.
+
 <mysql_active>
 <mysql_server>
 <mysql_database>
@@ -157,18 +164,21 @@ Run the RFXcmd as a daemon service (works only under unix flavors), if the pidfi
 
 See more on mysql settings on the [Database] page.
 
-<trigger_active>
-<trigger_onematch>
-<trigger_file>
-<trigger_timeout>
-
-See more on trigger settings on the [Trigger] page.
-
 <sqlite_active>
 <sqlite_database>
 <sqlite_table>
 
 See more on sqlite settings on the [Database] page.
+
+<pgsql_active>
+<pgsql_server>
+<pgsql_database>
+<pgsql_port>
+<pgsql_username>
+<pgsql_password>
+<pgsql_table>
+
+See more on pgsql settings on the [Database] page.
 
 <loglevel>
 
@@ -236,6 +246,15 @@ Default config.xml file;
 	<sqlite_database>sqlite.db</sqlite_database>
 	<sqlite_table>rfxcmd</sqlite_table>
 	
+	<!-- PgSQL -->
+	<pgsql_active>no</pgsql_active>
+        <pgsql_server>localhost</pgsql_server>
+        <pgsql_database>rfxcmd</pgsql_database>
+        <pgsql_port>5432</pgsql_port>
+        <pgsql_username>user</pgsql_username>
+        <pgsql_password>password</pgsql_password>
+	<pgsql_table>rfxcmd</pgsql_table> 
+
 	<!-- Logging -->
 	<loglevel>error</loglevel>
 	<logfile>rfxcmd.log</logfile>
@@ -287,7 +306,7 @@ That means that I have not included the post process for the specific protocol, 
 
 Thanks to following users who have helped with testing, patches, ideas, bug reports, and so on (in no special order).
 
-Anders, Dimitri, Patrik, Ludwig, Jean-Michel, Jean-Baptiste, Robert, Fabien, Bert, George, Jean-Francois, Mark, Frederic, Matthew, Arno, Jean-Louis, Christophe, Fredrik, Neil
+Anders, Dimitri, Patrik, Ludwig, Jean-Michel, Jean-Baptiste, Robert, Fabien, Bert, George, Jean-Francois, Mark, Frederic, Matthew, Arno, Jean-Louis, Christophe, Fredrik, Neil, Pierre-Yves
 
 and to [http://www.rfxcom.com RFXCOM] for their support.
 
