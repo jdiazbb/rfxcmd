@@ -130,7 +130,13 @@ try:
 	import MySQLdb
 except ImportError:
 	pass
-	
+
+# PgSQL
+try:
+	import psycopg2
+except ImportError:
+        pass
+
 # Serial
 try:
 	import serial
@@ -159,6 +165,13 @@ class config_data:
 		sqlite_active = False,
 		sqlite_database = "",
 		sqlite_table = "",
+       	pgsql_active = False,
+       	pgsql_server = '',
+       	pgsql_database = '',
+       	pgsql_port = '',
+       	pgsql_username = '',
+       	pgsql_password = '',
+       	pgsql_table = '',
 		loglevel = "info",
 		logfile = "rfxcmd.log",
 		graphite_active = False,
@@ -186,6 +199,13 @@ class config_data:
 		self.mysql_database = mysql_database
 		self.mysql_username = mysql_username
 		self.mysql_password = mysql_password
+       	self.pgsql_active = pgsql_active
+       	self.pgsql_server = pgsql_server
+       	self.pgsql_database = pgsql_database
+       	self.pgsql_port = pgsql_port
+       	self.pgsql_username = pgsql_username
+       	self.pgsql_password = pgsql_password
+       	self.pgsql_table = pgsql_table
 		self.trigger_active = trigger_active
 		self.trigger_onematch = trigger_onematch
 		self.trigger_file = trigger_file
@@ -388,6 +408,29 @@ def readbytes(number):
 
 # ----------------------------------------------------------------------------
 
+def insert_database(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
+        data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
+	"""
+	Choose in which database insert datas
+	"""
+	
+	# MYSQL
+	if config.mysql_active:
+    	insert_mysql(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
+		data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
+
+	# SQLITE
+	if config.sqlite_active:
+		insert_sqlite(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
+		data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)        
+
+	# PGSQL
+	if config.pgsql_active:
+		insert_pgsql(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
+		data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
+
+# ----------------------------------------------------------------------------
+
 def insert_mysql(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, 
 	data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
 	"""
@@ -461,6 +504,47 @@ def insert_sqlite(timestamp, unixtime, packettype, subtype, seqnbr, battery, sig
 	finally:
 		if cx:
 			cx.close()
+
+# ----------------------------------------------------------------------------
+
+def insert_pgsql(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
+        data4, data5, data6, data7, data8, data9, data10, data11, data12, data13):
+	"""
+	Insert data to PgSQL
+	Credits: Pierre-Yves
+	"""
+
+	db = None
+
+	dsn = "dbname='%s' user='%s' host='%s' port=%s password=%s" \
+			% (config.pgsql_database, config.pgsql_username, config.pgsql_server, config.pgsql_port, config.pgsql_password)                                                  
+                                                                                                                                                                  
+	try:                                                                                                                                      
+		if data13 == 0:
+			data13 = "NULL"
+
+		db = psycopg2.connect(dsn)                                                                                                        
+		cursor = db.cursor()                                                                                                              
+                                                                                                                                                                  
+		sql = """
+				INSERT INTO %s (datetime, unixtime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
+				data5, data6, data7, data8, data9, data10, data11, data12, data13)
+				VALUES ('%s','%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', %s)
+				""" % (config.pgsql_table, timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, data4, data5, data6, data7,
+				data8, data9, data10, data11, data12, data13)
+
+		cursor.execute(sql)
+		db.commit()                                                                                   
+		                                                                                                                                    
+	except psycopg2.DatabaseError, e:                                                                     
+		logger.error("Line: " + _line())
+		logger.error("PgSQL error: %s" % e)
+		print "Error : (PgSQL Query) : %s " % e                                             
+		sys.exit(1)                                                                                                                      
+                                                                                                                              
+	finally:                                                                                                                                              
+		if db:                                                                                                        
+			db.close() 
 
 # ----------------------------------------------------------------------------
 
@@ -700,21 +784,14 @@ def decodePacket(message):
 			else:
 				sys.stdout.write("%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, id1 ) )
 			sys.stdout.flush()
-			
-		# MYSQL
-		if config.mysql_active:
+		
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			if subtype == '00':
-				insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			else:
-				insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			if subtype == '00':
-				insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-			else:
-				insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
+				insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		
 	# ---------------------------------------
 	# 0x03 - Undecoded Message
 	# ---------------------------------------
@@ -762,13 +839,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x10 Lighting1
@@ -821,13 +894,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, housecode, 0, command, unitcode, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -887,13 +956,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, 0, command, unitcode, int(dimlevel), 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -976,13 +1041,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, str(system), 0, command, str(channel), 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -1116,13 +1177,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, sensor_id, 0, command, str(unitcode), level, 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, sensor_id, 0, command, str(unitcode), level, 0, 0, 0, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, sensor_id, 0, command, str(unitcode), level, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -1186,13 +1243,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, groupcode, command, unitcode, command_seqnbr, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -1316,13 +1369,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 			
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x28 Camera1
@@ -1445,17 +1494,10 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
-		# MYSQL
-		if config.mysql_active:
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			if subtype == '00' or subtype == '02':
-				insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, id1, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-			elif subtype == '04' or subtype == '01' or subtype == '03':
-				command = "Not implemented in RFXCMD"
-
-		# SQLITE
-		if config.sqlite_active:
-			if subtype == '00' or subtype == '02':
-				insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, id1, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+				insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, id1, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			elif subtype == '04' or subtype == '01' or subtype == '03':
 				command = "Not implemented in RFXCMD"
 
@@ -1521,13 +1563,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, sensor_id, mode, status, 0, 0, 0, temperature_set, temperature, 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -1640,13 +1678,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 		
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, unitcode, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -1716,13 +1750,9 @@ def decodePacket(message):
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -1794,13 +1824,9 @@ def decodePacket(message):
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 	
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -1881,15 +1907,9 @@ def decodePacket(message):
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
-		# MYSQL
-		if config.mysql_active:
-			logger.debug("Send to MySQL")
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			logger.debug("Send to Sqlite")
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -2008,13 +2028,9 @@ def decodePacket(message):
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# XPL
 		if config.xpl_active:
@@ -2133,13 +2149,9 @@ def decodePacket(message):
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(rainrate), float(raintotal), 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(rainrate), float(raintotal), 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(rainrate), float(raintotal), 0, 0, 0, 0)
 
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Done")
 
@@ -2239,13 +2251,9 @@ def decodePacket(message):
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 		
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
 
 		# xPL
 		if config.xpl_active:
@@ -2334,13 +2342,9 @@ def decodePacket(message):
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, str(uv), 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, str(uv), 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, str(uv), 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
 
 		# xPL
 		if config.xpl_active:
@@ -2598,13 +2602,9 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 					
-		# MYSQL
-		if config.mysql_active:
-			insert_mysql(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
-
-		# SQLITE
-		if config.sqlite_active:
-			insert_sqlite(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
 
 	# ---------------------------------------
 	# 0x71 RFXmeter
@@ -3345,7 +3345,20 @@ def read_configfile():
 			config.sqlite_active = False		
 		config.sqlite_database = read_config(cmdarg.configfile, "sqlite_database")
 		config.sqlite_table = read_config(cmdarg.configfile, "sqlite_table")
-	
+
+		# ----------------------
+		# PGSQL
+		if (read_config(cmdarg.configfile, "pgsql_active") == "yes"):
+			config.pgsql_active = True
+		else:
+			config.pgsql_active = False
+		config.pgsql_server = read_config(cmdarg.configfile, "pgsql_server")
+		config.pgsql_database = read_config(cmdarg.configfile, "pgsql_database")
+		config.pgsql_port = read_config(cmdarg.configfile, "pgsql_port")
+		config.pgsql_username = read_config(cmdarg.configfile, "pgsql_username")
+		config.pgsql_password = read_config(cmdarg.configfile, "pgsql_password")
+		config.pgsql_table = read_config(cmdarg.configfile, "pgsql_table")
+
 		# ----------------------
 		# GRAPHITE
 		if (read_config(cmdarg.configfile, "graphite_active") == "yes"):
@@ -3635,6 +3648,18 @@ def main():
 			logger.debug("Exit 1")
 			sys.exit(1)
 	
+	# ----------------------------------------------------------
+	# PGSQL
+	if config.pgsql_active:
+		logger.debug("pgSQL active, Check pgSQL")
+		try:
+			import psycopg2
+		except ImportError:
+			print "Error: You need to install pg extension for Python"
+			logger.error("Error: Could not find pgSQL extension for Python. Line: " + _line())
+			logger.debug("Exit 1")
+			sys.exit(1)
+
 	# ----------------------------------------------------------
 	# XPL
 	if config.xpl_active:
