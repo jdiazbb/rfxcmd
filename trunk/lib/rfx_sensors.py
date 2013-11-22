@@ -256,7 +256,10 @@ class rfx_data(dict):
 
 	rfx_subtype_14 = {"00":"LightwaveRF, Siemens",
 						"01":"EMW100 GAO/Everflourish",
-						"02":"BBSB new types"}
+						"02":"BBSB new types"
+						"03":"MDREMOTE LED dimmer"
+						"04":"Conrad RSL2"
+						"05":"Livolo"}
 	
 	# 0x00 LightwaveRF, Siemens
 	rfx_subtype_14_cmnd0 = {"00":"Off",
