@@ -257,7 +257,8 @@ class rfx_data(dict):
 	rfx_subtype_14 = {"00":"LightwaveRF, Siemens",
 						"01":"EMW100 GAO/Everflourish",
 						"02":"BBSB new types"}
-						
+	
+	# 0x00 LightwaveRF, Siemens
 	rfx_subtype_14_cmnd0 = {"00":"Off",
 							"01":"On",
 							"02":"Group off",
@@ -274,17 +275,44 @@ class rfx_data(dict):
 							"0D":"Close (inline relay)",
 							"0E":"Stop (inline relay)",
 							"0F":"Open (inline relay)",
-							"10":"Set level"}						
+							"10":"Set level"}
 
+	# 0x01 EMW100 GAO/Everflourish
 	rfx_subtype_14_cmnd1 = {"00":"Off",
 							"01":"On",
-							"02":"Learn"}						
+							"02":"Learn"}
 
+	# 0x02 BBSB new types
 	rfx_subtype_14_cmnd2 = {"00":"Off",
 							"01":"On",
 							"02":"Group Off",
-							"03":"Group On"}						
-					
+							"03":"Group On"}
+
+	# 0x03 MDREMOTE LED dimmer
+	rfx_subtype_14_cmnd3 = {"00":"Power",
+							"01":"Light",
+							"02":"Bright",
+							"03":"Dim"
+							"04":"100%"
+							"05":"50%"
+							"06":"25%"
+							"07":"Mode+"
+							"08":"Speed-"
+							"09":"Speed+"
+							"0A":"Mode-"}
+
+	# 0x04 Conrad RSL2
+	rfx_subtype_14_cmnd4 = {"00":"Off",
+							"01":"On",
+							"02":"Group Off",
+							"03":"Group On"}
+	
+	# 0x05 Livolo
+	rfx_subtype_14_cmnd5 = {"00":"Group Off",
+							"01":"On/Off dimmer or gang1",
+							"02":"Dim+ or gang2 on/off",
+							"03":"Dim- or gang3 on/off"}
+	
 	rfx_subtype_15 = {"00":"Blyss"}
 
 	rfx_subtype_15_groupcode = {"41":"A",
