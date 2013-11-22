@@ -135,7 +135,7 @@ except ImportError:
 try:
 	import psycopg2
 except ImportError:
-        pass
+	pass
 
 # Serial
 try:
@@ -165,13 +165,13 @@ class config_data:
 		sqlite_active = False,
 		sqlite_database = "",
 		sqlite_table = "",
-       	pgsql_active = False,
-       	pgsql_server = '',
-       	pgsql_database = '',
-       	pgsql_port = '',
-       	pgsql_username = '',
-       	pgsql_password = '',
-       	pgsql_table = '',
+		pgsql_active = False,
+		pgsql_server = '',
+		pgsql_database = '',
+		pgsql_port = '',
+		pgsql_username = '',
+		pgsql_password = '',
+		pgsql_table = '',
 		loglevel = "info",
 		logfile = "rfxcmd.log",
 		graphite_active = False,
@@ -190,7 +190,7 @@ class config_data:
 		process_rfxmsg = True,
 		weewx_active = False
 		):
-        
+
 		self.serial_device = serial_device
 		self.serial_rate = serial_rate
 		self.serial_timeout = serial_timeout
@@ -199,13 +199,13 @@ class config_data:
 		self.mysql_database = mysql_database
 		self.mysql_username = mysql_username
 		self.mysql_password = mysql_password
-       	self.pgsql_active = pgsql_active
-       	self.pgsql_server = pgsql_server
-       	self.pgsql_database = pgsql_database
-       	self.pgsql_port = pgsql_port
-       	self.pgsql_username = pgsql_username
-       	self.pgsql_password = pgsql_password
-       	self.pgsql_table = pgsql_table
+		self.pgsql_active = pgsql_active
+		self.pgsql_server = pgsql_server
+		self.pgsql_database = pgsql_database
+		self.pgsql_port = pgsql_port
+		self.pgsql_username = pgsql_username
+		self.pgsql_password = pgsql_password
+		self.pgsql_table = pgsql_table
 		self.trigger_active = trigger_active
 		self.trigger_onematch = trigger_onematch
 		self.trigger_file = trigger_file
@@ -314,7 +314,7 @@ def shutdown():
 	logger.debug("Exit 0")
 	sys.stdout.flush()
 	os._exit(0)
-    
+	
 def handler(signum=None, frame=None):
 	if type(signum) != type(None):
 		logger.debug("Signal %i caught, exiting..." % int(signum))
@@ -355,8 +355,8 @@ def daemonize():
 # ----------------------------------------------------------------------------
 
 def _line():
-    info = inspect.getframeinfo(inspect.currentframe().f_back)[0:3]
-    return '[%s:%d]' % (info[2], info[1])
+	info = inspect.getframeinfo(inspect.currentframe().f_back)[0:3]
+	return '[%s:%d]' % (info[2], info[1])
 
 # ----------------------------------------------------------------------------
 
@@ -416,7 +416,7 @@ def insert_database(timestamp, unixtime, packettype, subtype, seqnbr, battery, s
 	
 	# MYSQL
 	if config.mysql_active:
-    	insert_mysql(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
+		insert_mysql(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
 		data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
 
 	# SQLITE
@@ -517,15 +517,15 @@ def insert_pgsql(timestamp, unixtime, packettype, subtype, seqnbr, battery, sign
 	db = None
 
 	dsn = "dbname='%s' user='%s' host='%s' port=%s password=%s" \
-			% (config.pgsql_database, config.pgsql_username, config.pgsql_server, config.pgsql_port, config.pgsql_password)                                                  
-                                                                                                                                                                  
-	try:                                                                                                                                      
+			% (config.pgsql_database, config.pgsql_username, config.pgsql_server, config.pgsql_port, config.pgsql_password)
+	
+	try:
 		if data13 == 0:
 			data13 = "NULL"
 
-		db = psycopg2.connect(dsn)                                                                                                        
-		cursor = db.cursor()                                                                                                              
-                                                                                                                                                                  
+		db = psycopg2.connect(dsn)
+		cursor = db.cursor()
+	
 		sql = """
 				INSERT INTO %s (datetime, unixtime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
 				data5, data6, data7, data8, data9, data10, data11, data12, data13)
@@ -534,16 +534,16 @@ def insert_pgsql(timestamp, unixtime, packettype, subtype, seqnbr, battery, sign
 				data8, data9, data10, data11, data12, data13)
 
 		cursor.execute(sql)
-		db.commit()                                                                                   
-		                                                                                                                                    
-	except psycopg2.DatabaseError, e:                                                                     
+		db.commit()
+		
+	except psycopg2.DatabaseError, e:
 		logger.error("Line: " + _line())
 		logger.error("PgSQL error: %s" % e)
-		print "Error : (PgSQL Query) : %s " % e                                             
-		sys.exit(1)                                                                                                                      
-                                                                                                                              
-	finally:                                                                                                                                              
-		if db:                                                                                                        
+		print "Error : (PgSQL Query) : %s " % e
+		sys.exit(1)
+	
+	finally:
+		if db:
 			db.close() 
 
 # ----------------------------------------------------------------------------
@@ -1120,6 +1120,12 @@ def decodePacket(message):
 			command = rfx.rfx_subtype_14_cmnd1[ByteToHex(message[8])]
 		elif subtype == '02':
 			command = rfx.rfx_subtype_14_cmnd2[ByteToHex(message[8])]
+		elif subtype == '03':
+			command = rfx.rfx_subtype_14_cmnd3[ByteToHex(message[8])]
+		elif subtype == '04':
+			command = rfx.rfx_subtype_14_cmnd4[ByteToHex(message[8])]
+		elif subtype == '05':
+			command = rfx.rfx_subtype_14_cmnd5[ByteToHex(message[8])]
 		else:
 			command = "Unknown"
 		
@@ -1135,7 +1141,13 @@ def decodePacket(message):
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_14[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
-			print "Unitcode\t\t= " + str(unitcode)
+			
+			if subtype <> '03' and subtype <> '05':
+				print "Unitcode\t\t= Not used"
+				unitcode = 0
+			else:
+				print "Unitcode\t\t= " + str(unitcode)
+			
 			print "Command\t\t\t= " + command
 			
 			if subtype == '00':
@@ -3539,7 +3551,7 @@ def logger_init(configfile, name, debug):
 			handler.setFormatter(formatter)
 
 			logger = logging.getLogger(name)
-			logger.setLevel(loglevel)
+			logger.setLevel(logging.getLevelName(loglevel))
 			logger.addHandler(handler)
 			
 			return logger
