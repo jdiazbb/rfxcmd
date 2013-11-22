@@ -164,7 +164,8 @@ if __name__ == '__main__':
 	parser = optparse.OptionParser()
 	parser.add_option("-s", "--server", action="store", type="string", dest="server", help="IP address of the RFXCMD server (default: localhost)")
 	parser.add_option("-p", "--port", action="store", type="string", dest="port", help="Port of the RFXCMD server (default: 55000)")
-	parser.add_option("-r", "--rawcmd", action="store", type="string", dest="rawcmd", help="The raw message to be sent")
+	parser.add_option("-r", "--rawcmd", action="store", type="string", dest="rawcmd", help="The raw message to be sent, multiple messages separated with comma")
+	parser.add_option("-i", "--simulate", action="store_true", dest="simulate", help="Simulate send, nothing will be sent, instead printed on STDOUT")
 	parser.add_option("-v", "--version", action="store_true", dest="version", help="Print rfxcmd version information")
 
 	(options, args) = parser.parse_args()
@@ -182,21 +183,33 @@ if __name__ == '__main__':
 	else:
 		socket_port = 55000
 	
+	if options.simulate:
+		simulate = True
+	else:
+		simulate = False
+	
 	if options.rawcmd:
 		message = options.rawcmd
+		
+		# check for multiple messages
+		buf = message.split(',')
+		
 	else:
 		print "Error: rawcmd message is missing"
 		sys.exit(1)
 	
-	if test_message(options.rawcmd):
-		try:
-			send_message(socket_server, socket_port, message)
-		except socket.error as err:
-			print "Error: Could not send message: %s " % err
-			
-	else:
-		print "Command not sent, invalid format"
-	
+	for msg in buf:
+		if test_message(msg):
+			try:
+				if simulate == False:
+					send_message(socket_server, socket_port, msg)
+				else:
+					print("Message to send, Server: " + str(socket_server) + ":" + str(socket_port) + ", Message: " + msg);
+			except socket.error as err:
+				print "Error: Could not send message: %s " % err
+		else:
+			print "Command not sent, invalid format"
+		
 	sys.exit(0)
 
 # ------------------------------------------------------------------------------
