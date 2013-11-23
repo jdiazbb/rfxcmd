@@ -256,9 +256,9 @@ class rfx_data(dict):
 
 	rfx_subtype_14 = {"00":"LightwaveRF, Siemens",
 						"01":"EMW100 GAO/Everflourish",
-						"02":"BBSB new types"
-						"03":"MDREMOTE LED dimmer"
-						"04":"Conrad RSL2"
+						"02":"BBSB new types",
+						"03":"MDREMOTE LED dimmer",
+						"04":"Conrad RSL2",
 						"05":"Livolo"}
 	
 	# 0x00 LightwaveRF, Siemens
@@ -295,13 +295,13 @@ class rfx_data(dict):
 	rfx_subtype_14_cmnd3 = {"00":"Power",
 							"01":"Light",
 							"02":"Bright",
-							"03":"Dim"
-							"04":"100%"
-							"05":"50%"
-							"06":"25%"
-							"07":"Mode+"
-							"08":"Speed-"
-							"09":"Speed+"
+							"03":"Dim",
+							"04":"100%",
+							"05":"50%",
+							"06":"25%",
+							"07":"Mode+",
+							"08":"Speed-",
+							"09":"Speed+",
 							"0A":"Mode-"}
 
 	# 0x04 Conrad RSL2
