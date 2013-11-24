@@ -13,6 +13,7 @@ This will not work with RFXCMD version 0.2x and lower, this will be implemented 
 ||PA2||9-FEB-2013||Added field for Unixtime in UTC||
 ||PA3||1-APR-2013||Added missing 'level' for 0x14 sensor||
 ||PA4||12-AUG-2013||Added PostgreSQL from Pierre-Yves Vitre||
+||PA5||24-NOV-2013||Corrections in the field tables||
 
 = Details =
 
