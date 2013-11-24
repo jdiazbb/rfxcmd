@@ -13,7 +13,7 @@ This database format is only for rfxcmd version 0.3 and above.
 ||PA2||9-FEB-2013||Added field for Unixtime in UTC||
 ||PA3||1-APR-2013||Added missing 'level' for 0x14 sensor||
 ||PA4||12-AUG-2013||Added PostgreSQL from Pierre-Yves Vitre||
-||PA5||24-NOV-2013||Corrections in the field tables, 0x13 cmd1-3 moved to field||
+||PA5||24-NOV-2013||Corrections in the field tables, 0x13 cmd1-3 moved to field data3, 0x13 pulse moved to field data4||
 
 = Details =
 
