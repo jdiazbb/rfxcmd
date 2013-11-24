@@ -2,9 +2,9 @@
 
 = Introduction =
 
-Generalized database structure for all sensors from RFX, for both Mysql and Sqlite. Other databases can be added as well.
+Generalized database structure for all sensors from RFX, for Mysql, Sqlite and Postgresql.
 
-This will not work with RFXCMD version 0.2x and lower, this will be implemented in RFXCMD 0.3x
+This database format is only for rfxcmd version 0.3 and above.
 
 == Version ==
 
