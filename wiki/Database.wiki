@@ -37,7 +37,7 @@ Sensor specific data fields:
 || ||data1||data2||data3||data4||data5||data6||data7||data8||data9||data10||data11||data12||data13||
 ||MySQL||varchar(32)||varchar(32)||varchar(32)||integer||integer||integer||integer||float||float||float||float||float||datetime||
 ||Sqlite||text||text||text||integer||integer||integer||integer||real||real||real||real||real||text||
-||PgSQL||text||text||text||integer|integer||integer||integer||numeric||numeric||numeric||numeric||numeric||timestamp||
+||PgSQL||text||text||text||integer||integer||integer||integer||numeric||numeric||numeric||numeric||numeric||timestamp||
 ||0x01||cmnd||msg1||-||msg2||msg3||msg4||msg5||-||-||-||-||-||-||
 ||0x02||msg||-||-||-||-||-||-||-||-||-||-||-||-||
 ||0x03||msg1-msg33||-||-||-||-||-||-||-||-||-||-||-||-||
