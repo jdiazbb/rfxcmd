@@ -29,7 +29,7 @@ The fields that all sensors have common:
 Notes
 
  * Battery/Signal, If no battery or signal value, then it will be 255
- * Processed, used to mark data processed, example when reading data to RRD
+ * Processed, for users who want to mark the sensor data processed
 
 === Sensor ===
 
