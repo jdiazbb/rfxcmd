@@ -65,4 +65,12 @@
 	<!-- Weewx -->
 	<weewx_active>no</weewx_active>          
 	
+	<!-- RRD -->
+	<rrd_active>no</rrd_active>
+	<rrd_path></rrd_path>
+	
+	<!-- Barometric adjustemnt, only 0x53 and 0x54 -->
+	<!-- experimental, not working yet -->
+	<barometric>0</barometric>
+	
 </config>
