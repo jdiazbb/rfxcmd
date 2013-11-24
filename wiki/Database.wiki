@@ -23,7 +23,7 @@ The fields that all sensors have common:
 ||DB||id||Datetime||Unixtime||Packettype||Subtype||Seqnbr||Battery||Signal||Processed||
 ||MySQL||integer(11)||Datetime||integer(11)||int||varchar(2)||varchar(2)||varchar(2)||integer(2)||integer(2)||integer(1)||
 ||Sqlite||integer||text||integer||text||text||text||integer||integer||integer||
-||PgSQL||timestamp||integer||text||text||text||integer||integer||integer||
+||PgSQL||serial||timestamp||integer||text||text||text||integer||integer||integer||
 
 Notes
 
