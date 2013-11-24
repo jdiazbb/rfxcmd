@@ -52,6 +52,8 @@
 	<!-- xPL -->
 	<xpl_active>no</xpl_active>
 	<xpl_host>127.0.0.1</xpl_host>
+	<xpl_sourcename>rfxcmd-</xpl_sourcename>
+	<xpl_includehostname>yes</xpl_includehostname>
 	
 	<!-- Socket server -->
 	<socketserver>yes</socketserver>

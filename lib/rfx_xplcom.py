@@ -36,7 +36,7 @@ import datetime
 
 # -----------------------------------------------------------------------------
 
-def send(host, message):
+def send(host, message, sourcename = "rfxcmd-", hostname = True):
     """
     Send data to XPL network
     Credit: Jean-Louis Bergamo
@@ -59,8 +59,11 @@ def send(host, message):
     if sock is None:
         print 'could not open socket'
 
-    hostname = socket.gethostname()
-    message = 'xpl-stat\n{\nhop=1\nsource=rfxcmd.'+hostname+'\ntarget=*\n}\nsensor.basic\n{\n' + message + '\n}\n' 
+	if hostname:
+    	sourcename = sourcename + socket.gethostname()
+    
+    #message = 'xpl-stat\n{\nhop=1\nsource=rfxcmd.'+hostname+'\ntarget=*\n}\nsensor.basic\n{\n' + message + '\n}\n' 
+    message = 'xpl-stat\n{\nhop=1\nsource='+sourcename+'\ntarget=*\n}\nsensor.basic\n{\n' + message + '\n}\n' 
     sock.sendto(message,addr)
     sock.close()
 
