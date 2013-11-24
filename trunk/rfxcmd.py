@@ -109,7 +109,13 @@ try:
 except ImportError:
 	print "Error: module lib/rfx_decode not found"
 	sys.exit(1)
-
+	
+try:
+	from lib.rfx_rrd import *
+except ImportError:
+	print "Error: module lib/rfx_rrd not found"
+	sys.exit(1)
+	
 try:
 	from lib import rfx_xplcom as xpl
 except ImportError:
@@ -188,7 +194,10 @@ class config_data:
 		daemon_active = False,
 		daemon_pidfile = "rfxcmd.pid",
 		process_rfxmsg = True,
-		weewx_active = False
+		weewx_active = False,
+		rrd_active = False,
+		rrd_path = "",
+		barometric = 0
 		):
 
 		self.serial_device = serial_device
@@ -230,6 +239,9 @@ class config_data:
 		self.daemon_pidfile = daemon_pidfile
 		self.process_rfxmsg = process_rfxmsg
 		self.weewx_active = weewx_active
+		self.rrd_active = rrd_active
+		self.rrd_path = rrd_path
+		self.barometric = barometric
 
 class cmdarg_data:
 	def __init__(
@@ -1384,12 +1396,12 @@ def decodePacket(message):
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
+	
 	# ---------------------------------------
 	# 0x28 Camera1
 	# ---------------------------------------
 	if packettype == '28':
-
+	
 		decoded = True
 		
 		# PRINTOUT
@@ -1397,7 +1409,7 @@ def decodePacket(message):
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_28[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
-
+		
 		# TRIGGER
 		if config.trigger_active:
 			for trigger in triggerlist.data:
@@ -1930,6 +1942,10 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%')
 			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
 			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		
+		# RRD
+		if cmdarg.rrd_active == True:
+			rrd2Metrics(packettype, sensor_id, temperature, humidity, config.rrd_path)
 
 	# ---------------------------------------
 	# 0x53 - Barometric
@@ -2353,25 +2369,25 @@ def decodePacket(message):
 			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
-
+		
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, str(uv), 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-
+	
 		# xPL
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index')
 			if subtype == "03":
 				xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius')
-
+	
 	# ---------------------------------------
 	# 0x59 Current Sensor
 	# ---------------------------------------
-
+	
 	if packettype == '59':
-
+	
 		decoded = True
-
+	
 		# DATA
 		sensor_id = id1 + id2
 		count = int(ByteToHex(message[6]),16)
@@ -2380,7 +2396,7 @@ def decodePacket(message):
 		channel3 = int(ByteToHex(message[11]),16) * 0x100 + int(ByteToHex(message[12]),16)
 		signal = decodeSignal(message[13])
 		battery = decodeBattery(message[13])
-
+	
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_5A[subtype]
@@ -2392,7 +2408,7 @@ def decodePacket(message):
 			print "Channel 3\t\t= " + str(channel3) + "A"
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
-	
+		
 		# TRIGGER
 		if config.trigger_active:
 			for trigger in triggerlist.data:
@@ -2491,15 +2507,19 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(usage)+'\nunits=Wh')
 			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%')
 			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%')
+		
+		# RRD
+		if config.rrd_active == True:
+			rrd1Metric(packettype, sensor_id, instant, config.rrd_path)
 
 	# ---------------------------------------
 	# 0x5B Current + Energy sensor
 	# ---------------------------------------
 	
 	if packettype == '58':
-
+	
 		decoded = True
-
+		
 		# DATA
 		sensor_id = id1 + id2
 		date_year = ByteToHex(message[6]);
@@ -2901,10 +2921,10 @@ def read_rfx():
 						logger.error("Error: unrecognizable packet (" + ByteToHex(message) + ") Line: " + _line())
 						if cmdarg.printout_complete == True:
 							print("Error: unrecognizable packet")
-
+					
 					rawcmd = ByteToHex ( message )
 					rawcmd = rawcmd.replace(' ', '')
-
+					
 					return rawcmd
 				
 				else:
@@ -2924,11 +2944,11 @@ def read_rfx():
 # ----------------------------------------------------------------------------
 
 def read_config( configFile, configItem):
- 	"""
- 	Read item from the configuration file
- 	"""
- 	logger.debug('Open configuration file')
- 	logger.debug('File: ' + configFile)
+	"""
+	Read item from the configuration file
+	"""
+	logger.debug('Open configuration file')
+	logger.debug('File: ' + configFile)
 	
 	if os.path.exists( configFile ):
 
@@ -3421,14 +3441,29 @@ def read_configfile():
 		logger.debug("Daemon_pidfile: " + str(config.daemon_pidfile))
 		
 		# -----------------------
-		# DAEMON
+		# WEEWX
 		if (read_config(cmdarg.configfile, "weewx_active") == "yes"):
 			config.weewx_active = True
 		else:
 			config.weewx_active = False			
 		
+		# ------------------------
+		# RRD
+		if (read_config(cmdarg.configfile, "rrd_active") == "yes"):
+			config.rrd_active = True
+		else:
+			config.rrd_active = False
+		
+		# If RRD path is empty, then use the script path
+		config.rrd_path = read_config( cmdarg.configfile, "rrd_path")
+		if config.rrd_path = "":
+			config.rrd_path = os.path.dirname(os.path.realpath(__file__))
+		
+		# ------------------------
+		# BAROMETRIC
+		config.barometric = read_config(cmdarg.configfile, "barometric")
+		
 	else:
-
 		# config file not found, set default values
 		print "Error: Configuration file not found (" + cmdarg.configfile + ")"
 		logger.error("Error: Configuration file not found (" + cmdarg.configfile + ") Line: " + _line())
@@ -3681,6 +3716,11 @@ def main():
 	# GRAPHITE
 	if config.graphite_active:
 		logger.debug("Graphite active")
+
+	# ----------------------------------------------------------
+	# RRD
+	if config.rrd_active:
+		logger.debug("RRD active")
 
 	# ----------------------------------------------------------
 	# SERIAL
