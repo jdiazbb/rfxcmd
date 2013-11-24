@@ -1115,6 +1115,10 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, 0, 0, str(code_bin), pulse, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
 	# ---------------------------------------
 	# 0x14 Lighting5
 	# ---------------------------------------
