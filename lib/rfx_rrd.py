@@ -29,19 +29,23 @@
 #
 # ------------------------------------------------------------------------------
 
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-import rrdtool
+try:
+	import rrdtool
+except ImportError:
+	pass
+
 import os
 
-
 def rrd1Metric (sensortype, sensorid, metric1, rrd_root):
+	
 	DS1 = "metric1"
-
+	
 	# ensure rrd dir exist
 	if not os.path.exists (rrd_root):
 		os.makedirs(rrd_root)
-
+	
 	# One dirs per sensor type, one rrd per sensor
 	# If dir doesn't exist, create it.
 	rrd_path = rrd_root + "/"+ sensortype +"/"
@@ -49,28 +53,29 @@ def rrd1Metric (sensortype, sensorid, metric1, rrd_root):
 		os.makedirs(rrd_path)
 	rrdfile = rrd_path + sensorid + ".rrd"
 	rrdfile = str(rrdfile)
-
+	
 	# If rrdfile doesn't exist, create it
 	if not os.path.exists(rrdfile):
-
 		# Legend depends of sensor type
 		# 5A: Energy
 		if sensortype == '5A' :
 			DS1 = "Watt"
+		
 		# Create the rrd
 		rrdtool.create(rrdfile, '--step', '30', '--start', '0', 'DS:%s:GAUGE:120:U:U' % (DS1), 'RRA:AVERAGE:0.5:1:1051200', 'RRA:AVERAGE:0.5:10:210240')
+	
 	# Update the rdd with new values
 	rrdtool.update('%s' % (rrdfile), 'N:%s' % (metric1) )
 
-
 def rrd2Metrics (sensortype, sensorid, metric1, metric2, rrd_root):
+	
 	DS1 = "metric1"
 	DS2 = "metric2"
-
+	
 	# ensure rrd dir exist
 	if not os.path.exists (rrd_root):
 		os.makedirs(rrd_root)
-
+	
 	# One dirs per sensor type, one rrd per sensor
 	# If dir doesn't exist, create it.
 	rrd_path = rrd_root + "/"+ sensortype +"/"
@@ -78,18 +83,19 @@ def rrd2Metrics (sensortype, sensorid, metric1, metric2, rrd_root):
 		os.makedirs(rrd_path)
 	rrdfile = rrd_path + sensorid + ".rrd"
 	rrdfile = str(rrdfile)
-
+	
 	# If rrdfile doesn't exist, create it
-	if not os.path.exists(rrdfile):
-
+	if not os.path.exists(rrdfile):	
 		# Legend depends of sensor type
 		# 52: Temperature and humidity
 		if sensortype == '52' :
 			DS1 = "Temperature"
 			DS2 = "Humidity"
+		
 		# Create the rrd
 		rrdtool.create(rrdfile, '--step', '30', '--start', '0', 'DS:%s:GAUGE:120:U:U' % (DS1), 'DS:%s:GAUGE:120:U:U' % (DS2), 'RRA:AVERAGE:0.5:1:1051200', 'RRA:AVERAGE:0.5:10:210240')
+	
 	# Update the rdd with new values
 	rrdtool.update('%s' % (rrdfile), 'N:%s:%s' % (metric1, metric2) )
 
-# ----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
