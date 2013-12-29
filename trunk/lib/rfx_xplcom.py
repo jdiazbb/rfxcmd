@@ -60,7 +60,7 @@ def send(host, message, sourcename = "rfxcmd-", hostname = True):
         print 'could not open socket'
 
 	if hostname:
-    	sourcename = sourcename + socket.gethostname()
+		sourcename = sourcename + socket.gethostname()
     
     #message = 'xpl-stat\n{\nhop=1\nsource=rfxcmd.'+hostname+'\ntarget=*\n}\nsensor.basic\n{\n' + message + '\n}\n' 
     message = 'xpl-stat\n{\nhop=1\nsource='+sourcename+'\ntarget=*\n}\nsensor.basic\n{\n' + message + '\n}\n' 
