@@ -2471,26 +2471,28 @@ def decodePacket(message):
 	# Credit: Jean-Michel ROY
 	# ---------------------------------------
 	if packettype == '5A':
-
+		
 		decoded = True
-
+		
 		# DATA
 		sensor_id = id1 + id2
 		signal = decodeSignal(message[17])
+		count = int(ByteToHex(message[6]), 16)
 		battery = decodeBattery(message[17])
 		instant = int(ByteToHex(message[7]), 16) * 0x1000000 + int(ByteToHex(message[8]), 16) * 0x10000 + int(ByteToHex(message[9]), 16) * 0x100  + int(ByteToHex(message[10]), 16)
 		usage = int ((int(ByteToHex(message[11]), 16) * 0x10000000000 + int(ByteToHex(message[12]), 16) * 0x100000000 +int(ByteToHex(message[13]), 16) * 0x1000000 + int(ByteToHex(message[14]), 16) * 0x10000 + int(ByteToHex(message[15]), 16) * 0x100 + int(ByteToHex(message[16]), 16) ) / 223.666)
-
+		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_5A[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
+			print "Count\t\t\t= " + str(count)
 			print "Instant usage\t\t= " + str(instant) + " Watt"
 			print "Total usage\t\t= " + str(usage) + " Wh"
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
-
+		
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
@@ -2512,6 +2514,7 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$count$", str(count) )
 					action = action.replace("$instant$", str(instant) )
 					action = action.replace("$total$", str(usage) )
 					action = action.replace("$battery$", str(battery) )
@@ -2522,6 +2525,10 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
+		
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, count, 0, 0, 0, float(instant), 0, 0,float(usage), 0, 0)
 		
 		# XPL
 		if config.xpl_active:
