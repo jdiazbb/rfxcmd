@@ -1963,7 +1963,7 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
 		
 		# RRD
-		if cmdarg.rrd_active == True:
+		if config.rrd_active == True:
 			rrd2Metrics(packettype, sensor_id, temperature, humidity, config.rrd_path)
 
 	# ---------------------------------------
