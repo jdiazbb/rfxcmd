@@ -85,7 +85,6 @@ except ImportError:
 	print "Error: module lib/rfx_socket not found"
 	sys.exit(1)
 
-# RFXCMD modules
 try:
 	from lib.rfx_command import *
 except ImportError:
@@ -2008,6 +2007,9 @@ def decodePacket(message):
 		barometric_high = barometric_high << 8
 		barometric = ( barometric_high + int(barometric_low,16) )
 		
+		if config.barometric <> 0:
+			barometric = int(barometric) + int(config.barometric)
+		
 		# Forecast
 		forecast = rfx.rfx_subtype_54_forecast[ByteToHex(message[12])]
 		
@@ -3438,7 +3440,7 @@ def read_configfile():
 		if (read_config(cmdarg.configfile, "socketserver") == "yes"):
 			config.socketserver = True
 		else:
-			config.socketserver = False			
+			config.socketserver = False
 		config.sockethost = read_config( cmdarg.configfile, "sockethost")
 		config.socketport = read_config( cmdarg.configfile, "socketport")
 		logger.debug("SocketServer: " + str(config.socketserver))
@@ -3460,7 +3462,7 @@ def read_configfile():
 		if (read_config(cmdarg.configfile, "daemon_active") == "yes"):
 			config.daemon_active = True
 		else:
-			config.daemon_active = False			
+			config.daemon_active = False
 		config.daemon_pidfile = read_config( cmdarg.configfile, "daemon_pidfile")
 		logger.debug("Daemon_active: " + str(config.daemon_active))
 		logger.debug("Daemon_pidfile: " + str(config.daemon_pidfile))
@@ -3470,7 +3472,7 @@ def read_configfile():
 		if (read_config(cmdarg.configfile, "weewx_active") == "yes"):
 			config.weewx_active = True
 		else:
-			config.weewx_active = False			
+			config.weewx_active = False
 		
 		# ------------------------
 		# RRD
@@ -3481,7 +3483,7 @@ def read_configfile():
 		
 		# If RRD path is empty, then use the script path
 		config.rrd_path = read_config( cmdarg.configfile, "rrd_path")
-		if config.rrd_path = "":
+		if not config.rrd_path:
 			config.rrd_path = os.path.dirname(os.path.realpath(__file__))
 		
 		# ------------------------
