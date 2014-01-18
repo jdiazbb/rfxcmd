@@ -2157,8 +2157,8 @@ def decodePacket(message):
 		
 		# CSV		
 		if cmdarg.printout_csv == True:
-			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
-							( timestamp, packettype, subtype, seqnbr, id1, id2,
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
+							( timestamp, unixtime_utc, packettype, subtype, seqnbr, id1, id2,
 							str(rainrate), str(int(raintotal1,16)), 
 							str(battery), str(signal) ) )
 			sys.stdout.flush()
@@ -2766,7 +2766,7 @@ def read_socket():
 	if not messageQueue.empty():
 		logger.debug("Message received in socket messageQueue")
 		message = stripped(messageQueue.get())
-
+		
 		if test_rfx( message ):
 		
 			# Flush buffer
@@ -2774,16 +2774,16 @@ def read_socket():
 			logger.debug("SerialPort flush output")
 			serial_param.port.flushInput()
 			logger.debug("SerialPort flush input")
-
+			
 			timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-
+			
 			if message == '0A1100FF001100FF001100':
 				logger.debug("Message from WEEWX")
 				if cmdarg.printout_complete == True:
 					print "------------------------------------------------"
 					print "Request received from WEEWX station-driver"
 					print "Request skipped here!"
-
+				
 			else:			
 				if cmdarg.printout_complete == True:
 					print "------------------------------------------------"
