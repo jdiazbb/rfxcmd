@@ -429,18 +429,23 @@ def insert_database(timestamp, unixtime, packettype, subtype, seqnbr, battery, s
 	Choose in which database insert datas
 	"""
 	
+	logger.debug('insert_database')
+	
 	# MYSQL
 	if config.mysql_active:
+		logger.debug('-> MySQL')
 		insert_mysql(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
 		data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
 
 	# SQLITE
 	if config.sqlite_active:
+		logger.debug('-> SqLite')
 		insert_sqlite(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
-		data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)        
+		data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
 
 	# PGSQL
 	if config.pgsql_active:
+		logger.debug('-> PGSql')
 		insert_pgsql(timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3,
 		data4, data5, data6, data7, data8, data9, data10, data11, data12, data13)
 
@@ -600,7 +605,14 @@ def decodePacket(message):
 	
 	if cmdarg.printout_complete:
 		print "Packettype\t\t= " + rfx.rfx_packettype[packettype]
-
+	
+	# ---------------------------------------
+	# Verify correct length on packets
+	# ---------------------------------------
+	if packettype == '42' and len(message) <> 9:
+		logger.error("PacketType 0x42 has wrong length, discarding")
+		packettype = None
+		
 	# ---------------------------------------
 	# 0x0 - Interface Control
 	# ---------------------------------------
@@ -1656,11 +1668,11 @@ def decodePacket(message):
 	# 0x42 Thermostat3
 	# ---------------------------------------
 	if packettype == '42':
-
+		
 		logger.debug("PacketType 0x42")
 		
 		decoded = True
-
+		
 		# DATA
 		if subtype == '00':
 			unitcode = ByteToHex(message[4])
