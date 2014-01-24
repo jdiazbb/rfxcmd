@@ -609,10 +609,191 @@ def decodePacket(message):
 	# ---------------------------------------
 	# Verify correct length on packets
 	# ---------------------------------------
-	if packettype == '42' and len(message) <> 9:
-		logger.error("PacketType 0x42 has wrong length, discarding")
+	if packettype == '00' and len(message) <> 14:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
 		packettype = None
-		
+	
+	if packettype == '01' and len(message) <> 14:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '02' and len(message) <> 5:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '10' and len(message) <> 8:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '11' and len(message) <> 12:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '12' and len(message) <> 9:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '13' and len(message) <> 10:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '15' and len(message) <> 12:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '16' and len(message) <> 8:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '17' and len(message) <> 8:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '18' and len(message) <> 8:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '19' and len(message) <> 10:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '20' and len(message) <> 9:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '28' and len(message) <> 7:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '30' and len(message) <> 7:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '40' and len(message) <> 10:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '41' and len(message) <> 7:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '42' and len(message) <> 9:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '4E' and len(message) <> 11:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '4F' and len(message) <> 11:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '50' and len(message) <> 9:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '51' and len(message) <> 9:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '52' and len(message) <> 11:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '53' and len(message) <> 10:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '54' and len(message) <> 14:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '55' and len(message) <> 12:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '56' and len(message) <> 17:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '57' and len(message) <> 10:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '58' and len(message) <> 14:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '59' and len(message) <> 14:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '5A' and len(message) <> 17:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '5B' and len(message) <> 20:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '5C' and len(message) <> 16:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '5D' and len(message) <> 9:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '70' and len(message) <> 8:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '71' and len(message) <> 11:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
+	if packettype == '72' and len(message) <> 10:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
 	# ---------------------------------------
 	# 0x0 - Interface Control
 	# ---------------------------------------
