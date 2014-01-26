@@ -759,7 +759,7 @@ def decodePacket(message):
 		decoded = True
 		packettype = None
 	
-	if packettype == '5A' and len(message) <> 17:
+	if packettype == '5A' and len(message) <> 18:
 		logger.error("Packet has wrong length, discarding")
 		decoded = True
 		packettype = None
