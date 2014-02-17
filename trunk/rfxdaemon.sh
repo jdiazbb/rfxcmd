@@ -4,14 +4,19 @@
 # description: rfxcmd daemon
 # processname: rfxcmd.py
 
+##############################################################################
+#
+# Note, you might need to change the parameters below, the current settings
+# are for default setup.
+#
+##############################################################################
+
 DAEMON_PATH="/opt/rfxcmd/"
 SERIAL_DEVICE="/dev/rfxcom"
 CONFIG_FILE="/opt/rfxcmd/config.xml"
-OTHER_SWITCH="-m"
-DAEMON_SWITCH="-z -p /var/run/rfxcmd.pid"
 
 DAEMON=rfxcmd.py
-DAEMONOPTS="-d $SERIAL_DEVICE -a listen -o $CONFIG_FILE $OTHER_SWITCH $DAEMON_SWITCH"
+DAEMONOPTS="-l -o $CONFIG_FILE $OTHER_SWITCH"
 
 NAME=rfxcmd
 DESC="rfxcmd daemon startup script"
