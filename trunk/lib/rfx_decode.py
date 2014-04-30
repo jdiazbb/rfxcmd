@@ -73,3 +73,22 @@ def decodeBattery(message):
 	return battery
 
 # ----------------------------------------------------------------------------
+
+def decodePower(message_1, message_2, message_3):
+	"""
+	Decode power bytes.
+	"""
+	power_1 = ByteToHex(message_1)
+	power_2 = ByteToHex(message_2)
+	power_3 = ByteToHex(message_3)
+	
+	power_1 = int(power_1,16)
+	power_1 = power_1 << 16
+	power_2 = int(power_2,16) << 8
+	power_3 = int(power_3,16)
+	power = ( power_1 + power_2 + power_3)
+	power_str = str(power)
+	
+	return power_str
+
+# ----------------------------------------------------------------------------
