@@ -56,7 +56,7 @@ __license__ = "GPL"
 __version__ = "0.3 (" + filter(str.isdigit, "$Rev$") + ")"
 __maintainer__ = "Sebastian Sjoholm"
 __email__ = "sebastian.sjoholm@gmail.com"
-__status__ = "Development"
+__status__ = "Development-Alpha-2"
 __date__ = "$Date$"
 
 # Default modules
