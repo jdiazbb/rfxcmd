@@ -82,7 +82,7 @@ import inspect
 try:
 	from lib.rfx_socket import *
 except ImportError:
-	print "Error: module lib/rfx_socket not found"
+	print "Error: importing module from lib folder"
 	sys.exit(1)
 
 try:
@@ -1956,6 +1956,7 @@ def decodePacket(message):
 			
 		# TRIGGER
 		if config.trigger_active:
+			logger.debug("Check trigger")
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -1977,7 +1978,9 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-
+				else:
+					logger.debug("No trigger match")
+		
 		# GRAPHITE
 		if config.graphite_active == True:
 			logger.debug("Send to Graphite")
@@ -2031,6 +2034,7 @@ def decodePacket(message):
 		
 		# TRIGGER
 		if config.trigger_active:
+			logger.debug("Check trigger")
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2110,7 +2114,7 @@ def decodePacket(message):
 		
 		# TRIGGER
 		if config.trigger_active:
-			logger.debug("Check trigger")			
+			logger.debug("Check trigger")
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2871,13 +2875,15 @@ def decodePacket(message):
 		
 		# DATA
 		sensor_id = id1 + id2
+		power = decodePower(message[7], message[8], message[9])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_71[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + id1
-
+			print "Power\t\t\t= " + str(power)
+			
 		# TRIGGER
 		if config.trigger_active:
 			for trigger in triggerlist.data:
@@ -2898,6 +2904,11 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
+
+    	# CSV
+    	if cmdarg.printout_csv == True:
+      		sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, id1 + id2, str(power)))
+      		sys.stdout.flush()
 
 	# ---------------------------------------
 	# 0x72 FS20
