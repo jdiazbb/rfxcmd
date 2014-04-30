@@ -1110,8 +1110,8 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Lightning.'+housecode+str(unitcode)+'\ntype=command\ncurrent='+command+'\n', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Lightning.'+housecode+str(unitcode)+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+housecode+str(unitcode)+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+housecode+str(unitcode)+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x11 Lighting2
@@ -1172,8 +1172,8 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x12 Lighting3
@@ -1257,8 +1257,8 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Lightning.'+str(channel)+'\ntype=command\ncurrent='+command+'\n', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Lightning.'+str(channel)+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+str(channel)+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+str(channel)+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x13 Lighting4
@@ -1409,8 +1409,8 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x15 Lighting6
@@ -1475,8 +1475,8 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
@@ -1807,12 +1807,12 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=temperature\ncurrent='+temperature+'\nunits=C', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=temperature_set\ncurrent='+temperature_set+'\nunits=C', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=mode\ncurrent='+mode+'\n', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=status\ncurrent='+mode+'\n', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=temperature\ncurrent='+temperature+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=temperature_set\ncurrent='+temperature_set+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=mode\ncurrent='+mode+'\n', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=status\ncurrent='+mode+'\n', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x41 Thermostat2
@@ -1922,8 +1922,8 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=command\ncurrent='+command+'\nunits=C', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=command\ncurrent='+command+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 		logger.debug("PacketType 0x42, done.")
 
@@ -1997,9 +1997,9 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x51 - Humidity sensors
@@ -2072,9 +2072,9 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x52 - Temperature and humidity sensors
@@ -2156,10 +2156,10 @@ def decodePacket(message):
 		# XPL
 		if config.xpl_active:
 			logger.debug("Send to xPL")
-			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=HumTemp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 		
 		# RRD
 		if config.rrd_active == True:
@@ -2283,11 +2283,11 @@ def decodePacket(message):
 
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(barometric)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(barometric)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 		# WEEWX
 		if config.weewx_active:
@@ -2506,18 +2506,18 @@ def decodePacket(message):
 
 		# xPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=direction\ncurrent='+str(direction)+'\nunits=Degrees', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=direction\ncurrent='+str(direction)+'\nunits=Degrees', config.xpl_sourcename, config.xpl_includehostname)
 			
 			if subtype <> "05":
-				xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=Averagewind\ncurrent='+str(av_speed)+'\nunits=mtr/sec', xpl_sourcename, xpl_includehostname)
+				xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=Averagewind\ncurrent='+str(av_speed)+'\nunits=mtr/sec', config.xpl_sourcename, config.xpl_includehostname)
 			
 			if subtype == "04":
-				xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=temperature\ncurrent='+str(temperature)+'\nunits=C', xpl_sourcename, xpl_includehostname)
-				xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=windchill\ncurrent='+str(windchill)+'\nunits=C', xpl_sourcename, xpl_includehostname)
+				xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=temperature\ncurrent='+str(temperature)+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
+				xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=windchill\ncurrent='+str(windchill)+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
 			
-			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=windgust\ncurrent='+str(gust)+'\nunits=mtr/sec', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=windgust\ncurrent='+str(gust)+'\nunits=mtr/sec', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x57 UV Sensor
@@ -2597,9 +2597,9 @@ def decodePacket(message):
 	
 		# xPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index', config.xpl_sourcename, config.xpl_includehostname)
 			if subtype == "03":
-				xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius', xpl_sourcename, xpl_includehostname)
+				xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius', config.xpl_sourcename, config.xpl_includehostname)
 	
 	# ---------------------------------------
 	# 0x59 Current Sensor
@@ -2659,11 +2659,11 @@ def decodePacket(message):
 		
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel2\ncurrent='+str(channel2)+'\nunits=A', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel2\ncurrent='+str(channel2)+'\nunits=A', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
 	# ---------------------------------------
 	# 0x5A Energy sensor
@@ -2731,10 +2731,10 @@ def decodePacket(message):
 		
 		# XPL
 		if config.xpl_active:
-			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(instant)+'\nunits=W', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(usage)+'\nunits=Wh', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
-			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', xpl_sourcename, xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=instant_usage\ncurrent='+str(instant)+'\nunits=W', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=total_usage\ncurrent='+str(usage)+'\nunits=Wh', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Energy.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 		
 		# RRD
 		if config.rrd_active == True:
