@@ -74,7 +74,7 @@
 	<!-- Barometric adjustemnt, only 0x54 -->
 	<barometric>0</barometric>
 	
-	<!-- Log messages [NOT IN USE YET] -->
+	<!-- Log messages -->
 	<log_msg>no</log_msg>
 	<log_msgfile>msg.log</log_msgfile>
 	
