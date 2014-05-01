@@ -2885,6 +2885,7 @@ def decodePacket(message):
 		
 		# DATA
 		sensor_id = id1 + id2
+		power = ''
 		power = decodePower(message[7], message[8], message[9])
 		
 		# PRINTOUT
