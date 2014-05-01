@@ -2336,6 +2336,7 @@ def decodePacket(message):
 		
 		# WEEWX
 		if config.weewx_active:
+			logger.debug("Weewx action")
 			wwx.wwx_thb_t_in = temperature
 			wwx.wwx_thb_h_in = humidity
 			wwx.wwx_thb_hs_in = humidity_status
@@ -2554,6 +2555,18 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=windgust\ncurrent='+str(gust)+'\nunits=mtr/sec', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+		
+		# WEEWX
+		if config.weewx_active:
+			logger.debug("Weewx action")
+			wwx.wwx_wind_dir = direction
+			if subtype <> "05":
+				wwx.wwx_wind_avg = av_speed
+			if subtype == "04":
+				wwx.wwx_th_t_out = temperature
+			wwx.wwx_wind_gust = windgust
+			wwx.wwx_wind_batt = battery
+			wwx.wwx_wind_sign = signal
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
