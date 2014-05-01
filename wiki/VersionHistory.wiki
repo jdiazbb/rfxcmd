@@ -1,6 +1,35 @@
 #summary RFXCMD version history
 = Version History =
 
+== v0.3 Alpha-2 (30-APR-2014) ==
+ * Issue 35 Fixed missing unix timestamp in CSV printout on sensor 0x55
+ * Issue 33 Undefined variables for xpl fixed (Pierre W)
+ * Issue 23 Fixed timestamp_utc in sensor 55
+ * Added 0x52 type 0A (Rubicson)
+ * Added Conrad RSL2 (P. Holik)
+ * Added additional new sensors for Lightning5
+ * Added OSError exception handling in readbytes
+ * Added packet length check for all packet types
+ * Added database entry for 0x5A, and added missed count field in printout
+ * Added possibility to change xPL config in config file
+ * Added database export for 0x13 (Lightning4)
+ * Added RRD export library from (Serge T)
+ * Added RRD export for sensor 0x52 and 0x5A
+ * Added Support for multiple messages on command line, separated by comma
+ * Added pgsql functionality (Pierre-Yves)
+ * Added graphite export for all weather sensors
+ * Added Class weewx_data, needed for sending answer at request of WEEWX Weatherstation software (by M. Bakker)
+ * Fixed in sensor 0x71 with power (Alexandre F)
+ * Fixed sensor 0x52 RRD issue
+ * Fixed faults in the lightning5 setup
+ * Fixed missing sensors for Lightning5
+ * Fixed tab faults (P. Holik)
+ * Fixed debug with Python 2.6 (P. Holik)
+ * Fixes the seqnbr in the database insert (mysql/sqlite)
+ * Fixes to lightning6/xPL
+ * Fixed Output data to screen when the MySQL/Sqlite is active if verbose switch is given
+ * Fixed 0x55 for database export
+ * Fixed the RAIN2 (0x55) sensor data
 == v0.3 Alpha-1 (18-MAY-2013) ==
  * First public alpha release.
  * Rewrite, more in object style
