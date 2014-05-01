@@ -808,7 +808,15 @@ def decodePacket(message):
 	# file on disk
 	# ---------------------------------------
 	if decoded == False and config.log_msg == True:
-		logger.debug("Save packet to log_msgfile")		
+		logger.debug("Save packet to log_msgfile")
+		try:
+			file = open(config.log_msgfile,"a+")
+			file.write(str(message) + "\n")
+			file.close()
+		except Exception, e:
+			logger.error("Error when trying to write message log")
+			logger.error("Exception: %s" % str(e))
+			pass
 		
 	# ---------------------------------------
 	# 0x0 - Interface Control
