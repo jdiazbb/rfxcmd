@@ -22,8 +22,8 @@
 #	
 #	Website: http://code.google.com/p/rfxcmd/
 #
-#	$Rev$
-#	$Date$
+#	$Rev: 566 $
+#	$Date: 2013-11-22 21:43:41 +0100 (Fri, 22 Nov 2013) $
 #
 #	NOTES
 #	
@@ -52,11 +52,11 @@
 __author__ = "Sebastian Sjoholm"
 __copyright__ = "Copyright 2012-2013, Sebastian Sjoholm"
 __license__ = "GPL"
-__version__ = "0.1 (" + filter(str.isdigit, "$Rev$") + ")"
+__version__ = "0.1 (" + filter(str.isdigit, "$Rev: 566 $") + ")"
 __maintainer__ = "Sebastian Sjoholm"
 __email__ = "sebastian.sjoholm@gmail.com"
 __status__ = "Development"
-__date__ = "$Date$"
+__date__ = "$Date: 2013-11-22 21:43:41 +0100 (Fri, 22 Nov 2013) $"
 
 # Default modules
 import sys
