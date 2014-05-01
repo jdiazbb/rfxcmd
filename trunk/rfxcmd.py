@@ -586,6 +586,7 @@ def decodePacket(message):
 	db = ""
 	
 	# Verify incoming message
+	logger.debug("Verify incoming packet")
 	if not test_rfx( ByteToHex(message) ):
 		logger.error("The incoming message is invalid (" + ByteToHex(message) + ") Line: " + _line())
 		if cmdarg.printout_complete == True:
@@ -615,6 +616,7 @@ def decodePacket(message):
 	# ---------------------------------------
 	# Verify correct length on packets
 	# ---------------------------------------
+	logger.debug("Verify correct packet length")
 	if packettype == '00' and len(message) <> 14:
 		logger.error("Packet has wrong length, discarding")
 		decoded = True
@@ -812,12 +814,15 @@ def decodePacket(message):
 	# 0x0 - Interface Control
 	# ---------------------------------------
 	if packettype == '00':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		decoded = True
 	
 	# ---------------------------------------
 	# 0x01 - Interface Message
 	# ---------------------------------------
 	if packettype == '01':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+
 		decoded = True
 		
 		if cmdarg.printout_complete:
@@ -986,6 +991,7 @@ def decodePacket(message):
 	# 0x02 - Receiver/Transmitter Message
 	# ---------------------------------------
 	if packettype == '02':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
 		
@@ -1016,6 +1022,7 @@ def decodePacket(message):
 	# 0x03 - Undecoded Message
 	# ---------------------------------------
 	if packettype == '03':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
 		
@@ -1067,6 +1074,7 @@ def decodePacket(message):
 	# 0x10 Lighting1
 	# ---------------------------------------
 	if packettype == '10':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 		
@@ -1127,6 +1135,7 @@ def decodePacket(message):
 	# 0x11 Lighting2
 	# ---------------------------------------
 	if packettype == '11':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 		
@@ -1189,6 +1198,7 @@ def decodePacket(message):
 	# 0x12 Lighting3
 	# ---------------------------------------
 	if packettype == '12':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 		
@@ -1274,6 +1284,7 @@ def decodePacket(message):
 	# 0x13 Lighting4
 	# ---------------------------------------
 	if packettype == '13':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 
@@ -1331,6 +1342,7 @@ def decodePacket(message):
 	# 0x14 Lighting5
 	# ---------------------------------------
 	if packettype == '14':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 		
@@ -1427,6 +1439,7 @@ def decodePacket(message):
 	# Credit: Dimitri Clatot
 	# ---------------------------------------
 	if packettype == '15':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 
@@ -1492,6 +1505,7 @@ def decodePacket(message):
 	# 0x18 Curtain1 (Transmitter only)
 	# ---------------------------------------
 	if packettype == '18':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 
@@ -1529,6 +1543,7 @@ def decodePacket(message):
 	# 0x19 Blinds1
 	# ---------------------------------------
 	if packettype == '19':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 		
@@ -1566,6 +1581,7 @@ def decodePacket(message):
 	# Credit: Dimitri Clatot
 	# ---------------------------------------
 	if packettype == '20':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 		
@@ -1621,6 +1637,7 @@ def decodePacket(message):
 	# 0x28 Camera1
 	# ---------------------------------------
 	if packettype == '28':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 	
 		decoded = True
 		
@@ -1658,6 +1675,7 @@ def decodePacket(message):
 	# 0x30 Remote control and IR
 	# ---------------------------------------
 	if packettype == '30':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 
@@ -1754,6 +1772,7 @@ def decodePacket(message):
 	# Credit: Jean-François Pucheu
 	# ---------------------------------------
 	if packettype == '40':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 
@@ -1828,7 +1847,8 @@ def decodePacket(message):
 	# 0x41 Thermostat2
 	# ---------------------------------------
 	if packettype == '41':
-
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+		
 		decoded = True
 		
 		# PRINTOUT
@@ -1861,8 +1881,7 @@ def decodePacket(message):
 	# 0x42 Thermostat3
 	# ---------------------------------------
 	if packettype == '42':
-		
-		logger.debug("PacketType 0x42")
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
 		
@@ -1941,6 +1960,7 @@ def decodePacket(message):
 	# 0x50 - Temperature sensors
 	# ---------------------------------------
 	if packettype == '50':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 	
 		decoded = True
 
@@ -2016,6 +2036,7 @@ def decodePacket(message):
 	# ---------------------------------------
 
 	if packettype == '51':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
 
@@ -2090,9 +2111,9 @@ def decodePacket(message):
 	# 0x52 - Temperature and humidity sensors
 	# ---------------------------------------
 	if packettype == '52':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
-		logger.debug("PacketType 0x52")
 
 		# DATA
 		sensor_id = id1 + id2
@@ -2185,8 +2206,7 @@ def decodePacket(message):
 	# Credit: Jean-Baptiste Bodart
 	# ---------------------------------------
 	if packettype == '54':
-		
-		logger.debug("PacketType 0x54")
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
 
@@ -2309,12 +2329,12 @@ def decodePacket(message):
 			wwx.wwx_thb_batt = battery
 			wwx.wwx_thb_sign = signal
  
+ 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+
 	# ---------------------------------------
 	# 0x55 - Rain sensors
 	# ---------------------------------------
-	
 	if packettype == '55':
-		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
@@ -2412,12 +2432,13 @@ def decodePacket(message):
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(rainrate), float(raintotal), 0, 0, 0, 0)
 
-		logger.debug("Decode packetType 0x" + str(packettype) + " - Done")
+ 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
 	# 0x56 - Wind sensors
 	# ---------------------------------------
 	if packettype == '56':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
 
@@ -2529,11 +2550,13 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
+ 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+
 	# ---------------------------------------
 	# 0x57 UV Sensor
 	# ---------------------------------------
-
 	if packettype == '57':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 
@@ -2610,12 +2633,14 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index', config.xpl_sourcename, config.xpl_includehostname)
 			if subtype == "03":
 				xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius', config.xpl_sourcename, config.xpl_includehostname)
+
+ 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
 	# ---------------------------------------
 	# 0x59 Current Sensor
 	# ---------------------------------------
-	
 	if packettype == '59':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 	
 		decoded = True
 	
@@ -2675,11 +2700,14 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 
+ 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+
 	# ---------------------------------------
 	# 0x5A Energy sensor
 	# Credit: Jean-Michel ROY
 	# ---------------------------------------
 	if packettype == '5A':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 		
 		decoded = True
 		
@@ -2755,6 +2783,7 @@ def decodePacket(message):
 	# ---------------------------------------
 	
 	if packettype == '58':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 	
 		decoded = True
 		
@@ -2795,10 +2824,13 @@ def decodePacket(message):
 						logger.debug("Trigger onematch active, exit trigger")
 						return
 
+ 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+
 	# ---------------------------------------
 	# 0x70 RFXsensor
 	# ---------------------------------------
 	if packettype == '70':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 
@@ -2876,24 +2908,31 @@ def decodePacket(message):
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
 
+ 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+
 	# ---------------------------------------
 	# 0x71 RFXmeter
 	# ---------------------------------------
 	if packettype == '71':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 		
 		# DATA
 		sensor_id = id1 + id2
-		power = ''
-		power = decodePower(message[7], message[8], message[9])
+		sensor_power = ''
+		
+		try:
+			sensor_power = decodePower(message[7], message[8], message[9])
+		except Exception, e:
+			logger.error("Exception: %s" % str(e))
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_71[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + id1
-			print "Power\t\t\t= " + str(power)
+			print "Power\t\t\t= " + str(sensor_power)
 			
 		# TRIGGER
 		if config.trigger_active:
@@ -2909,6 +2948,7 @@ def decodePacket(message):
 					action = action.replace("$packettype$", packettype )
 					action = action.replace("$subtype$", subtype )
 					action = action.replace("$id$", id1 )
+					action = action.replace("$power$", str(sensor_power) )
 					logger.debug("Execute shell")
 					command = Command(action)
 					command.run(timeout=config.trigger_timeout)
@@ -2918,15 +2958,16 @@ def decodePacket(message):
 
     	# CSV
     	if cmdarg.printout_csv == True:
-      		sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, id1 + id2, str(power)))
+      		sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, id1 + id2, str(sensor_power)))
       		sys.stdout.flush()
+
+ 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
 	# 0x72 FS20
 	# ---------------------------------------
 	if packettype == '72':
-	
-		logger.debug("PacketType 0x72")
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
 
 		decoded = True
 		
@@ -2954,6 +2995,8 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
+
+ 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
 	# Not decoded message
@@ -3340,7 +3383,7 @@ def option_simulate(indata):
 	except:
 		logger.error("Error: the input data is invalid hex value. Line: " + _line())
 		print "Error: the input data is invalid hex value"
-		exit()
+		sys.exit(1)
 				
 	# Decode it
 	try:
