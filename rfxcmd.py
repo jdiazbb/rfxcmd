@@ -198,7 +198,9 @@ class config_data:
 		weewx_active = False,
 		rrd_active = False,
 		rrd_path = "",
-		barometric = 0
+		barometric = 0,
+		log_msg = False,
+		log_msgfile = ""
 		):
 
 		self.serial_device = serial_device
@@ -245,6 +247,8 @@ class config_data:
 		self.rrd_active = rrd_active
 		self.rrd_path = rrd_path
 		self.barometric = barometric
+		self.log_msg = log_msg
+		self.log_msgfile = log_msgfile
 
 class cmdarg_data:
 	def __init__(
@@ -797,17 +801,23 @@ def decodePacket(message):
 		packettype = None
 	
 	# ---------------------------------------
+	# If packet is OK and the log_msg is active
+	# then save the packet to log_msgfile designated
+	# file on disk
+	# ---------------------------------------
+	if decoded == False and config.log_msg == True:
+		logger.debug("Save packet to log_msgfile")		
+		
+	# ---------------------------------------
 	# 0x0 - Interface Control
 	# ---------------------------------------
 	if packettype == '00':
-		
 		decoded = True
 	
 	# ---------------------------------------
 	# 0x01 - Interface Message
 	# ---------------------------------------
 	if packettype == '01':
-		
 		decoded = True
 		
 		if cmdarg.printout_complete:
@@ -3703,6 +3713,14 @@ def read_configfile():
 		# BAROMETRIC
 		config.barometric = read_config(cmdarg.configfile, "barometric")
 		
+		# ------------------------
+		# LOG MESSAGES
+		if (read_config(cmdarg.configfile, "log_msg") == "yes"):
+			config.log_msg = True
+		else:
+			config.log_msg = False
+		config.log_msgfile = read_config(cmdarg.configfile, "log_msgfile")
+		
 	else:
 		# config file not found, set default values
 		print "Error: Configuration file not found (" + cmdarg.configfile + ")"
@@ -3815,8 +3833,9 @@ def logger_init(configfile, name, debug):
 
 			loglevel = loglevel.upper()
 
-			formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
-	
+			#formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+			formatter = logging.Formatter('%(asctime)s - %(threadName)s - %(module)s:%(lineno)d - %(levelname)s - %(message)s')
+
 			if debug:
 				loglevel = "DEBUG"
 				handler = logging.StreamHandler()
