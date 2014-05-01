@@ -2915,7 +2915,7 @@ def decodePacket(message):
 	# ---------------------------------------
 	if packettype == '71':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
+		
 		decoded = True
 		
 		# DATA
@@ -2955,14 +2955,14 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-
-    	# CSV
-    	if cmdarg.printout_csv == True:
-      		sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, id1 + id2, str(sensor_power)))
-      		sys.stdout.flush()
-
- 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
-
+			
+		# CSV
+		if cmdarg.printout_csv == True:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, id1 + id2, str(sensor_power)))
+			sys.stdout.flush()
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
 	# ---------------------------------------
 	# 0x72 FS20
 	# ---------------------------------------
