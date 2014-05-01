@@ -822,11 +822,9 @@ def decodePacket(message):
 	# ---------------------------------------
 	if packettype == '01':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
 		
 		if cmdarg.printout_complete:
-			
 			data = {
 			'packetlen' : ByteToHex(message[0]),
 			'packettype' : ByteToHex(message[1]),
@@ -843,22 +841,22 @@ def decodePacket(message):
 			'msg8' : ByteToHex(message[12]),
 			'msg9' : ByteToHex(message[13])
 			}
-
+			
 			# Subtype
 			if data['subtype'] == '00':
 				print "Subtype\t\t\t= Interface response"
 			else:
 				print "Subtype\t\t\t= Unknown type (" + data['packettype'] + ")"
-		
+			
 			# Seq
 			print "Sequence nbr\t\t= " + data['seqnbr']
-		
+			
 			# Command
 			print "Response on cmnd\t= " + rfx.rfx_cmnd[data['cmnd']]
-		
+			
 			# MSG 1
 			print "Transceiver type\t= " + rfx.rfx_subtype_01_msg1[data['msg1']]
-		
+			
 			# MSG 2
 			print "Firmware version\t= " + str(int(data['msg2'],16))
 			
@@ -866,9 +864,9 @@ def decodePacket(message):
 				print "Display undecoded\t= On"
 			else:
 				print "Display undecoded\t= Off"
-
+			
 			print "Protocols:"
-		
+			
 			# MSG 3
 			if testBit(int(data['msg3'],16),0) == 1:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg3['1']
@@ -904,88 +902,90 @@ def decodePacket(message):
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg3['64']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg3['64']
-		
+			
 			# MSG 4
 			if testBit(int(data['msg4'],16),0) == 1:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['1']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['1']
-
+			
 			if testBit(int(data['msg4'],16),1) == 2:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['2']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['2']
-
+			
 			if testBit(int(data['msg4'],16),2) == 4:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['4']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['4']
-
+			
 			if testBit(int(data['msg4'],16),3) == 8:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['8']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['8']
-
+			
 			if testBit(int(data['msg4'],16),4) == 16:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['16']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['16']
-
+			
 			if testBit(int(data['msg4'],16),5) == 32:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['32']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['32']
-
+			
 			if testBit(int(data['msg4'],16),6) == 64:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['64']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['64']
-
+			
 			if testBit(int(data['msg4'],16),7) == 128:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['128']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['128']
-
+			
 			# MSG 5
 			if testBit(int(data['msg5'],16),0) == 1:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['1']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['1']
-
+			
 			if testBit(int(data['msg5'],16),1) == 2:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['2']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['2']
-
+			
 			if testBit(int(data['msg5'],16),2) == 4:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['4']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['4']
-
+			
 			if testBit(int(data['msg5'],16),3) == 8:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['8']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['8']
-
+			
 			if testBit(int(data['msg5'],16),4) == 16:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['16']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['16']
-
+			
 			if testBit(int(data['msg5'],16),5) == 32:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['32']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['32']
-
+			
 			if testBit(int(data['msg5'],16),6) == 64:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['64']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['64']
-
+			
 			if testBit(int(data['msg5'],16),7) == 128:
 				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['128']
 			else:
 				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['128']
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 		
 	# ---------------------------------------
 	# 0x02 - Receiver/Transmitter Message
@@ -1018,28 +1018,29 @@ def decodePacket(message):
 			else:
 				insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, str(id1), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x03 - Undecoded Message
 	# ---------------------------------------
 	if packettype == '03':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		
 		decoded = True
 		
 		indata = ByteToHex(message)
-
+		
 		# remove all spaces
 		for x in string.whitespace:
 			indata = indata.replace(x,"")
-
+		
 		indata = indata[4:]
-
+		
 		# PRINTOUT
 		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_03[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Message\t\t\t= " + indata
-
+		
 		# CSV
 		if cmdarg.printout_csv:
 			sys.stdout.write("%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, indata ))
@@ -1069,7 +1070,9 @@ def decodePacket(message):
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, 255, indata, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x10 Lighting1
 	# ---------------------------------------
@@ -1130,7 +1133,9 @@ def decodePacket(message):
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Lightning.'+housecode+str(unitcode)+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Lightning.'+housecode+str(unitcode)+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x11 Lighting2
 	# ---------------------------------------
@@ -1193,18 +1198,19 @@ def decodePacket(message):
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x12 Lighting3
 	# ---------------------------------------
 	if packettype == '12':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
 		
 		# DATA
 		system = ByteToHex(message[4])
-
+		
 		if testBit(int(ByteToHex(message[5]),16),0) == 1:
 			channel = 1
 		elif testBit(int(ByteToHex(message[5]),16),1) == 2:
@@ -1279,13 +1285,14 @@ def decodePacket(message):
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Lightning.'+str(channel)+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Lightning.'+str(channel)+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x13 Lighting4
 	# ---------------------------------------
 	if packettype == '13':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
 
 		# DATA
@@ -1333,17 +1340,18 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-
+		
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, 0, 0, str(code_bin), pulse, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x14 Lighting5
 	# ---------------------------------------
 	if packettype == '14':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
 		
 		# DATA
@@ -1428,21 +1436,22 @@ def decodePacket(message):
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, sensor_id, 0, command, str(unitcode), level, 0, 0, 0, 0, 0, 0, 0, 0)
-
+		
 		# XPL
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x15 Lighting6
 	# Credit: Dimitri Clatot
 	# ---------------------------------------
 	if packettype == '15':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
-
+		
 		# DATA
 		sensor_id = id1 + id2
 		groupcode = rfx.rfx_subtype_15_groupcode[ByteToHex(message[6])]
@@ -1500,15 +1509,16 @@ def decodePacket(message):
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=command\ncurrent='+command+'\n', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
 	# ---------------------------------------
 	if packettype == '18':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
-
+		
 		# PRINTOUT		
 		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_18[subtype]
@@ -1538,7 +1548,9 @@ def decodePacket(message):
 		# DATABASE
 		#if config.mysql_active or config.sqlite_active or config.pgsql_active:
 		#	insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x19 Blinds1
 	# ---------------------------------------
@@ -1575,14 +1587,15 @@ def decodePacket(message):
 		# DATABASE
 		#if config.mysql_active or config.sqlite_active or config.pgsql_active:
 		#	insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x20 Security1
 	# Credit: Dimitri Clatot
 	# ---------------------------------------
 	if packettype == '20':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
 		
 		# DATA
@@ -1632,7 +1645,9 @@ def decodePacket(message):
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, status, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-	
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x28 Camera1
 	# ---------------------------------------
@@ -1670,15 +1685,16 @@ def decodePacket(message):
 		# DATABASE
 		#if config.mysql_active or config.sqlite_active or config.pgsql_active:
 		#	insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x30 Remote control and IR
 	# ---------------------------------------
 	if packettype == '30':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
-
+		
 		# Command type
 		if subtype == '04':
 			if ByteToHex(message[7]) == '00':
@@ -1693,7 +1709,7 @@ def decodePacket(message):
 				cmndtype = "AUX4"
 			else:
 				cmndtype = "Unknown"
-
+		
 		# Command
 		if subtype == '00':
 			command = rfx.rfx_subtype_30_atiremotewonder[ByteToHex(message[5])]
@@ -1705,29 +1721,27 @@ def decodePacket(message):
 			command = "Not implemented in RFXCMD"
 		elif subtype == '04':
 			command = "Not implemented in RFXCMD"
-
+		
 		toggle = ByteToHex(message[6])
 		
 		if subtype == '00' or subtype == '02' or subtype == '03':
 			signal = decodeSignal(message[6])
-
+		
 		# PRINTOUT
 		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_30[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + id1
 			print "Command\t\t\t= " + command
-
 			if subtype == '04':
 				print "Toggle\t\t\t= " + toggle
-
 			if subtype == '04':
 				print "CommandType\t= " + cmndtype
-
 			print "Signal level\t\t= " + str(signal)
-
+		
 		# CSV 
 		if cmdarg.printout_csv:
+			logger.debug("CSV Output")
 			if subtype == '00' or subtype == '02':
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, command))
 			elif subtype == '04' or subtype == '01' or subtype == '03':
@@ -1766,16 +1780,17 @@ def decodePacket(message):
 				insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, id1, 0, command, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			elif subtype == '04' or subtype == '01' or subtype == '03':
 				command = "Not implemented in RFXCMD"
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x40 - Thermostat1
 	# Credit: Jean-François Pucheu
 	# ---------------------------------------
 	if packettype == '40':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
-
+		
 		# DATA
 		sensor_id = id1 + id2
 		temperature = int(ByteToHex(message[6]), 16)
@@ -1801,6 +1816,7 @@ def decodePacket(message):
 
 		# CSV 
 		if cmdarg.printout_csv:
+			logger.debug("CSV Output")
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), mode, status, str(temperature_set), str(temperature) ))
 			sys.stdout.flush()
 	
@@ -1842,13 +1858,14 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=status\ncurrent='+mode+'\n', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Thermostat.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x41 Thermostat2
 	# ---------------------------------------
 	if packettype == '41':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		
 		decoded = True
 		
 		# PRINTOUT
@@ -1856,7 +1873,7 @@ def decodePacket(message):
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_41[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			# TODO
-
+		
 		# TRIGGER
 		if config.trigger_active:
 			for trigger in triggerlist.data:
@@ -1876,13 +1893,14 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x42 Thermostat3
 	# ---------------------------------------
 	if packettype == '42':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		
 		decoded = True
 		
 		# DATA
@@ -1953,23 +1971,22 @@ def decodePacket(message):
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=command\ncurrent='+command+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Thermostat.'+unitcode+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
-		logger.debug("PacketType 0x42, done.")
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
 	# 0x50 - Temperature sensors
 	# ---------------------------------------
 	if packettype == '50':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-	
 		decoded = True
-
+		
 		# DATA
 		sensor_id = id1 + id2
 		temperature = decodeTemperature(message[6], message[7])
 		signal = decodeSignal(message[8])
 		battery = decodeBattery(message[8])
-
+		
 		# PRINTOUT
 		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_50[subtype]
@@ -1981,6 +1998,7 @@ def decodePacket(message):
 
 		# CSV
 		if cmdarg.printout_csv:
+			logger.debug("CSV Output")
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, str(battery), str(signal), temperature ))
 			sys.stdout.flush()
 			
@@ -2020,26 +2038,26 @@ def decodePacket(message):
 			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
-
+		
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-
+		
 		# XPL
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x51 - Humidity sensors
 	# ---------------------------------------
-
 	if packettype == '51':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		
 		decoded = True
-
+		
 		# DATA
 		sensor_id = id1 + id2
 		humidity = int(ByteToHex(message[6]),16)
@@ -2059,6 +2077,7 @@ def decodePacket(message):
 		
 		# CSV
 		if cmdarg.printout_csv:
+			logger.debug("CSV Output")
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, sensor_id, humidity_status, str(humidity), str(battery), str(signal)) )
 			sys.stdout.flush()
@@ -2096,25 +2115,26 @@ def decodePacket(message):
 			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
-	
+		
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-
+		
 		# XPL
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x52 - Temperature and humidity sensors
 	# ---------------------------------------
 	if packettype == '52':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		
 		decoded = True
-
+		
 		# DATA
 		sensor_id = id1 + id2
 		temperature = decodeTemperature(message[6], message[7])
@@ -2179,11 +2199,11 @@ def decodePacket(message):
 			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
-
+		
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, humidity_status, humidity, 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-
+		
 		# XPL
 		if config.xpl_active:
 			logger.debug("Send to xPL")
@@ -2195,7 +2215,9 @@ def decodePacket(message):
 		# RRD
 		if config.rrd_active == True:
 			rrd2Metrics(packettype, sensor_id, temperature, humidity, config.rrd_path)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
 	# ---------------------------------------
 	# 0x53 - Barometric
 	# RESERVED FOR FUTURE
@@ -2207,42 +2229,25 @@ def decodePacket(message):
 	# ---------------------------------------
 	if packettype == '54':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		
 		decoded = True
-
-		# Sensor id
+		
+		# DATA
 		sensor_id = id1 + id2
-		logger.debug("sensor_id: " + sensor_id)
-
-		# Temperature
 		temperature = decodeTemperature(message[6], message[7])
-		logger.debug("temperature: " + temperature)
-		
-		# Humidity
 		humidity = int(ByteToHex(message[8]),16)
-		logger.debug("humidity: " + str(humidity))
-		
 		try:
 			humidity_status = rfx.rfx_subtype_54_humstatus[ByteToHex(message[9])]
-			logger.debug("humidity_status: " + humidity_status)
 		except:
-			logger.warning("Humidity status is unknown (" + ByteToHex(message) + ")")
+			logger.error("Humidity status is unknown (" + ByteToHex(message) + ")")
 			humidity_status = "Unknown"
-
-		# Barometric pressure
 		barometric_high = ByteToHex(message[10])
 		barometric_low = ByteToHex(message[11])
 		barometric_high = clearBit(int(barometric_high,16),7)
 		barometric_high = barometric_high << 8
 		barometric = ( barometric_high + int(barometric_low,16) )
-		
 		if config.barometric <> 0:
 			barometric = int(barometric) + int(config.barometric)
-		
-		# Forecast
 		forecast = rfx.rfx_subtype_54_forecast[ByteToHex(message[12])]
-		
-		# Battery & Signal
 		signal = decodeSignal(message[13])
 		battery = decodeBattery(message[13])
 		
@@ -2306,11 +2311,11 @@ def decodePacket(message):
 			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
-
+		
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, forecast, humidity_status, humidity, barometric, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-
+		
 		# XPL
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=temp\ncurrent='+temperature+'\nunits=C', config.xpl_sourcename, config.xpl_includehostname)
@@ -2318,7 +2323,7 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=humidity\ncurrent='+str(barometric)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=HumTempBaro.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
+		
 		# WEEWX
 		if config.weewx_active:
 			wwx.wwx_thb_t_in = temperature
@@ -2328,42 +2333,33 @@ def decodePacket(message):
 			wwx.wwx_thb_fs_in = forecast
 			wwx.wwx_thb_batt = battery
 			wwx.wwx_thb_sign = signal
- 
- 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		 
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
 	# 0x55 - Rain sensors
 	# ---------------------------------------
 	if packettype == '55':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		
 		decoded = True
-
-		# Sensor id
+		
+		# DATA
 		sensor_id = id1 + id2
-
-		# Rain rate
 		rainrate_high = ByteToHex(message[6])
 		rainrate_low = ByteToHex(message[7])
-		
 		if subtype == '01':
 			rainrate = int(rainrate_high,16) * 0x100 + int(rainrate_low,16)
 		elif subtype == '02':
 			rainrate = float( int(rainrate_high,16) * 0x100 + int(rainrate_low,16) ) / 100
 		else:
 			rainrate = 0
-
-		# Rain total
 		raintotal1 = ByteToHex(message[8])
 		raintotal2 = ByteToHex(message[9])
 		raintotal3 = ByteToHex(message[10])
-		
 		if subtype <> '06':
 			raintotal = float( (int(raintotal1, 16) * 0x1000) + (int(raintotal2, 16) * 0x100) + int(raintotal3, 16) ) / 10
 		else:
 			raintotal = 0
-		
-		# Battery & Signal	
 		signal = decodeSignal(message[11])
 		battery = decodeBattery(message[11])
 		
@@ -2375,7 +2371,7 @@ def decodePacket(message):
 			
 			if subtype == '01' or subtype == '02':
 				print "Rain rate\t\t= " + str(rainrate) + " mm/hr"
-
+			
 			if subtype <> '06':
 				print "Raintotal:\t\t= " + str(raintotal) + " mm"
 			else:
@@ -2384,7 +2380,7 @@ def decodePacket(message):
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
-		# CSV		
+		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							( timestamp, unixtime_utc, packettype, subtype, seqnbr, id1, id2,
@@ -2427,21 +2423,20 @@ def decodePacket(message):
 			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
 			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
-
+		
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(rainrate), float(raintotal), 0, 0, 0, 0)
-
- 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
 	# ---------------------------------------
 	# 0x56 - Wind sensors
 	# ---------------------------------------
 	if packettype == '56':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		
 		decoded = True
-
+		
 		# DATA
 		sensor_id = id1 + id2
 		direction = ( ( int(ByteToHex(message[6]),16) * 256 ) + int(ByteToHex(message[7]),16) )
@@ -2460,7 +2455,7 @@ def decodePacket(message):
 			windchill = 0
 		signal = decodeSignal(message[16])
 		battery = decodeBattery(message[16])
-
+		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_56[subtype]
@@ -2478,7 +2473,7 @@ def decodePacket(message):
 			print "Windgust\t\t= " + str(gust) + " mtr/sec"
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
-
+		
 		# CSV
 		if cmdarg.printout_csv == True:
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
@@ -2534,7 +2529,7 @@ def decodePacket(message):
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(temperature), av_speed, gust, direction, float(windchill), 0)
-
+		
 		# xPL
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=direction\ncurrent='+str(direction)+'\nunits=Degrees', config.xpl_sourcename, config.xpl_includehostname)
@@ -2549,24 +2544,23 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=windgust\ncurrent='+str(gust)+'\nunits=mtr/sec', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Wind.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
- 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
 	# 0x57 UV Sensor
 	# ---------------------------------------
 	if packettype == '57':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
-
+		
 		# DATA
 		sensor_id = id1 + id2
 		uv = int(ByteToHex(message[6]), 16) * 10
 		temperature = decodeTemperature(message[6], message[8])
 		signal = decodeSignal(message[9])
 		battery = decodeBattery(message[9])
-
+			
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_57[subtype]
@@ -2577,7 +2571,7 @@ def decodePacket(message):
 				print "Temperature\t\t= " + temperature + " C"
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
-
+		
 		# CSV
 		if cmdarg.printout_csv:
 			if subtype == '03':
@@ -2633,15 +2627,14 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index', config.xpl_sourcename, config.xpl_includehostname)
 			if subtype == "03":
 				xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius', config.xpl_sourcename, config.xpl_includehostname)
-
- 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
 	# ---------------------------------------
 	# 0x59 Current Sensor
 	# ---------------------------------------
 	if packettype == '59':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-	
 		decoded = True
 	
 		# DATA
@@ -2699,8 +2692,8 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
-
- 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
 	# 0x5A Energy sensor
@@ -2708,7 +2701,6 @@ def decodePacket(message):
 	# ---------------------------------------
 	if packettype == '5A':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		
 		decoded = True
 		
 		# DATA
@@ -2777,14 +2769,14 @@ def decodePacket(message):
 		# RRD
 		if config.rrd_active == True:
 			rrd1Metric(packettype, sensor_id, instant, config.rrd_path)
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
 	# ---------------------------------------
 	# 0x5B Current + Energy sensor
 	# ---------------------------------------
-	
 	if packettype == '58':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-	
 		decoded = True
 		
 		# DATA
@@ -2798,12 +2790,12 @@ def decodePacket(message):
 		time_sec = ByteToHex(message[12]);
 		signal = decodeSignal(message[13])
 		battery = decodeBattery(message[13])
-
+		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_58[subtype]
 			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
-
+		
 		# TRIGGER
 		if config.trigger_active:
 			for trigger in triggerlist.data:
@@ -2823,17 +2815,16 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-
- 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
 	# 0x70 RFXsensor
 	# ---------------------------------------
 	if packettype == '70':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
-
+		
 		# DATA
 		if subtype == '00':
 			temperature = float(decodeTemperature(message[5], message[6]))
@@ -2847,27 +2838,27 @@ def decodePacket(message):
 		else:
 			voltage = 0
 		signal = decodeSignal(message[7])
-
+		
 		if subtype == '03':
 			sensor_message = rfx.rfx_subtype_70_msg03[message[6]]
-
+		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_70[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + id1
-
+		
 			if subtype == '00':
 				print "Temperature\t\t= " + str(temperature) + " C"
-
+			
 			if subtype == '01' or subtype == '02':
 				print "Voltage\t\t\t= " + str(voltage) + " mV"
-
+			
 			if subtype == '03':
 				print "Message\t\t\t= " + sensor_message
-
+			
 			print "Signal level\t\t= " + str(signal)
-
+			
 		# CSV
 		if cmdarg.printout_csv == True:
 			if subtype == '00':
@@ -2875,7 +2866,7 @@ def decodePacket(message):
 			if subtype == '01' or subtype == '02':
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(signal), id1, str(voltage)))
 			sys.stdout.flush()
-
+		
 		# TRIGGER
 		if config.trigger_active:
 			for trigger in triggerlist.data:
@@ -2907,8 +2898,8 @@ def decodePacket(message):
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
-
- 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
 	# 0x71 RFXmeter
@@ -2968,14 +2959,14 @@ def decodePacket(message):
 	# ---------------------------------------
 	if packettype == '72':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
+		
 		decoded = True
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_72[subtype]
 			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
-
+		
 		# TRIGGER
 		if config.trigger_active:
 			for trigger in triggerlist.data:
@@ -2995,9 +2986,9 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-
- 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
-
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
 	# ---------------------------------------
 	# Not decoded message
 	# ---------------------------------------	
@@ -3008,7 +2999,7 @@ def decodePacket(message):
 		logger.error("Message: " + ByteToHex(message))
 		print timestamp + " " + ByteToHex(message)
 		print "RFXCMD cannot decode message, see http://code.google.com/p/rfxcmd/wiki/ for more information."
-
+	
 	# decodePackage END
 	return
 
