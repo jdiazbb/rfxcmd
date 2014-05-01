@@ -810,8 +810,10 @@ def decodePacket(message):
 	if decoded == False and config.log_msg == True:
 		logger.debug("Save packet to log_msgfile")
 		try:
+			data = str(ByteToHex(message)))
+			data = data.replace(' ', '')
 			file = open(config.log_msgfile,"a+")
-			file.write(stripped(str(ByteToHex(message))) + "\n")
+			file.write(data + "\n")
 			file.close()
 		except Exception, e:
 			logger.error("Error when trying to write message log")
