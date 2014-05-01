@@ -811,7 +811,7 @@ def decodePacket(message):
 		logger.debug("Save packet to log_msgfile")
 		try:
 			file = open(config.log_msgfile,"a+")
-			file.write(str(ByteToHex(message)) + "\n")
+			file.write(stripped(str(ByteToHex(message))) + "\n")
 			file.close()
 		except Exception, e:
 			logger.error("Error when trying to write message log")
