@@ -44,10 +44,10 @@ unzip rfxcmd-v024.zip
 
 === Test ===
 
-The default config.xml should work, when you should execute listen to rfx device, for more functions like database you need to edit the config.xml file.
+Start listen to RFX device with default settings, and printout everything on screen.
 
 {{{
-./rfxcmd.py -d /dev/ttyUSB0
+./rfxcmd.py -d /dev/ttyUSB0 -l -v
 }}}
 
 Exit listen mode by pressing CTRL+C.
