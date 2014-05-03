@@ -64,3 +64,17 @@ Example:
 	<pgsql_password>rfxuser1</pgsql_password>
 	<pgsql_table>rfxcmd</pgsql_table> 
 }}}
+
+= Other =
+
+== Removal of table and database ==
+
+If you want to remove all RFX related data from the database then following commands should do it. 
+
+{{{
+sudo -i -u postgres
+psql -c 'DROP TABLE IF EXISTS rfxcmd;'
+psql -c 'DROP DATABASE IF EXISTS rfx;'
+psql -c 'DROP USER rfxuser;'
+exit
+}}}
