@@ -6,7 +6,7 @@ NOTE! This is under work.
 
 = Details =
 
- * The instruction has been tested successfully under Ubuntu 14.04
+ * The instruction has been tested successfully under Ubuntu 14.04, and should work on any Debian flavor linux.
 
 = Install PostegrSQL =
 
@@ -116,58 +116,3 @@ psql -c 'DROP DATABASE IF EXISTS rfx;'
 psql -c 'DROP USER rfxuser;'
 exit
 }}}
-
----
-
-=== PgSQL Configuration in RFXcmd ===
-
-To be able to insert data from RFXcmd, the PgSQL has to be configured in the RFXcmd config file, config.xml. There are five XML tags that needs to be filled.
-
-<pgsql_active>
-
-Values 'yes' or 'no'
-To activate PgSQL it has to be set to 'yes'
-Default value = no
-
-<pgsql_server>
-
- * The address of the PgSQL server
- * Default value = localhost
-
-<pgsql_database>
-
- * The database that have the RFXcmd table
- * Default value = rfxcmd
-
-<pgsql_port>
-
- * The port of the PgSQL server
- * Default value = 5432
-
-<pgsql_username>
-
- * Username to the PgSQL
- * Default value = user
-
-<pgsql_password>
-
- * Password to the PgSQL
- * Default value = password
-
-<pgsql_table>
-
- * The table name, can contains schemaname
- * Default value = rfxcmd
-
-Example
-{{{
-<pgsql_active>yes</pgsql_active>
-<pgsql_server>localhost</pgsql_server>
-<pgsql_database>rfxcmd</pgsql_database>
-<pgsql_port>5432</pgsql_port>
-<pgsql_username>user</pgsql_username>
-<pgsql_password>password</pgsql_password>
-<pgsql_table>rfx.rfxcmd</pgsql_table>
-}}}
-
-Note, if the pgsql configuration is changed when RFXcmd is running, it has to be stopped and started again for the changes to take effect.
