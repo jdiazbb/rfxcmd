@@ -30,8 +30,37 @@ Use the postgre user to do all the initial settings. Enter your password at the 
 $ sudo -i -u postgres
 }}}
 
-Create user for the RFXcmd
+Create user and database
 
 {{{
 $ psql -c 'CREATE USER rfxuser WITH PASSWORD 'rfxuser1';'
+$ psql -c 'CREATE DATABASE rfx OWNER rfxuser;'
+}}}
+
+Now insert the table from the pre-defined file in the doc folder, the table will be created in the database rfx as defined in the command.
+
+{{{
+$ psql -f rfxcmd/doc/rfxcmd_pgsql.txt rfx
+}}}
+
+Exit back to your own user
+
+{{{
+$ exit
+}}}
+
+= RFXcmd configuration =
+
+The database configuration has to be set in the config.xml file.
+
+Example:
+{{{
+	<!-- PgSQL -->
+	<pgsql_active>yes</pgsql_active>
+	<pgsql_server>localhost</pgsql_server>
+	<pgsql_database>rfx</pgsql_database>
+	<pgsql_port>5432</pgsql_port>
+	<pgsql_username>rfxuser</pgsql_username>
+	<pgsql_password>rfxuser1</pgsql_password>
+	<pgsql_table>rfxcmd</pgsql_table> 
 }}}
