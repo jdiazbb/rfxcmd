@@ -9,8 +9,6 @@ This ReadMe file is written for version 0.3 and above, which is still in develop
 
 The configuration for xPL, Graphite, MySQL and Sqlite has been moved to configuration file instead of command line switches.
 
-THIS IS UNDER WORK, AND THINGS ARE STILL MISSING...
-
 ==REQUIREMENTS==
 
  * Python 2.7, does not work with Python 3.x
@@ -210,6 +208,24 @@ Configuration for the incoming socket communication, the RFXcmd will open a list
 
 If the whitelist is active, it will only parse the incoming data that match the regex inside the whitelist file.
 
+<weewx_active>no</weewx_active>          
+
+To make it possible to export data to WeeWx. 
+
+<rrd_active>no</rrd_active>
+<rrd_path></rrd_path>
+
+To export sensor data to RRD, still experimental as there are only two sensors that support this 0x52 and 0x5A. Will be extended in the future, and by request.
+	
+<barometric>0</barometric>
+
+Barometric adjustment, if there is a need to adjust the barometric value of the sensor 0x54, then it can be done here.
+
+<log_msg>
+<log_msgfile>
+
+Log messages, when <log_msg> is yes, all messages that are coming in from the RFX device will be saved in the file that is specified at the <log_msgfile> tag. The reason for this function is to be able to record all traffic, and makes it easier for troubleshooting in later time. In normal use this function does not need to be activated.
+
 Default config.xml file;
 
 {{{
@@ -249,10 +265,10 @@ Default config.xml file;
 	<!-- PgSQL -->
 	<pgsql_active>no</pgsql_active>
         <pgsql_server>localhost</pgsql_server>
-        <pgsql_database>rfxcmd</pgsql_database>
+        <pgsql_database>rfx</pgsql_database>
         <pgsql_port>5432</pgsql_port>
-        <pgsql_username>user</pgsql_username>
-        <pgsql_password>password</pgsql_password>
+        <pgsql_username>rfxuser</pgsql_username>
+        <pgsql_password>rfxuser1</pgsql_password>
 	<pgsql_table>rfxcmd</pgsql_table> 
 
 	<!-- Logging -->
@@ -277,6 +293,20 @@ Default config.xml file;
 	<whitelist_active>no</whitelist_active>
 	<whitelist_file>whitelist.xml</whitelist_file>
 	
+	<!-- Weewx -->
+	<weewx_active>no</weewx_active>          
+	
+	<!-- RRD -->
+	<rrd_active>no</rrd_active>
+	<rrd_path></rrd_path>
+	
+	<!-- Barometric adjustemnt, only 0x54 -->
+	<barometric>0</barometric>
+	
+	<!-- Log messages -->
+	<log_msg>no</log_msg>
+	<log_msgfile>msg.log</log_msgfile>
+
 </config>
 }}}
 
