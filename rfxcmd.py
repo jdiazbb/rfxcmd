@@ -614,6 +614,17 @@ def decodePacket(message):
 		print "Packettype\t\t= " + rfx.rfx_packettype[packettype]
 	
 	# ---------------------------------------
+	# Check if the packet is a special WeeWx packet
+	# 0A1100FF001100FF001100
+	# ---------------------------------------
+	if raw_message == "0A1100FF001100FF001100":
+		logger.debug("Incoming WeeWx packet, do not decode")
+		if cmdarg.printout_complete:
+			print("Info\t\t\t= Incoming WeeWx packet")
+		decoded = True
+		return
+		
+	# ---------------------------------------
 	# Verify correct length on packets
 	# ---------------------------------------
 	logger.debug("Verify correct packet length")
@@ -1151,7 +1162,6 @@ def decodePacket(message):
 	# ---------------------------------------
 	if packettype == '11':
 		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-
 		decoded = True
 		
 		# DATA
@@ -2511,7 +2521,7 @@ def decodePacket(message):
 					if subtype == "04":
 						action = action.replace("$temperature$", str(temperature) )
 						action = action.replace("$windchill$", str(windchill) )
-					action = action.replace("$windgust$", str(windgust) )
+					action = action.replace("$windgust$", str(gust) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
@@ -2532,9 +2542,9 @@ def decodePacket(message):
 			if subtype == "04":
 				linesg.append("%s.%s.chill %s %d" % ( 'rfxcmd', sensor_id, windchill,now))
 				linesg.append("%s.%s.temperature %s %d" % ( 'rfxcmd', sensor_id, temperature,now))
-			linesg.append("%s.%s.gust %s %d" % ( 'rfxcmd', sensor_id, windgust,now))
-			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery,now))
-			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal,now))
+			linesg.append("%s.%s.gust %s %d" % ( 'rfxcmd', sensor_id, gust, now))
+			linesg.append("%s.%s.battery %s %d" % ( 'rfxcmd', sensor_id, battery, now))
+			linesg.append("%s.%s.signal %s %d"% ( 'rfxcmd', sensor_id, signal, now))
 			send_graphite(config.graphite_server, config.graphite_port, linesg)
 		
 		# DATABASE
@@ -2564,7 +2574,7 @@ def decodePacket(message):
 				wwx.wwx_wind_avg = av_speed
 			if subtype == "04":
 				wwx.wwx_th_t_out = temperature
-			wwx.wwx_wind_gust = windgust
+			wwx.wwx_wind_gust = gust
 			wwx.wwx_wind_batt = battery
 			wwx.wwx_wind_sign = signal
 		
@@ -2650,6 +2660,13 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index', config.xpl_sourcename, config.xpl_includehostname)
 			if subtype == "03":
 				xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius', config.xpl_sourcename, config.xpl_includehostname)
+		
+		# WEEWX
+		if config.weewx_active:
+			logger.debug("Weewx action")
+			wwx.wwx_uv_out = uv
+			wwx.wwx_uv_batt = battery
+			wwx.wwx_uv_sign = signal
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
