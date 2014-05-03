@@ -117,3 +117,29 @@ psql -c 'DROP DATABASE IF EXISTS rfx;'
 psql -c 'DROP USER rfxuser;'
 exit
 }}}
+
+== Login to database with rfxuser ==
+
+How to login to the database rfx with user rfxuser. The password requested is the password that was set for rfxuser.
+
+{{{
+$ psql -h localhost -U rfxuser -W rfx
+}}}
+
+Then for example all data from table rfxcmd can be listed with normal SQL commands.
+
+{{{
+rfx=> select * from rfxcmd;
+}}}
+
+Or how to check how many rows in the table.
+
+{{{
+rfx=> select count(id) from rfxcmd;
+ count 
+-------
+     1
+(1 row)
+
+rfx=>
+}}}
