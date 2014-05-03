@@ -23,10 +23,10 @@
 	<!-- PgSQL -->
 	<pgsql_active>no</pgsql_active>
 	<pgsql_server>localhost</pgsql_server>
-	<pgsql_database>rfxcmd</pgsql_database>
+	<pgsql_database>rfx</pgsql_database>
 	<pgsql_port>5432</pgsql_port>
-	<pgsql_username>user</pgsql_username>
-	<pgsql_password>password</pgsql_password>
+	<pgsql_username>rfxuser</pgsql_username>
+	<pgsql_password>rfxuser1</pgsql_password>
 	<pgsql_table>rfxcmd</pgsql_table> 
 	
 	<!-- Trigger -->
