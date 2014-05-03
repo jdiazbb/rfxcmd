@@ -7,6 +7,7 @@ PostgreSQL is a open source database. For easy managament via web interface the 
 = Details =
 
  * The instruction has been tested successfully under Ubuntu 14.04, and should work on any Debian flavor linux.
+ * For security a different password should be used than the one in this example.
 
 = Install PostegrSQL =
 
