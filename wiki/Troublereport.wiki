@@ -35,4 +35,4 @@ Include as much logs as possible, and if only possible run the RFXcmd with the d
 
 == Final words ==
 
-Even if it is a small issue that does not cause any big problem, I would like to know, just send me a email of it, to correct all issues big or small, makes the RFXcmd more robust.
+Even if it is a small issue that does not cause any big problem, I would like to know, just send me a email of it, to correct all issues big or small, makes the RFXcmd more robust. Since RFXcmd support lot of different ways to configure and use it, it is nearly impossible for me to test every single functionality.
