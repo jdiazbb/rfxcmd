@@ -2,7 +2,7 @@
 
 = Introduction =
 
-NOTE! This is under work.
+PostgreSQL is a open source database. For easy managament via web interface the PHPPgAdmin can be used.
 
 = Details =
 
