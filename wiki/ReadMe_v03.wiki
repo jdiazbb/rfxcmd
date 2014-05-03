@@ -208,18 +208,18 @@ Configuration for the incoming socket communication, the RFXcmd will open a list
 
 If the whitelist is active, it will only parse the incoming data that match the regex inside the whitelist file.
 
-<weewx_active>no</weewx_active>          
+<weewx_active>
 
-To make it possible to export data to WeeWx. 
+To make it possible to export data to WeeWx. Set to yes for activate the function, default no.
 
-<rrd_active>no</rrd_active>
-<rrd_path></rrd_path>
+<rrd_active>
+<rrd_path>
 
 To export sensor data to RRD, still experimental as there are only two sensors that support this 0x52 and 0x5A. Will be extended in the future, and by request.
 	
-<barometric>0</barometric>
+<barometric>
 
-Barometric adjustment, if there is a need to adjust the barometric value of the sensor 0x54, then it can be done here.
+Barometric adjustment, if there is a need to adjust the barometric value of the sensor 0x54, then it can be done here. Default = 0.
 
 <log_msg>
 <log_msgfile>
