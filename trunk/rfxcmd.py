@@ -2266,7 +2266,7 @@ def decodePacket(message):
 		try:
 			humidity_status = rfx.rfx_subtype_54_humstatus[ByteToHex(message[9])]
 		except:
-			logger.error("Humidity status is unknown (" + ByteToHex(message) + ")")
+			logger.error("Humidity status [" + ByteToHex(message[9]) + "] is unknown (" + ByteToHex(message) + ")")
 			humidity_status = "Unknown"
 		barometric_high = ByteToHex(message[10])
 		barometric_low = ByteToHex(message[11])
@@ -2287,7 +2287,7 @@ def decodePacket(message):
 			print "Id\t\t\t= " + sensor_id
 			print "Temperature\t\t= " + temperature + " C"
 			print "Humidity\t\t= " + str(humidity)
-			print "Humidity Status\t\t= " + humidity_status			
+			print "Humidity Status\t\t= " + humidity_status
 			print "Barometric pressure\t= " + str(barometric)
 			print "Forecast Status\t\t= " + forecast
 			print "Battery\t\t\t= " + str(battery)
