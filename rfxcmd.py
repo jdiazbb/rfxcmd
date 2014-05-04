@@ -91,11 +91,6 @@ except ImportError:
 	print "Error: module lib/rfx_command not found"
 	sys.exit(1)
 
-try:
-	import lib.rfx_sensors
-except ImportError:
-	print "Error: module lib/rfx_sensors not found"
-	sys.exit(1)
 
 try:
 	from lib.rfx_utils import *
@@ -104,22 +99,35 @@ except ImportError:
 	sys.exit(1)
 
 try:
-	from lib.rfx_decode import *
-except ImportError:
-	print "Error: module lib/rfx_decode not found"
+	import lib.rfx_sensors
+	import lib.rfx_decode as rfxdecode
+	import lib.rfx_rrd as rfxrrd
+	import lib.rfx_xplcom as xpl
+except ImportError as err:
+	print("Error: %s " % str(err))
 	sys.exit(1)
+
+#
+# Depricated import structure
+#
+
+#try:
+#	import lib.rfx_sensors
+#except ImportError:
+#	print "Error: module lib/rfx_sensors not found"
+#	sys.exit(1)
 	
-try:
-	from lib.rfx_rrd import *
-except ImportError:
-	print "Error: module lib/rfx_rrd not found"
-	sys.exit(1)
-	
-try:
-	from lib import rfx_xplcom as xpl
-except ImportError:
-	print "Error: module lib/rfx_xplcom not found"
-	pass
+#try:
+#	from lib.rfx_rrd import *
+#except ImportError:
+#	print "Error: module lib/rfx_rrd not found"
+#	sys.exit(1)
+
+#try:
+#	from lib import rfx_xplcom as xpl
+#except ImportError:
+#	print "Error: module lib/rfx_xplcom not found"
+#	pass
 
 # 3rd party modules
 # These might not be needed, depended on usage
@@ -1106,7 +1114,7 @@ def decodePacket(message):
 		housecode = rfx.rfx_subtype_10_housecode[ByteToHex(message[4])]
 		unitcode = int(ByteToHex(message[5]), 16)
 		command = rfx.rfx_subtype_10_cmnd[ByteToHex(message[6])]
-		signal = decodeSignal(message[7])
+		signal = rfxdecode.decodeSignal(message[7])
 
 		# PRINTOUT
 		if cmdarg.printout_complete:
@@ -1169,7 +1177,7 @@ def decodePacket(message):
 		unitcode = int(ByteToHex(message[8]),16)
 		command = rfx.rfx_subtype_11_cmnd[ByteToHex(message[9])]
 		dimlevel = rfx.rfx_subtype_11_dimlevel[ByteToHex(message[10])]
-		signal = decodeSignal(message[11])
+		signal = rfxdecode.decodeSignal(message[11])
 
 		# PRINTOUT
 		if cmdarg.printout_complete:
@@ -1255,8 +1263,8 @@ def decodePacket(message):
 			channel = 255
 
 		command = rfx.rfx_subtype_12_cmnd[ByteToHex(message[7])]
-		battery = decodeBattery(message[8])
-		signal = decodeSignal(message[8])
+		battery = rfxdecode.decodeBattery(message[8])
+		signal = rfxdecode.decodeSignal(message[8])
 
 		# PRINTOUT
 		if cmdarg.printout_complete:
@@ -1322,7 +1330,7 @@ def decodePacket(message):
 		code3 = dec2bin(int(ByteToHex(message[6]),16))
 		code_bin = code1 + " " + code2 + " " + code3
 		pulse = ((int(ByteToHex(message[7]),16) * 256) + int(ByteToHex(message[8]),16))
-		signal = decodeSignal(message[9])		
+		signal = rfxdecode.decodeSignal(message[9])		
 		
 		# PRINTOUT
 		if cmdarg.printout_complete:
@@ -1363,7 +1371,7 @@ def decodePacket(message):
 		
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
-			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, 0, 0, str(code_bin), pulse, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 0, signal, 0, 0, str(code_bin), pulse, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 		
@@ -1398,7 +1406,7 @@ def decodePacket(message):
 		else:
 			level = 0
 		
-		signal = decodeSignal(message[10])
+		signal = rfxdecode.decodeSignal(message[10])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -1478,7 +1486,7 @@ def decodePacket(message):
 		unitcode = int(ByteToHex(message[7]),16)
 		command = rfx.rfx_subtype_15_cmnd[ByteToHex(message[8])]
 		command_seqnbr = ByteToHex(message[9])
-		signal = decodeSignal(message[11])
+		signal = rfxdecode.decodeSignal(message[11])
 
 		# PRINTOUT
 		if cmdarg.printout_complete:
@@ -1621,8 +1629,8 @@ def decodePacket(message):
 		# DATA
 		sensor_id = id1 + id2 + ByteToHex(message[6])
 		status = rfx.rfx_subtype_20_status[ByteToHex(message[7])]
-		signal = decodeSignal(message[8])
-		battery = decodeBattery(message[8])
+		signal = rfxdecode.decodeSignal(message[8])
+		battery = rfxdecode.decodeBattery(message[8])
 
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -1745,7 +1753,7 @@ def decodePacket(message):
 		toggle = ByteToHex(message[6])
 		
 		if subtype == '00' or subtype == '02' or subtype == '03':
-			signal = decodeSignal(message[6])
+			signal = rfxdecode.decodeSignal(message[6])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete:
@@ -1821,7 +1829,7 @@ def decodePacket(message):
 			mode = rfx.rfx_subtype_40_mode['1']
 		else:
 			mode = rfx.rfx_subtype_40_mode['0']
-		signal = decodeSignal(message[9])
+		signal = rfxdecode.decodeSignal(message[9])
 
 		# PRINTOUT
 		if cmdarg.printout_complete:
@@ -1942,7 +1950,7 @@ def decodePacket(message):
 
 		logger.debug("Command: " + command)
 
-		signal = decodeSignal(message[8])
+		signal = rfxdecode.decodeSignal(message[8])
 
 		# PRINTOUT
 		if cmdarg.printout_complete:
@@ -2003,9 +2011,9 @@ def decodePacket(message):
 		
 		# DATA
 		sensor_id = id1 + id2
-		temperature = decodeTemperature(message[6], message[7])
-		signal = decodeSignal(message[8])
-		battery = decodeBattery(message[8])
+		temperature = rfxdecode.decodeTemperature(message[6], message[7])
+		signal = rfxdecode.decodeSignal(message[8])
+		battery = rfxdecode.decodeBattery(message[8])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete:
@@ -2082,8 +2090,8 @@ def decodePacket(message):
 		sensor_id = id1 + id2
 		humidity = int(ByteToHex(message[6]),16)
 		humidity_status = rfx.rfx_subtype_51_humstatus[ByteToHex(message[7])]
-		signal = decodeSignal(message[8])
-		battery = decodeBattery(message[8])
+		signal = rfxdecode.decodeSignal(message[8])
+		battery = rfxdecode.decodeBattery(message[8])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -2157,11 +2165,11 @@ def decodePacket(message):
 		
 		# DATA
 		sensor_id = id1 + id2
-		temperature = decodeTemperature(message[6], message[7])
+		temperature = rfxdecode.decodeTemperature(message[6], message[7])
 		humidity = int(ByteToHex(message[8]),16)
 		humidity_status = rfx.rfx_subtype_52_humstatus[ByteToHex(message[9])]
-		signal = decodeSignal(message[10])
-		battery = decodeBattery(message[10])
+		signal = rfxdecode.decodeSignal(message[10])
+		battery = rfxdecode.decodeBattery(message[10])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -2234,7 +2242,7 @@ def decodePacket(message):
 		
 		# RRD
 		if config.rrd_active == True:
-			rrd2Metrics(packettype, sensor_id, temperature, humidity, config.rrd_path)
+			rfxrrd.rrd2Metrics(packettype, sensor_id, temperature, humidity, config.rrd_path)
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 		
@@ -2253,7 +2261,7 @@ def decodePacket(message):
 		
 		# DATA
 		sensor_id = id1 + id2
-		temperature = decodeTemperature(message[6], message[7])
+		temperature = rfxdecode.decodeTemperature(message[6], message[7])
 		humidity = int(ByteToHex(message[8]),16)
 		try:
 			humidity_status = rfx.rfx_subtype_54_humstatus[ByteToHex(message[9])]
@@ -2268,8 +2276,8 @@ def decodePacket(message):
 		if config.barometric <> 0:
 			barometric = int(barometric) + int(config.barometric)
 		forecast = rfx.rfx_subtype_54_forecast[ByteToHex(message[12])]
-		signal = decodeSignal(message[13])
-		battery = decodeBattery(message[13])
+		signal = rfxdecode.decodeSignal(message[13])
+		battery = rfxdecode.decodeBattery(message[13])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -2381,8 +2389,8 @@ def decodePacket(message):
 			raintotal = float( (int(raintotal1, 16) * 0x1000) + (int(raintotal2, 16) * 0x100) + int(raintotal3, 16) ) / 10
 		else:
 			raintotal = 0
-		signal = decodeSignal(message[11])
-		battery = decodeBattery(message[11])
+		signal = rfxdecode.decodeSignal(message[11])
+		battery = rfxdecode.decodeBattery(message[11])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -2467,15 +2475,15 @@ def decodePacket(message):
 			av_speed = 0;
 		gust = ( ( int(ByteToHex(message[10]),16) * 256 ) + int(ByteToHex(message[11]),16) ) * 0.1
 		if subtype == "04":
-			temperature = decodeTemperature(message[12], message[13])
+			temperature = rfxdecode.decodeTemperature(message[12], message[13])
 		else:
 			temperature = 0
 		if subtype == "04":
-			windchill = decodeTemperature(message[14], message[15])
+			windchill = rfxdecode.decodeTemperature(message[14], message[15])
 		else:
 			windchill = 0
-		signal = decodeSignal(message[16])
-		battery = decodeBattery(message[16])
+		signal = rfxdecode.decodeSignal(message[16])
+		battery = rfxdecode.decodeBattery(message[16])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -2483,14 +2491,11 @@ def decodePacket(message):
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
 			print "Wind direction\t\t= " + str(direction) + " degrees"
-			
 			if subtype <> "05":
 				print "Average wind\t\t= " + str(av_speed) + " mtr/sec"
-			
 			if subtype == "04":
 				print "Temperature\t\t= " + str(temperature) + " C"
 				print "Wind chill\t\t= " + str(windchill) + " C" 
-			
 			print "Windgust\t\t= " + str(gust) + " mtr/sec"
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
@@ -2500,7 +2505,7 @@ def decodePacket(message):
 			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" %
 							(timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id, str(temperature), str(av_speed), str(gust), str(direction), str(windchill) ) )
 			sys.stdout.flush()
-
+		
 		# TRIGGER
 		if config.trigger_active:
 			for trigger in triggerlist.data:
@@ -2590,12 +2595,13 @@ def decodePacket(message):
 		# DATA
 		sensor_id = id1 + id2
 		uv = int(ByteToHex(message[6]), 16) * 10
-		temperature = decodeTemperature(message[6], message[8])
-		signal = decodeSignal(message[9])
-		battery = decodeBattery(message[9])
+		temperature = rfxdecode.decodeTemperature(message[6], message[8])
+		signal = rfxdecode.decodeSignal(message[9])
+		battery = rfxdecode.decodeBattery(message[9])
 			
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
+			logger.debug("Printout action")
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_57[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
@@ -2607,14 +2613,16 @@ def decodePacket(message):
 		
 		# CSV
 		if cmdarg.printout_csv:
+			logger.debug("CSVout action")
 			if subtype == '03':
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(uv), temperature, str(battery), str(signal) ) )
 			else:
 				sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(uv), str(battery), str(signal) ) )
 			sys.stdout.flush()
-
+		
 		# TRIGGER
 		if config.trigger_active:
+			logger.debug("Trigger action")
 			for trigger in triggerlist.data:
 				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
@@ -2638,10 +2646,10 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-
+		
 		# GRAPHITE
 		if config.graphite_active == True:
-			logger.debug("Send to Graphite")
+			logger.debug("Graphite action")
 			now = int( time.time() )
 			linesg=[]
 			if subtype == "03":
@@ -2653,10 +2661,12 @@ def decodePacket(message):
 		
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			logger.debug("Database action")
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, str(uv), 0, 0, 0, float(temperature), 0, 0, 0, 0, 0)
-	
+		
 		# xPL
 		if config.xpl_active:
+			logger.debug("xPL action")
 			xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=uv\ncurrent='+str(uv)+'\nunits=Index', config.xpl_sourcename, config.xpl_includehostname)
 			if subtype == "03":
 				xpl.send(config.xpl_host, 'device=UV.'+sensor_id+'\ntype=Temperature\ncurrent='+str(temperature)+'\nunits=Celsius', config.xpl_sourcename, config.xpl_includehostname)
@@ -2683,8 +2693,8 @@ def decodePacket(message):
 		channel1 = (int(ByteToHex(message[7]),16) * 0x100 + int(ByteToHex(message[8]),16)) * 0.1
 		channel2 = int(ByteToHex(message[9]),16) * 0x100 + int(ByteToHex(message[10]),16)
 		channel3 = int(ByteToHex(message[11]),16) * 0x100 + int(ByteToHex(message[12]),16)
-		signal = decodeSignal(message[13])
-		battery = decodeBattery(message[13])
+		signal = rfxdecode.decodeSignal(message[13])
+		battery = rfxdecode.decodeBattery(message[13])
 	
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -2745,9 +2755,9 @@ def decodePacket(message):
 		
 		# DATA
 		sensor_id = id1 + id2
-		signal = decodeSignal(message[17])
+		signal = rfxdecode.decodeSignal(message[17])
 		count = int(ByteToHex(message[6]), 16)
-		battery = decodeBattery(message[17])
+		battery = rfxdecode.decodeBattery(message[17])
 		instant = int(ByteToHex(message[7]), 16) * 0x1000000 + int(ByteToHex(message[8]), 16) * 0x10000 + int(ByteToHex(message[9]), 16) * 0x100  + int(ByteToHex(message[10]), 16)
 		usage = int ((int(ByteToHex(message[11]), 16) * 0x10000000000 + int(ByteToHex(message[12]), 16) * 0x100000000 +int(ByteToHex(message[13]), 16) * 0x1000000 + int(ByteToHex(message[14]), 16) * 0x10000 + int(ByteToHex(message[15]), 16) * 0x100 + int(ByteToHex(message[16]), 16) ) / 223.666)
 		
@@ -2808,7 +2818,7 @@ def decodePacket(message):
 		
 		# RRD
 		if config.rrd_active == True:
-			rrd1Metric(packettype, sensor_id, instant, config.rrd_path)
+			rfxrrd.rrd1Metric(packettype, sensor_id, instant, config.rrd_path)
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
@@ -2828,8 +2838,8 @@ def decodePacket(message):
 		time_hour = ByteToHex(message[10]);
 		time_min = ByteToHex(message[11]);
 		time_sec = ByteToHex(message[12]);
-		signal = decodeSignal(message[13])
-		battery = decodeBattery(message[13])
+		signal = rfxdecode.decodeSignal(message[13])
+		battery = rfxdecode.decodeBattery(message[13])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
@@ -2867,7 +2877,7 @@ def decodePacket(message):
 		
 		# DATA
 		if subtype == '00':
-			temperature = float(decodeTemperature(message[5], message[6]))
+			temperature = float(rfxdecode.decodeTemperature(message[5], message[6]))
 			temperature = temperature * 0.1
 		else:
 			temperature = 0
@@ -2877,7 +2887,7 @@ def decodePacket(message):
 			voltage = voltage_hi + voltage_lo
 		else:
 			voltage = 0
-		signal = decodeSignal(message[7])
+		signal = rfxdecode.decodeSignal(message[7])
 		
 		if subtype == '03':
 			sensor_message = rfx.rfx_subtype_70_msg03[message[6]]
@@ -2940,7 +2950,7 @@ def decodePacket(message):
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, id1, ByteToHex(message[5]), ByteToHex(message[6]), 0, 0, 0, voltage, float(temperature), 0, 0, 0, 0, 0)
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
-
+		
 	# ---------------------------------------
 	# 0x71 RFXmeter
 	# ---------------------------------------
@@ -2954,7 +2964,7 @@ def decodePacket(message):
 		sensor_power = ''
 		
 		try:
-			sensor_power = decodePower(message[7], message[8], message[9])
+			sensor_power = rfxdecode.decodePower(message[7], message[8], message[9])
 		except Exception, e:
 			logger.error("Exception: %s" % str(e))
 		
