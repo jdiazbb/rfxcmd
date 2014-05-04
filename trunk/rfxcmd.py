@@ -2266,7 +2266,7 @@ def decodePacket(message):
 		try:
 			humidity_status = rfx.rfx_subtype_54_humstatus[ByteToHex(message[9])]
 		except:
-			logger.error("Humidity status [" + ByteToHex(message[9]) + "] is unknown (" + ByteToHex(message) + ")")
+			logger.debug("Humidity status [" + ByteToHex(message[9]) + "] is unknown (" + ByteToHex(message) + ")")
 			humidity_status = "Unknown"
 		barometric_high = ByteToHex(message[10])
 		barometric_low = ByteToHex(message[11])
@@ -2282,16 +2282,17 @@ def decodePacket(message):
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
 			logger.debug("Printout")
-			print "Subtype\t\t\t= " + rfx.rfx_subtype_54[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
-			print "Temperature\t\t= " + temperature + " C"
-			print "Humidity\t\t= " + str(humidity)
-			print "Humidity Status\t\t= " + humidity_status
-			print "Barometric pressure\t= " + str(barometric)
-			print "Forecast Status\t\t= " + forecast
-			print "Battery\t\t\t= " + str(battery)
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= %s " % str(rfx.rfx_subtype_54[subtype]))
+			print("Seqnbr\t\t\t= %s " % str(seqnbr))
+			print("Id\t\t\t= %s " % str(sensor_id))
+			print("Temperature\t\t= %s C " % str(temperature))
+			print("Humidity\t\t= %s " % str(humidity))
+			if not humidity_status == False:
+				print("Humidity Status\t\t= %s " % str(humidity_status))
+			print("Barometric pressure\t= %s hPa" % str(barometric))
+			print("Forecast Status\t\t= %s " % str(forecast))
+			print("Signal level\t\t= %s " % str(signal))
+			print("Battery\t\t\t= %s " % str(battery))
 		
 		# CSV
 		if cmdarg.printout_csv == True:
