@@ -163,6 +163,7 @@ except ImportError:
 class config_data:
 	def __init__(
 		self,
+		serial_active = True,
 		serial_device = None,
 		serial_rate = 38400,
 		serial_timeout = 9,
@@ -211,6 +212,7 @@ class config_data:
 		log_msgfile = ""
 		):
 
+		self.serial_active = serial_active
 		self.serial_device = serial_device
 		self.serial_rate = serial_rate
 		self.serial_timeout = serial_timeout
@@ -3071,11 +3073,12 @@ def read_socket():
 		
 		if test_rfx( message ):
 		
-			# Flush buffer
-			serial_param.port.flushOutput()
-			logger.debug("SerialPort flush output")
-			serial_param.port.flushInput()
-			logger.debug("SerialPort flush input")
+			if config.serial_active:
+				# Flush buffer
+				serial_param.port.flushOutput()
+				logger.debug("SerialPort flush output")
+				serial_param.port.flushInput()
+				logger.debug("SerialPort flush input")
 			
 			timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 			
@@ -3100,8 +3103,9 @@ def read_socket():
 						logger.error("Unrecognizable packet. Line: " + _line())
 						print "Error: unrecognizable packet"
 			
-				logger.debug("Write message to serial port")
-				serial_param.port.write( message.decode('hex') )
+				if config.serial_active:
+					logger.debug("Write message to serial port")
+					serial_param.port.write( message.decode('hex') )
 			
 		else:
 			logger.error("Invalid message from socket. Line: " + _line())
@@ -3445,9 +3449,10 @@ def option_listen():
 	Listen to RFXtrx device and process data, exit with CTRL+C
 	"""
 	logger.debug("Start listening...")
-
-	logger.debug("Open serial port")
-	open_serialport()
+	
+	if config.serial_active:
+		logger.debug("Open serial port")
+		open_serialport()
 
 	if config.socketserver:
 		try:
@@ -3461,29 +3466,30 @@ def option_listen():
 		else:
 			logger.debug("Cannot start socket interface")
 
-	# Flush buffer
-	logger.debug("Serialport flush output")
-	serial_param.port.flushOutput()
-	logger.debug("Serialport flush input")
-	serial_param.port.flushInput()
+	if config.serial_active:
+		# Flush buffer
+		logger.debug("Serialport flush output")
+		serial_param.port.flushOutput()
+		logger.debug("Serialport flush input")
+		serial_param.port.flushInput()
 
-	# Send RESET
-	logger.debug("Send rfxcmd_reset (" + rfxcmd.reset + ")")
-	serial_param.port.write( rfxcmd.reset.decode('hex') )
-	logger.debug("Sleep 1 sec")
-	time.sleep(1)
+		# Send RESET
+		logger.debug("Send rfxcmd_reset (" + rfxcmd.reset + ")")
+		serial_param.port.write( rfxcmd.reset.decode('hex') )
+		logger.debug("Sleep 1 sec")
+		time.sleep(1)
+	
+		# Flush buffer
+		logger.debug("Serialport flush output")
+		serial_param.port.flushOutput()
+		logger.debug("Serialport flush input")
+		serial_param.port.flushInput()
 
-	# Flush buffer
-	logger.debug("Serialport flush output")
-	serial_param.port.flushOutput()
-	logger.debug("Serialport flush input")
-	serial_param.port.flushInput()
-
-	# Send STATUS
-	logger.debug("Send rfxcmd_status (" + rfxcmd.status + ")")
-	serial_param.port.write( rfxcmd.status.decode('hex') )
-	logger.debug("Sleep 1 sec")
-	time.sleep(1)
+		# Send STATUS
+		logger.debug("Send rfxcmd_status (" + rfxcmd.status + ")")
+		serial_param.port.write( rfxcmd.status.decode('hex') )
+		logger.debug("Sleep 1 sec")
+		time.sleep(1)
 
 	try:
 		while 1:
@@ -3491,11 +3497,12 @@ def option_listen():
 			# Without this sleep it will cause 100% CPU in windows
 			time.sleep(0.01)
 			
-			# Read serial port
-			if config.process_rfxmsg == True:
-				rawcmd = read_rfx()
-				if rawcmd:
-					logger.debug("Processed: " + str(rawcmd))
+			if config.serial_active:
+				# Read serial port
+				if config.process_rfxmsg == True:
+					rawcmd = read_rfx()
+					if rawcmd:
+						logger.debug("Processed: " + str(rawcmd))
 			
 			# Read socket
 			if config.socketserver:
@@ -3505,8 +3512,11 @@ def option_listen():
 		logger.debug("Received keyboard interrupt")
 		logger.debug("Close server socket")
 		serversocket.netAdapter.shutdown()
-		logger.debug("Close serial port")
-		close_serialport()
+		
+		if config.serial_active:
+			logger.debug("Close serial port")
+			close_serialport()
+		
 		print("\nExit...")
 		pass
 
@@ -3658,6 +3668,10 @@ def read_configfile():
 
 		# ----------------------
 		# Serial device
+		if (read_config(cmdarg.configfile, "serial_active") == "yes"):
+			config.serial_active = True
+		else:
+			config.serial_active = False
 		config.serial_device = read_config( cmdarg.configfile, "serial_device")
 		config.serial_rate = read_config( cmdarg.configfile, "serial_rate")
 		config.serial_timeout = read_config( cmdarg.configfile, "serial_timeout")
