@@ -33,6 +33,10 @@
 
 # --------------------------------------------------------------------------
 
+import logging
+
+logger = logging.getLogger('rfxcmd')
+
 class weewx_data:
 	def __init__(
 		self,
@@ -113,6 +117,7 @@ class weewx_data:
 	def weewx_0x57(self):
 		result = None
 		result = "%s;%s;%s;%s" % (str(wwx.wwx_0x57_uv),str(wwx.wwx_0x57_temp),str(wwx.wwx_0x57_batt),str(wwx.wwx_0x57_rssi))
+		logger.debug("Weewx.0x57=%s" % str(result))
 		return result
 	
 wwx = weewx_data()
