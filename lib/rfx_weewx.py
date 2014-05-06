@@ -86,8 +86,8 @@ class weewx_data:
 		self.wwx_uv_sign = wwx_uv_sign                        
                               
 	def weewx_result(self):
-		result = ''
-		result = str(wwx.wwx_wind_dir) + '|' + str(wwx.wwx_wind_avg) + '|' + str(wwx.wwx_wind_gust)
+		result = '|'
+		result = result + str(wwx.wwx_wind_dir) + '|' + str(wwx.wwx_wind_avg) + '|' + str(wwx.wwx_wind_gust)
 		result = result + '|' + str(wwx.wwx_wind_batt) + '|' + str(wwx.wwx_wind_sign)
 		result = result + '|' + str(wwx.wwx_th_t_out) + '|' + str(wwx.wwx_th_h_out) + '|' + str(wwx.wwx_th_hs_out)
 		result = result + '|' + str(wwx.wwx_th_batt) + '|' + str(wwx.wwx_th_sign)
@@ -96,6 +96,7 @@ class weewx_data:
 		result = result + '|' + str(wwx.wwx_thb_fs_in) + '|' + str(wwx.wwx_thb_batt) + '|' + str(wwx.wwx_thb_sign)
 		result = result + '|' + str(wwx.wwx_rain_rate) + '|' + str(wwx.wwx_rain_batt) + '|' + str(wwx.wwx_rain_sign)
 		result = result + '|' + str(wwx.wwx_uv_out) + '|' + str(wwx.wwx_uv_batt) + '|' + str(wwx.wwx_uv_sign)
+		result = result + '|'
 		return result
 		
 wwx = weewx_data()
