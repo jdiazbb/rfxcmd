@@ -72,8 +72,12 @@ class NetRequestHandler(StreamRequestHandler):
 		
 		# WEEWX v2
 		if lg[0:5] == "WEEWX":
+			logger.debug("Process WeeWx request")
 			indata = lg.split(';')
+			logger.debug("Indata[0]: %s" % str(indata[0]))
+			logger.debug("Indata[1]: %s" % str(indata[1]))
 			if indata[1] == "0x57":
+				logger.debug("WeeWx for sensor 0x57")
 				self.wfile.write(wwx.weewx_0x57())
 		
 		self.netAdapterClientConnected = False
