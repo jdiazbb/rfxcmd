@@ -3071,7 +3071,10 @@ def read_socket():
 		logger.debug("Message received in socket messageQueue")
 		message = stripped(messageQueue.get())
 		
-		if test_rfx( message ):
+		if message[0:5] == "WEEWX":
+			logger.debug("Message from WEEWX [v2]")
+		
+		elif test_rfx( message ):
 		
 			if config.serial_active:
 				# Flush buffer
@@ -3088,10 +3091,7 @@ def read_socket():
 					print "------------------------------------------------"
 					print "Request received from WEEWX station-driver"
 					print "Request skipped here!"
-			
-			elif message[0:5] == "WEEWX":
-				logger.debug("Message from WEEWX [v2]")
-			
+					
 			else:			
 				if cmdarg.printout_complete == True:
 					print "------------------------------------------------"
