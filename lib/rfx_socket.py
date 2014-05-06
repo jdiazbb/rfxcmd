@@ -45,7 +45,7 @@ try:
 except ImportError:
 	print "Error: module lib/weewx.py not found"
 	sys.exit(1)
-                
+
 logger = logging.getLogger('rfxcmd')
 	
 # ------------------------------------------------------------------------------
@@ -56,13 +56,19 @@ class NetRequestHandler(StreamRequestHandler):
 		logger.debug("Client connected to [%s:%d]" % self.client_address)
 		lg = self.rfile.readline()
 		messageQueue.put(lg)
-		logger.debug("Message read from socket: " + lg)
+		logger.debug("Message read from socket: " + lg.strip())
 		
 		# WEEWX incoming string
 		if lg.strip() == '0A1100FF001100FF001100':
-			self.wfile.write("Received request weewx weatherstation - ok\n")
-			self.wfile.write(wwx.weewx_result() + '\n')
-			self.wfile.write("Sent result - ok\n")
+			logger.debug("WeeWx request, send data to WeeWx")
+			try:
+				self.wfile.write("Received request weewx weatherstation - ok\n")
+				self.wfile.write(wwx.weewx_result() + '\n')
+				self.wfile.write("Sent result - ok\n")
+			except Exception, e:
+				logger.debug("Error: WeeWx data send failed")
+				logger.debug("Error: %s" % str(e))
+				pass
 		
 		self.netAdapterClientConnected = False
 		logger.debug("Client disconnected from [%s:%d]" % self.client_address)
