@@ -70,6 +70,12 @@ class NetRequestHandler(StreamRequestHandler):
 				logger.debug("Error: %s" % str(e))
 				pass
 		
+		# WEEWX v2
+		if lg[0:5] == "WEEWX":
+			indata = lg.split(';')
+			if indata[1] == "0x57":
+				self.wfile.write(wwx.weewx_0x57())
+		
 		self.netAdapterClientConnected = False
 		logger.debug("Client disconnected from [%s:%d]" % self.client_address)
 	
