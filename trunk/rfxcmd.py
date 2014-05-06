@@ -3088,7 +3088,10 @@ def read_socket():
 					print "------------------------------------------------"
 					print "Request received from WEEWX station-driver"
 					print "Request skipped here!"
-				
+			
+			elif message[0:5] == "WEEWX":
+				logger.debug("Message from WEEWX [v2]")
+			
 			else:			
 				if cmdarg.printout_complete == True:
 					print "------------------------------------------------"
