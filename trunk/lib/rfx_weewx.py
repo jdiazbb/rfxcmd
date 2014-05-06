@@ -43,24 +43,28 @@ class weewx_data:
 		wwx_wind_sign = 0,
 		wwx_th_t_out = 0,
 		wwx_th_h_out = 0,
-		wwx_th_hs_out = 0,                    
+		wwx_th_hs_out = 0,
 		wwx_th_batt = 0,
 		wwx_th_sign = 0,
 		wwx_thb_t_in = 0,
 		wwx_thb_h_in = 0,
-		wwx_thb_hs_in = 0,                    
+		wwx_thb_hs_in = 0,
 		wwx_thb_b_in = 0,
-		wwx_thb_fs_in = 0,                     
+		wwx_thb_fs_in = 0,
 		wwx_thb_batt = 0,
 		wwx_thb_sign = 0,
 		wwx_rain_rate = 0,
 		wwx_rain_batt = 0,
-		wwx_rain_sign = 0,                       
+		wwx_rain_sign = 0,
 		wwx_uv_out = 0,
 		wwx_uv_batt = 0,
-		wwx_uv_sign = 0                           
+		wwx_uv_sign = 0,
+		wwx_0x57_uv = 0,
+		wwx_0x57_temp = 0,
+		wwx_0x57_batt = 0,
+		wwx_0x57_rssi = 0
 		):
-		                      
+		
 		self.wwx_wind_dir = wwx_wind_dir
 		self.wwx_wind_avg = wwx_wind_avg
 		self.wwx_wind_gust = wwx_wind_gust
@@ -68,23 +72,29 @@ class weewx_data:
 		self.wwx_wind_sign = wwx_wind_sign
 		self.wwx_th_t_out = wwx_th_t_out
 		self.wwx_th_h_out = wwx_th_h_out
-		self.wwx_th_hs_out = wwx_th_hs_out                            
+		self.wwx_th_hs_out = wwx_th_hs_out
 		self.wwx_th_batt = wwx_th_batt
 		self.wwx_th_sign = wwx_th_sign
 		self.wwx_thb_t_in = wwx_thb_t_in
 		self.wwx_thb_h_in = wwx_thb_h_in
-		self.wwx_thb_hs_in = wwx_thb_hs_in              
+		self.wwx_thb_hs_in = wwx_thb_hs_in
 		self.wwx_thb_b_in = wwx_thb_b_in
-		self.wwx_thb_fs_in = wwx_thb_fs_in                
+		self.wwx_thb_fs_in = wwx_thb_fs_in
 		self.wwx_thb_batt = wwx_thb_batt
 		self.wwx_thb_sign = wwx_thb_sign
 		self.wwx_rain_rate = wwx_rain_rate
 		self.wwx_rain_batt = wwx_rain_batt
-		self.wwx_rain_sign = wwx_rain_sign                  
+		self.wwx_rain_sign = wwx_rain_sign
 		self.wwx_uv_out = wwx_uv_out
 		self.wwx_uv_batt = wwx_uv_batt
-		self.wwx_uv_sign = wwx_uv_sign                        
-                              
+		self.wwx_uv_sign = wwx_uv_sign
+		
+		# 0x57 UV Sensor
+		self.wwx_0x57_uv = wwx_0x57_uv
+		self.wwx_0x57_temp = wwx_0x57_temp
+		self.wwx_0x57_batt = wwx_0x57_batt
+		self.wwx_0x57_rssi = wwx_0x57_rssi
+	
 	def weewx_result(self):
 		result = '|'
 		result = result + str(wwx.wwx_wind_dir) + '|' + str(wwx.wwx_wind_avg) + '|' + str(wwx.wwx_wind_gust)
@@ -98,7 +108,13 @@ class weewx_data:
 		result = result + '|' + str(wwx.wwx_uv_out) + '|' + str(wwx.wwx_uv_batt) + '|' + str(wwx.wwx_uv_sign)
 		result = result + '|'
 		return result
-		
+	
+	# 0x57 UV Sensor
+	def weewx_0x57(self)
+		result = None
+		result = "%s;%s;%s" % (str(wwx_0x57_uv),str(wwx_0x57_temp),str(wwx_0x57_batt),str(wwx_0x57_rssi))
+		return result
+	
 wwx = weewx_data()
 
 # --------------------------------------------------------------------------
