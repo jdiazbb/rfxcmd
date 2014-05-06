@@ -2680,7 +2680,16 @@ def decodePacket(message):
 			wwx.wwx_uv_out = uv
 			wwx.wwx_uv_batt = battery
 			wwx.wwx_uv_sign = signal
-		
+			
+			# 0x57 UV Sensor
+			wwx.wwx_0x57_uv = uv
+			if subtype == "03":
+				wwx.wwx_0x57_temp = temperature
+			else:
+				wwx.wwx_0x57_temp = None
+			wwx.wwx_0x57_batt = battery
+			wwx.wwx_0x57_rssi = signal
+			
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
 	# ---------------------------------------
