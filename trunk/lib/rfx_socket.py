@@ -77,7 +77,7 @@ class NetRequestHandler(StreamRequestHandler):
 			logger.debug("Indata[0]: %s" % str(indata[0].strip()))
 			logger.debug("Indata[1]: %s" % str(indata[1].strip()))
 			if indata[1].strip() == "0x57":
-				logger.debug("WeeWx for sensor 0x57")
+				logger.debug("Send WeeWx data for sensor 0x57 [%s]" % str(wwx.weewx_0x57))
 				self.wfile.write(wwx.weewx_0x57())
 		
 		self.netAdapterClientConnected = False
