@@ -112,7 +112,7 @@ class weewx_data:
 	# 0x57 UV Sensor
 	def weewx_0x57(self):
 		result = None
-		result = "%s;%s;%s" % (str(wwx.wwx_0x57_uv),str(wwx.wwx_0x57_temp),str(wwx.wwx_0x57_batt),str(wwx.wwx_0x57_rssi))
+		result = "%s;%s;%s;%s" % (str(wwx.wwx_0x57_uv),str(wwx.wwx_0x57_temp),str(wwx.wwx_0x57_batt),str(wwx.wwx_0x57_rssi))
 		return result
 	
 wwx = weewx_data()
