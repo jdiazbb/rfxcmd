@@ -203,6 +203,13 @@ class weewx_data:
 		result = result + '|' + str(wwx.wwx_uv_out) + '|' + str(wwx.wwx_uv_batt) + '|' + str(wwx.wwx_uv_sign)
 		result = result + '|'
 		return result
+
+	# 0x52 Temp/Hum Sensor
+	def weewx_0x52(self):
+		result = None
+		result = "%s;%s;%s;%s" % (str(wwx.wwx_0x52_temp),str(wwx.wwx_0x52_hum),str(wwx.wwx_0x52_batt),str(wwx.wwx_0x52_rssi))
+		logger.debug("Weewx.0x52=%s" % str(result))
+		return result
 	
 	# 0x57 UV Sensor
 	def weewx_0x57(self):
