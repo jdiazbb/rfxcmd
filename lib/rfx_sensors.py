@@ -601,12 +601,13 @@ class rfx_data(dict):
 	rfx_subtype_54 = {"01":"BTHR918",
 						"02":"BTHR918N, BTHR968"}
 
-	rfx_subtype_54_humstatus = {"00":"Dry",
+	rfx_subtype_54_humstatus = {"00":"Normal",
 								"01":"Comfort",
-								"02":"Normal",
+								"02":"Dry",
 								"03":"Wet"}
 
-	rfx_subtype_54_forecast = {"01":"Sunny",
+	rfx_subtype_54_forecast = {"00":"No forecast available",
+								"01":"Sunny",
 								"02":"Partly cloudy",
 								"03":"Cloudy",
 								"04":"Rainy"}

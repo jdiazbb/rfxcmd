@@ -63,6 +63,48 @@ class weewx_data:
 		wwx_uv_out = 0,
 		wwx_uv_batt = 0,
 		wwx_uv_sign = 0,
+		# 0x4F Temperature and Rain sensor
+		wwx_0x4f_temp = 0,
+		wwx_0x4f_raintotal = 0,
+		wwx_0x4f_batt = 0,
+		wwx_0x4f_rssi = 0,
+		# 0x50 Temperature sensor
+		wwx_0x50_temp = 0,
+		wwx_0x50_batt = 0,
+		wwx_0x50_rssi = 0,
+		# 0x51 Humidity sensor
+		wwx_0x51_hum = 0,
+		wwx_0x51_batt = 0,
+		wwx_0x51_rssi = 0,
+		# 0x52 Temperature and Barometric sensor
+		wwx_0x52_temp = 0,
+		wwx_0x52_hum = 0,
+		wwx_0x52_batt = 0,
+		wwx_0x52_rssi = 0,
+		# 0x53 Barometric sensor
+		wwx_0x53_baro = 0,
+		wwx_0x53_batt = 0,
+		wwx_0x53_rssi = 0,
+		# 0x54 Temp/Hum/Baro sensor
+		wwx_0x54_temp = 0,
+		wwx_0x54_hum = 0,
+		wwx_0x54_baro = 0,
+		wwx_0x54_batt = 0,
+		wwx_0x54_rssi = 0,
+		# 0x55 Rain sensor
+		wwx_0x55_rainrate = 0,
+		wwx_0x55_raintotal = 0,
+		wwx_0x55_batt = 0,
+		wwx_0x55_rssi = 0,
+		# 0x56 Wind sensor
+		wwx_0x56_direction = 0,
+		wwx_0x56_avspeed = 0,
+		wwx_0x56_gust = 0,
+		wwx_0x56_temp = 0,
+		wwx_0x56_chill = 0,
+		wwx_0x56_batt = 0,
+		wwx_0x56_rssi = 0,
+		# 0x57 UV sensor
 		wwx_0x57_uv = 0,
 		wwx_0x57_temp = 0,
 		wwx_0x57_batt = 0,
@@ -92,6 +134,55 @@ class weewx_data:
 		self.wwx_uv_out = wwx_uv_out
 		self.wwx_uv_batt = wwx_uv_batt
 		self.wwx_uv_sign = wwx_uv_sign
+		
+		# 0x4F Temperature and Rain sensor
+		self.wwx_0x4f_temp = wwx_0x4f_temp
+		self.wwx_0x4f_raintotal = wwx_0x4f_raintotal
+		self.wwx_0x4f_batt = wwx_0x4f_batt
+		self.wwx_0x4f_rssi = wwx_0x4f_rssi
+		
+		# 0x50 Temperature sensor
+		self.wwx_0x50_temp = wwx_0x50_temp
+		self.wwx_0x50_batt = wwx_0x50_batt
+		self.wwx_0x50_rssi = wwx_0x50_rssi
+		
+		# 0x51 Humidity sensor
+		self.wwx_0x51_hum = wwx_0x51_hum
+		self.wwx_0x51_batt = wwx_0x51_batt
+		self.wwx_0x51_rssi = wwx_0x51_rssi
+		
+		# 0x52 Temperature and Barometric sensor
+		self.wwx_0x52_temp = wwx_0x52_temp
+		self.wwx_0x52_hum = wwx_0x52_hum
+		self.wwx_0x52_batt = wwx_0x52_batt
+		self.wwx_0x52_rssi = wwx_0x52_rssi
+		
+		# 0x53 Barometric sensor
+		self.wwx_0x53_baro = wwx_0x53_baro
+		self.wwx_0x53_batt = wwx_0x53_batt
+		self.wwx_0x53_rssi = wwx_0x53_rssi
+		
+		# 0x54 Temp/Hum/Baro sensor
+		self.wwx_0x54_temp = wwx_0x54_temp
+		self.wwx_0x54_hum = wwx_0x54_hum
+		self.wwx_0x54_baro = wwx_0x54_baro
+		self.wwx_0x54_batt = wwx_0x54_batt
+		self.wwx_0x54_rssi = wwx_0x54_rssi
+		
+		# 0x55 Rain sensor
+		self.wwx_0x55_rainrate = wwx_0x55_rainrate
+		self.wwx_0x55_raintotal = wwx_0x55_raintotal
+		self.wwx_0x55_batt = wwx_0x55_batt
+		self.wwx_0x55_rssi = wwx_0x55_rssi
+		
+		# 0x56 Wind sensor
+		self.wwx_0x56_direction= wwx_0x56_direction
+		self.wwx_0x56_avspeed = wwx_0x56_avspeed
+		self.wwx_0x56_temp = wwx_0x56_temp
+		self.wwx_0x56_gust = wwx_0x56_gust
+		self.wwx_0x56_chill = wwx_0x56_chill
+		self.wwx_0x56_batt = wwx_0x56_batt
+		self.wwx_0x56_rssi = wwx_0x56_rssi
 		
 		# 0x57 UV Sensor
 		self.wwx_0x57_uv = wwx_0x57_uv
