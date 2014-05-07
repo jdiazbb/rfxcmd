@@ -2246,6 +2246,14 @@ def decodePacket(message):
 		if config.rrd_active == True:
 			rfxrrd.rrd2Metrics(packettype, sensor_id, temperature, humidity, config.rrd_path)
 		
+		# WEEWX
+		if config.weewx_active:
+			logger.debug("Weewx action")
+			wwx.wwx_0x52_temp = temperature
+			wwx.wwx_0x57_hum = humidity
+			wwx.wwx_0x57_batt = battery
+			wwx.wwx_0x57_rssi = signal
+		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 		
 	# ---------------------------------------
