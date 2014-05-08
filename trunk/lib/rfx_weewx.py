@@ -210,6 +210,20 @@ class weewx_data:
 		result = "%s;%s;%s;%s" % (str(wwx.wwx_0x52_temp),str(wwx.wwx_0x52_hum),str(wwx.wwx_0x52_batt),str(wwx.wwx_0x52_rssi))
 		logger.debug("Weewx.0x52=%s" % str(result))
 		return result
+
+	# 0x53 Barometric Sensor
+	def weewx_0x53(self):
+		result = None
+		result = "%s;%s;%s" % (str(wwx.wwx_0x53_baro),str(wwx.wwx_0x53_batt),str(wwx.wwx_0x53_rssi))
+		logger.debug("Weewx.0x53=%s" % str(result))
+		return result
+
+	# 0x54 Temp/Hum/Baro Sensor
+	def weewx_0x54(self):
+		result = None
+		result = "%s;%s;%s;%s;%s" % (str(wwx.wwx_0x54_temp),str(wwx.wwx_0x54_hum),str(wwx.wwx_0x54_baro),str(wwx.wwx_0x54_batt),str(wwx.wwx_0x54_rssi))
+		logger.debug("Weewx.0x54=%s" % str(result))
+		return result
 	
 	# 0x57 UV Sensor
 	def weewx_0x57(self):

@@ -2253,7 +2253,7 @@ def decodePacket(message):
 			wwx.wwx_0x52_hum = humidity
 			wwx.wwx_0x52_batt = battery
 			wwx.wwx_0x52_rssi = signal
-		
+			
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 		
 	# ---------------------------------------
@@ -2373,6 +2373,12 @@ def decodePacket(message):
 			wwx.wwx_thb_fs_in = forecast
 			wwx.wwx_thb_batt = battery
 			wwx.wwx_thb_sign = signal
+			# new below
+			wwx.wwx_0x54_temp = temperature
+			wwx.wwx_0x54_hum = humidity
+			wwx.wwx_0x54_baro = barometric
+			wwx.wwx_0x54_batt = battery
+			wwx.wwx_0x54_rssi = signal
 		 
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
