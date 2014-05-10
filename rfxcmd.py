@@ -205,6 +205,7 @@ class config_data:
 		daemon_pidfile = "rfxcmd.pid",
 		process_rfxmsg = True,
 		weewx_active = False,
+		weewx_config = "weewx.xml",
 		rrd_active = False,
 		rrd_path = "",
 		barometric = 0,
@@ -254,6 +255,7 @@ class config_data:
 		self.daemon_pidfile = daemon_pidfile
 		self.process_rfxmsg = process_rfxmsg
 		self.weewx_active = weewx_active
+		self.weewx_config = weewx_config
 		self.rrd_active = rrd_active
 		self.rrd_path = rrd_path
 		self.barometric = barometric
@@ -306,6 +308,7 @@ class serial_data:
 		self.rate = rate
 		self.timeout = timeout
 
+# Store the trigger data from xml file
 class trigger_data:
 	def __init__(
 		self,
@@ -314,7 +317,17 @@ class trigger_data:
 
 		self.data = data
 
+# Store the whitelist data from xml file
 class whitelist_data:
+	def __init__(
+		self,
+		data = ""
+		):
+
+		self.data = data
+
+# Store the sensor id that should be received by WeeWx
+class weewx_data:
 	def __init__(
 		self,
 		data = ""
@@ -2079,6 +2092,18 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Temp.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 		
+		# WEEWX
+		if config.weewx_active:
+			for sensor in weewxlist.data:
+				type = sensor.getElementsByTagName('type')[0].childNodes[0].nodeValue
+				id = sensor.getElementsByTagName('id')[0].childNodes[0].nodeValue
+				sensor_type = packettype + subtype
+				if type == sensor_type and id == sensor_id:
+					logger.debug("Weewx action, Sensor type: %s, id: %s" % (str(type), str(id)))
+					wwx.wwx_0x51_temp = temperature
+					wwx.wwx_0x51_batt = battery
+					wwx.wwx_0x51_rssi = signal
+		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 		
 	# ---------------------------------------
@@ -2155,6 +2180,18 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=humidity\ncurrent='+str(humidity)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 			xpl.send(config.xpl_host, 'device=Hum.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+		
+		# WEEWX
+		if config.weewx_active:
+			for sensor in weewxlist.data:
+				type = sensor.getElementsByTagName('type')[0].childNodes[0].nodeValue
+				id = sensor.getElementsByTagName('id')[0].childNodes[0].nodeValue
+				sensor_type = packettype + subtype
+				if type == sensor_type and id == sensor_id:
+					logger.debug("Weewx action, Sensor type: %s, id: %s" % (str(type), str(id)))
+					wwx.wwx_0x51_hum = humidity
+					wwx.wwx_0x51_batt = battery
+					wwx.wwx_0x51_rssi = signal
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 		
@@ -2248,11 +2285,16 @@ def decodePacket(message):
 		
 		# WEEWX
 		if config.weewx_active:
-			logger.debug("Weewx action")
-			wwx.wwx_0x52_temp = temperature
-			wwx.wwx_0x52_hum = humidity
-			wwx.wwx_0x52_batt = battery
-			wwx.wwx_0x52_rssi = signal
+			for sensor in weewxlist.data:
+				type = sensor.getElementsByTagName('type')[0].childNodes[0].nodeValue
+				id = sensor.getElementsByTagName('id')[0].childNodes[0].nodeValue
+				sensor_type = packettype + subtype
+				if type == sensor_type and id == sensor_id:
+					logger.debug("Weewx action, Sensor type: %s, id: %s" % (str(type), str(id)))
+					wwx.wwx_0x52_temp = temperature
+					wwx.wwx_0x52_hum = humidity
+					wwx.wwx_0x52_batt = battery
+					wwx.wwx_0x52_rssi = signal
 			
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 		
@@ -2365,20 +2407,17 @@ def decodePacket(message):
 		
 		# WEEWX
 		if config.weewx_active:
-			logger.debug("Weewx action")
-			wwx.wwx_thb_t_in = temperature
-			wwx.wwx_thb_h_in = humidity
-			wwx.wwx_thb_hs_in = humidity_status
-			wwx.wwx_thb_b_in = barometric
-			wwx.wwx_thb_fs_in = forecast
-			wwx.wwx_thb_batt = battery
-			wwx.wwx_thb_sign = signal
-			# new below
-			wwx.wwx_0x54_temp = temperature
-			wwx.wwx_0x54_hum = humidity
-			wwx.wwx_0x54_baro = barometric
-			wwx.wwx_0x54_batt = battery
-			wwx.wwx_0x54_rssi = signal
+			for sensor in weewxlist.data:
+				type = sensor.getElementsByTagName('type')[0].childNodes[0].nodeValue
+				id = sensor.getElementsByTagName('id')[0].childNodes[0].nodeValue
+				sensor_type = packettype + subtype
+				if type == sensor_type and id == sensor_id:
+					logger.debug("Weewx action, Sensor type: %s, id: %s" % (str(type), str(id)))
+					wwx.wwx_0x54_temp = temperature
+					wwx.wwx_0x54_hum = humidity
+					wwx.wwx_0x54_baro = barometric
+					wwx.wwx_0x54_batt = battery
+					wwx.wwx_0x54_rssi = signal
 		 
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
@@ -2473,6 +2512,19 @@ def decodePacket(message):
 		# DATABASE
 		if config.mysql_active or config.sqlite_active or config.pgsql_active:
 			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, 0, 0, float(rainrate), float(raintotal), 0, 0, 0, 0)
+		
+		# WEEWX
+		if config.weewx_active:
+			for sensor in weewxlist.data:
+				type = sensor.getElementsByTagName('type')[0].childNodes[0].nodeValue
+				id = sensor.getElementsByTagName('id')[0].childNodes[0].nodeValue
+				sensor_type = packettype + subtype
+				if type == sensor_type and id == sensor_id:
+					logger.debug("Weewx action, Sensor type: %s, id: %s" % (str(type), str(id)))
+					wwx.wwx_0x55_rainrate = rainrate
+					wwx.wwx_0x55_raintotal = raintotal
+					wwx.wwx_0x55_batt = battery
+					wwx.wwx_0x55_rssi = signal
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
@@ -2590,16 +2642,27 @@ def decodePacket(message):
 		
 		# WEEWX
 		if config.weewx_active:
-			logger.debug("Weewx action")
-			wwx.wwx_wind_dir = direction
-			if subtype <> "05":
-				wwx.wwx_wind_avg = av_speed
-			if subtype == "04":
-				wwx.wwx_th_t_out = temperature
-			wwx.wwx_wind_gust = gust
-			wwx.wwx_wind_batt = battery
-			wwx.wwx_wind_sign = signal
-		
+			for sensor in weewxlist.data:
+				type = sensor.getElementsByTagName('type')[0].childNodes[0].nodeValue
+				id = sensor.getElementsByTagName('id')[0].childNodes[0].nodeValue
+				sensor_type = packettype + subtype
+				if type == sensor_type and id == sensor_id:
+					logger.debug("Weewx action, Sensor type: %s, id: %s" % (str(type), str(id)))
+					wwx.wwx_0x56_direction = direction
+					if subtype <> "05":
+						wwx.wwx_0x56_avspeed = av_speed
+					else:
+						wwx.wwx_0x56_avspeed = "None"
+					if subtype == "04":
+						wwx.wwx_0x56_temp = temperature
+						wwx.wwx_0x56_chill = windchill
+					else:
+						wwx.wwx_0x56_temp = "None"
+						wwx.wwx_0x56_chill = "None"
+					wwx.wwx_0x56_gust = gust
+					wwx.wwx_0x56_batt = battery
+					wwx.wwx_0x56_rssi = signal
+			
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 
 	# ---------------------------------------
@@ -2690,14 +2753,19 @@ def decodePacket(message):
 		
 		# WEEWX
 		if config.weewx_active:
-			logger.debug("Weewx action")
-			wwx.wwx_0x57_uv = uv
-			if subtype == "03":
-				wwx.wwx_0x57_temp = temperature
-			else:
-				wwx.wwx_0x57_temp = "None"
-			wwx.wwx_0x57_batt = battery
-			wwx.wwx_0x57_rssi = signal
+			for sensor in weewxlist.data:
+				type = sensor.getElementsByTagName('type')[0].childNodes[0].nodeValue
+				id = sensor.getElementsByTagName('id')[0].childNodes[0].nodeValue
+				sensor_type = packettype + subtype
+				if type == sensor_type and id == sensor_id:
+					logger.debug("Weewx action, Sensor type: %s, id: %s" % (str(type), str(id)))
+					wwx.wwx_0x57_uv = uv
+					if subtype == "03":
+						wwx.wwx_0x57_temp = temperature
+					else:
+						wwx.wwx_0x57_temp = "None"
+					wwx.wwx_0x57_batt = battery
+					wwx.wwx_0x57_rssi = signal
 			
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
@@ -3228,7 +3296,7 @@ def read_rfx():
 				logger.debug("Byte: " + str(ByteToHex(byte)))
 		except IOError, err:
 			print("Error: " + str(err))
-			logger.error("Serial read error: " + str(err) + " Line: " +  + _line())
+			logger.error("Serial read error: %s, Line: %s" % (str(err),_line()))
 		
 		if byte:
 			message = byte + readbytes( ord(byte) )
@@ -3375,6 +3443,25 @@ def read_triggerfile():
 		message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
 		action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
 		logger.debug("Message: " + message + ", Action: " + action)
+
+# ----------------------------------------------------------------------------
+
+def read_weewxfile():
+ 	"""
+ 	Read weewx file to list
+ 	"""
+	try:
+		xmldoc = minidom.parse( config.weewx_config )
+	except:
+		print "Error in " + config.weewx_config + " file"
+		sys.exit(1)
+
+	weewxlist.data = xmldoc.documentElement.getElementsByTagName('sensor')
+
+	for sensor in weewxlist.data:
+		type = sensor.getElementsByTagName('type')[0].childNodes[0].nodeValue
+		id = sensor.getElementsByTagName('id')[0].childNodes[0].nodeValue
+		logger.debug("Type: " + type + ", id: " + id)
 
 # ----------------------------------------------------------------------------
 
@@ -3817,6 +3904,9 @@ def read_configfile():
 			config.weewx_active = True
 		else:
 			config.weewx_active = False
+		config.weewx_config = read_config( cmdarg.configfile, "weewx_config")
+		logger.debug("WeeWx_active: " + str(config.weewx_active))
+		logger.debug("WeeWx_config: " + str(config.weewx_config))
 		
 		# ------------------------
 		# RRD
@@ -4052,6 +4142,12 @@ def main():
 		read_triggerfile()
 
 	# ----------------------------------------------------------
+	# WEEWXLIST
+	if config.weewx_active:
+		logger.debug("Read WeeWxlist file")
+		read_weewxfile()
+
+	# ----------------------------------------------------------
 	# MYSQL
 	if config.mysql_active:
 		logger.debug("MySQL active, Check MySQL")
@@ -4204,6 +4300,9 @@ if __name__ == '__main__':
 	
 	# Whitelist
 	whitelist = whitelist_data()
+
+	# WeeWxlist
+	weewxlist = weewx_data()
 
 	# Check python version
 	check_pythonversion()
