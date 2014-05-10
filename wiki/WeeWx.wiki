@@ -1,0 +1,80 @@
+#summary How to configure RFXcmd with WeeWx
+
+= Introduction =
+
+This page is under progress...
+
+
+= Details =
+
+= RFXcmd configuration =
+
+ 
+
+= Available WeeWx variables =
+
+These are used in the WeeWx config file to specify which sensor data should be used (see config info).
+
+||Variable||Group||
+||altitude||group_altitude||
+||cooldeg||group_degree_day||
+||heatdeg||group_degree_day||
+||gustdir||group_direction||
+||vecdir||group_direction||
+||windDir||group_direction||
+||windGustDir||group_direction||
+i||nterval||group_interval||
+||soilMoist1||group_moisture||
+||soilMoist2||group_moisture||
+||soilMoist3||group_moisture||
+||soilMoist4||group_moisture||
+||extraHumid1||group_percent||
+||extraHumid2||group_percent||
+||inHumidity||group_percent||
+||outHumidity||group_percent||
+||rxCheckPercent||group_percent||
+||altimeter||group_pressure||
+||barometer||group_pressure||
+||pressure||group_pressure||
+||radiation||group_radiation||
+||ET||group_rain||
+||dayRain||group_rain||
+||hail||group_rain||
+||hourRain||group_rain||
+||monthRain||group_rain||
+||rain||group_rain||
+||rain24||group_rain||
+||totalRain||group_rain||
+||stormRain||group_rain||
+||yearRain||group_rain||
+||hailRate||group_rainrate||
+||rainRate||group_rainrate||
+||wind||group_speed||
+||windGust||group_speed||
+||windSpeed||group_speed||
+||windSpeed10||group_speed||
+||windgustvec||group_speed||
+||windvec||group_speed||
+||rms||group_speed2||
+||vecavg||group_speed2||
+||dewpoint||group_temperature||
+||extraTemp1||group_temperature||
+||extraTemp2||group_temperature||
+||extraTemp3||group_temperature||
+||heatindex||group_temperature||
+||heatingTemp||group_temperature||
+||inTemp||group_temperature||
+||leafTemp1||group_temperature||
+||leafTemp2||group_temperature||
+||outTemp||group_temperature||
+||soilTemp1||group_temperature||
+||soilTemp2||group_temperature||
+||soilTemp3||group_temperature||
+||soilTemp4||group_temperature||
+||windchill||group_temperature||
+||dateTime||group_time||
+||UV||group_uv||
+||consBatteryVoltage||group_volt||
+||heatingVoltage||group_volt||
+||referenceVoltage||group_volt||
+||supplyVoltage||group_volt||
