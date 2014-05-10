@@ -67,6 +67,7 @@
 	
 	<!-- Weewx -->
 	<weewx_active>no</weewx_active>          
+	<weewx_config>weewx.xml</weewx_config>
 	
 	<!-- RRD -->
 	<rrd_active>no</rrd_active>
