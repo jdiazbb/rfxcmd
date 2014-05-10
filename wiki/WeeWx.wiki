@@ -94,13 +94,19 @@ The Weewx main configuration file can be found at /etc/weewx/weewx.config
 
 The most important settings detailed below.
 
+=== Socket server ===
+
+This specifies the information about the RFXcmd socket server. If there is issues with the communication there will be error events in the syslog.
+
 {{{
     # RFXcmd Socket server
     socket_server = localhost
     socket_port = 55000
 }}}
 
-This specifies the information about the RFXcmd socket server. If there is issues with the communication there will be error events in the syslog.
+=== Logging ===
+
+For troubleshooting this should be set to 'True' and will create a detailed logfile in the 'logfile' location. It is not recommended to have this activated in normal usage as it can create quite large logfile.
 
 {{{
     # Debug
@@ -108,7 +114,9 @@ This specifies the information about the RFXcmd socket server. If there is issue
     logfile = "/tmp/weewx_rfxcmd.log"
 }}}
 
-For troubleshooting this should be set to 'True' and will create a detailed logfile in the 'logfile' location. It is not recommended to have this activated in normal usage as it can create quite large logfile.
+=== Sensors ===
+
+The list of the sensors that Weewx will request data for, set the sensor to 'True' for Weewx to request data.
 
 {{{
     # RFX Sensors
@@ -123,7 +131,9 @@ For troubleshooting this should be set to 'True' and will create a detailed logf
     sensor_0x57 = False
 }}}
 
-The list of the sensors that Weewx will request data for, set the sensor to 'True' for Weewx to request data.
+=== Sensor config ===
+
+Sensor conifguration, each sensor have their data set, and with this configuration it can be chosen where the data should be stored in the Weewx database. The variable list can be found below of all Weewx variables that can be used. An empty variable will not be used.
 
 {{{
     # 0x52 Temp/Baro Sensors
@@ -132,8 +142,6 @@ The list of the sensors that Weewx will request data for, set the sensor to 'Tru
     sensor_0x52_batt = ""
     sensor_0x52_rssi = ""
 }}}
-
-Sensor conifguration, each sensor have their data set, and with this configuration it can be chosen where the data should be stored in the Weewx database. The variable list can be found below of all Weewx variables that can be used. An empty variable will not be used.
 
 == Example configuration ==
 {{{
