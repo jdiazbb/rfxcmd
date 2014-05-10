@@ -16,6 +16,14 @@ These are the sensors that are supported to be used with weewx.
 
 ||Sensor type||Description||
 ||0x4f||Temperature and rain sensors||
+||0x50||Temperature sensors||
+||0x51||Humidity sensors||
+||0x52||Temperature and humidity sensors||
+||0x53||Barometric sensors [Not supported by RFX device yet]]||
+||0x54||Temperature, humidity and barometric sensors||
+||0x55||Rain sensors||
+||0x56||Wind sensors||
+||0x57||UV sensors||
 
 = RFXcmd configuration =
 
