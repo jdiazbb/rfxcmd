@@ -2,13 +2,21 @@
 
 = Introduction =
 
-This page is under progress...
+The Weewx is an python application with webpage that collects data from several weather stations and present them graphically on the webpage. The Weewx extension to RFXcmd will make it possible to forward data received from RFX device to Weewx for presentation.
+
+The first version of the Weewx RFXcmd driver was made by M.Bakker, the driver has been extended and modified for more specific configuration.
 
 = Details =
 
+The normal operation of Weewx is that it listens to the physical weather station, usually via USB, and takes the data and stores it in database. This require little bit different process for RFXcmd as it already listens to the RFX device for all the data.
 
+The flow of information is following. RFXcmd listens to the RFX device, when a sensor output data, RFXcmd will check if this sensor is accepted for Weewx. If it is, then the data will be saved in variables. The Weewx in turn will request data from RFXcmd in intervals (default 60sec) and RFXcmd will send the data from the variables.
 
 = Limitations =
+
+The current approach do have some limitations. With the weewx configuration the user can define which specific sensor should be used for which data, but, if the user have two sensors of the same type, then these can not be separated because the Weewx does not recognize sensor id or type.
+
+The RFXcmd weewx configuration can be specified which sensors are not allowed to share the data with Weewx.
 
 = Sensors =
 
@@ -73,6 +81,103 @@ The weewx.xml file contains the sensors that are allowed to share the data to we
 Any changes in the weewx.xml will be activated when rfxcmd is restarted.
 
 = Weewx configuration =
+
+The Weewx main configuration file can be found at /etc/weewx/weewx.config
+
+This represent the RFXcmd part of the configuration file.
+
+{{{
+##############################################################################
+
+[RfxCmd]
+
+    # This section is for the RFXCMD
+
+    # The model is RFXCMD
+    model = RfxCmd
+
+    # Do not know
+    mode = socket
+
+    # RFXcmd Socket server
+    socket_server = localhost
+    socket_port = 55000
+
+	# Debug
+	debug = True
+	logfile = "/tmp/weewx_rfxcmd.log"
+
+    # RFX Sensors
+    sensor_0x4F = False
+    sensor_0x50 = False
+    sensor_0x51 = False
+    sensor_0x52 = False
+    sensor_0x53 = False
+    sensor_0x54 = False
+    sensor_0x55 = False
+    sensor_0x56 = False
+    sensor_0x57 = False
+
+	# 0x4F Temp and Rain sensors
+    sensor_0x4F_temp = "outTemp"
+    sensor_0x4F_raintotal = "totalRain"
+    sensor_0x4F_batt = ""
+    sensor_0x4F_rssi = ""
+	
+    # 0x50 Temperature Sensors
+    sensor_0x50_temp = "inTemp"
+    sensor_0x50_batt = ""
+    sensor_0x50_rssi = ""
+
+    # 0x51 Humidity Sensors
+    sensor_0x51_hum = "outHumidity"
+    sensor_0x51_batt = ""
+    sensor_0x51_rssi = ""
+
+    # 0x52 Temp/Baro Sensors
+    sensor_0x52_temp = "outTemp"
+    sensor_0x52_hum = "outHumidity"
+    sensor_0x52_batt = ""
+    sensor_0x52_rssi = ""
+    
+    # 0x53 Barometric Sensors
+    sensor_0x53_baro = "barometer"
+    sensor_0x53_batt = ""
+    sensor_0x53_rssi = ""
+    
+    # 0x54 Temp/Hum/Baro Sensors
+    sensor_0x54_temp = "outTemp"
+    sensor_0x54_hum = "outHumidity"
+    sensor_0x54_baro = "barometer"
+    sensor_0x54_batt = ""
+    sensor_0x54_rssi = ""
+
+    # 0x55 Rain Sensors
+    sensor_0x55_rainrate = "rain"
+    sensor_0x55_raintotal = "totalRain"
+    sensor_0x55_batt = ""
+    sensor_0x55_rssi = ""
+    
+    # 0x56 Wind Sensors
+    sensor_0x56_direction = "windDir"
+    sensor_0x56_avspeed = "windSpeed"
+    sensor_0x56_gust = "windGust"
+    sensor_0x56_temp = "outTemp"
+    sensor_0x56_chill = ""
+    sensor_0x56_batt = ""
+    sensor_0x56_rssi = ""
+    
+    # 0x57 UV Sensors
+    sensor_0x57_uv = "UV"
+    sensor_0x57_temp = "extraTemp1"
+    sensor_0x57_batt = ""
+    sensor_0x57_rssi = ""
+
+    # The driver to use
+    driver = weewx.drivers.rfxcmd
+
+##############################################################################
+}}}
 
 = Available Weewx variables =
 
