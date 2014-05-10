@@ -23,8 +23,8 @@
 #	Version history can be found at 
 #	http://code.google.com/p/rfxcmd/wiki/VersionHistory
 #
-#	$Rev$
-#	$Date$
+#	$Rev: 666 $
+#	$Date: 2014-05-10 22:17:47 +0200 (Sat, 10 May 2014) $
 #
 #	NOTES
 #	
@@ -53,11 +53,11 @@
 __author__ = "Sebastian Sjoholm"
 __copyright__ = "Copyright 2012-2013, Sebastian Sjoholm"
 __license__ = "GPL"
-__version__ = "0.3 (" + filter(str.isdigit, "$Rev$") + ")"
+__version__ = "0.3 (" + filter(str.isdigit, "$Rev: 666 $") + ")"
 __maintainer__ = "Sebastian Sjoholm"
 __email__ = "sebastian.sjoholm@gmail.com"
 __status__ = "Development-Alpha-2"
-__date__ = "$Date$"
+__date__ = "$Date: 2014-05-10 22:17:47 +0200 (Sat, 10 May 2014) $"
 
 # Default modules
 import pdb
