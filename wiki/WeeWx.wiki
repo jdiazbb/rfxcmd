@@ -187,6 +187,47 @@ This represent the RFXcmd part of the configuration file.
 ##############################################################################
 }}}
 
+{{{
+    # RFXcmd Socket server
+    socket_server = localhost
+    socket_port = 55000
+}}}
+
+This specifies the information about the RFXcmd socket server. If there is issues with the communication there will be error events in the syslog.
+
+{{{
+    # Debug
+    debug = True
+    logfile = "/tmp/weewx_rfxcmd.log"
+}}}
+
+For troubleshooting this should be set to 'True' and will create a detailed logfile in the 'logfile' location. It is not recommended to have this activated in normal usage as it can create quite large logfile.
+
+{{{
+    # RFX Sensors
+    sensor_0x4F = False
+    sensor_0x50 = False
+    sensor_0x51 = False
+    sensor_0x52 = False
+    sensor_0x53 = False
+    sensor_0x54 = False
+    sensor_0x55 = False
+    sensor_0x56 = False
+    sensor_0x57 = False
+}}}
+
+The list of the sensors that Weewx will request data for, set the sensor to 'True' for Weewx to request data.
+
+{{{
+    # 0x52 Temp/Baro Sensors
+    sensor_0x52_temp = "outTemp"
+    sensor_0x52_hum = "outHumidity"
+    sensor_0x52_batt = ""
+    sensor_0x52_rssi = ""
+}}}
+
+Sensor conifguration, each sensor have their data set, and with this configuration it can be chosen where the data should be stored in the Weewx database. The variable list can be found below of all Weewx variables that can be used. An empty variable will not be used.
+
 = Available Weewx variables =
 
 These are used in the Weewx config file to specify which sensor data should be used (see config info).
