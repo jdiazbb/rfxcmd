@@ -18,6 +18,14 @@ The current approach do have some limitations. With the weewx configuration the 
 
 The RFXcmd weewx configuration can be specified which sensors are not allowed to share the data with Weewx.
 
+= Files =
+
+There are two files needed by the Weewx in the RFXcmd directory 'weewx'.
+
+The 'rfxcmd_weewx_config.txt' is the configuration part that should be copy/pasted in to the weewx configuration file (see below for more info).
+
+The 'rfxcmd_weewx.py' is the driver file for weewx and should be copied to the driver directory in weewx, '/usr/share/weewx/weewx/drivers' and renamed to 'rfxcmd.py'.
+
 = Sensors =
 
 These are the sensors that are supported to be used with weewx.
@@ -103,9 +111,9 @@ This represent the RFXcmd part of the configuration file.
     socket_server = localhost
     socket_port = 55000
 
-	# Debug
-	debug = True
-	logfile = "/tmp/weewx_rfxcmd.log"
+    # Debug
+    debug = True
+    logfile = "/tmp/weewx_rfxcmd.log"
 
     # RFX Sensors
     sensor_0x4F = False
