@@ -29,6 +29,26 @@ These are the sensors that are supported to be used with weewx.
 
 == config.xml ==
 
+The RFXcmd configuration file (config.xml) have two xml tags that are related to the Weewx usage.
+
+<weewx_active>
+
+Should be set to 'yes' if the Weewx sharing is wanted. Default 'no'
+
+<weewx_config>
+
+The name of the Weewx accepted sensors. Default 'weewx.xml'.
+
+Example:
+
+{{{
+	<!-- Weewx -->
+	<weewx_active>no</weewx_active>          
+	<weewx_config>weewx.xml</weewx_config>
+}}}
+
+Any changes in the config.xml will be activated when rfxcmd is restarted.
+
 == weewx.xml == 
 
 The weewx.xml file contains the sensors that are allowed to share the data to weewx requests. This is needed when you have several sensors with the same type and just want to use one of them for weewx data.
@@ -49,6 +69,8 @@ The weewx.xml file contains the sensors that are allowed to share the data to we
 </sensor>
 </xml>
 }}}
+
+Any changes in the weewx.xml will be activated when rfxcmd is restarted.
 
 = Weewx configuration =
 
