@@ -4,16 +4,49 @@
 
 This page is under progress...
 
-
 = Details =
+
+
+
+= Limitations =
+
+= Sensors =
+
+These are the sensors that are supported to be used with weewx.
+
+||Sensor type||Description||
+||0x4f||Temperature and rain sensors||
 
 = RFXcmd configuration =
 
- 
+== config.xml ==
 
-= Available WeeWx variables =
+== weewx.xml == 
 
-These are used in the WeeWx config file to specify which sensor data should be used (see config info).
+The weewx.xml file contains the sensors that are allowed to share the data to weewx requests. This is needed when you have several sensors with the same type and just want to use one of them for weewx data.
+
+{{{
+<xml>
+<sensor>
+	<type>5202</type>
+	<id>1500</id>
+</sensor>
+<sensor>
+	<type>5402</type>
+	<id>1E00</id>
+</sensor>
+<sensor>
+	<type>5402</type>
+	<id>2301</id>
+</sensor>
+</xml>
+}}}
+
+= Weewx configuration =
+
+= Available Weewx variables =
+
+These are used in the Weewx config file to specify which sensor data should be used (see config info).
 
 ||Variable||Group||
 ||altitude||group_altitude||
