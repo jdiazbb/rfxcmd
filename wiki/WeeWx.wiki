@@ -23,7 +23,7 @@ These are used in the WeeWx config file to specify which sensor data should be u
 ||vecdir||group_direction||
 ||windDir||group_direction||
 ||windGustDir||group_direction||
-i||nterval||group_interval||
+||interval||group_interval||
 ||soilMoist1||group_moisture||
 ||soilMoist2||group_moisture||
 ||soilMoist3||group_moisture||
