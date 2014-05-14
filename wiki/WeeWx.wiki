@@ -192,7 +192,7 @@ Sensor conifguration, each sensor have their data set, and with this configurati
     sensor_0x51_batt = ""
     sensor_0x51_rssi = ""
 
-    # 0x52 Temp/Baro Sensors
+    # 0x52 Temp/Hum Sensors
     sensor_0x52_temp = "outTemp"
     sensor_0x52_hum = "outHumidity"
     sensor_0x52_batt = ""
