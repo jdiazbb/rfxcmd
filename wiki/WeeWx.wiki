@@ -136,7 +136,7 @@ The list of the sensors that Weewx will request data for, set the sensor to 'Tru
 Sensor conifguration, each sensor have their data set, and with this configuration it can be chosen where the data should be stored in the Weewx database. The variable list can be found below of all Weewx variables that can be used. An empty variable will not be used.
 
 {{{
-    # 0x52 Temp/Baro Sensors
+    # 0x52 Temp/Hum Sensors
     sensor_0x52_temp = "outTemp"
     sensor_0x52_hum = "outHumidity"
     sensor_0x52_batt = ""
