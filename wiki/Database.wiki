@@ -14,6 +14,7 @@ This database format is only for rfxcmd version 0.3 and above.
 ||PA3||1-APR-2013||Added missing 'level' for 0x14 sensor||
 ||PA4||12-AUG-2013||Added PostgreSQL from Pierre-Yves Vitre||
 ||PA5||24-NOV-2013||Corrections in the field tables, 0x13 cmd1-3 moved to field data3, 0x13 pulse moved to field data4||
+||PA6||27-JUN-2014||Added day of week for the sensor 0x58||
 
 = Details =
 
@@ -66,7 +67,7 @@ Sensor specific data fields:
 ||0x55||id1-id2||-||-||-||-||-||-||rainrate||raintotal||-||-||-||-||
 ||0x56||id1-id2||-||-||-||-||-||-||temperature||av_speed||gust||direction||chill||-||
 ||0x57||id1-id2||-||-||uv||-||-||-||temperature||-||-||-||-||-||
-||0x58||id1-id2||-||-||-||-||-||-||-||-||-||-||-||datetime||
+||0x58||id1-id2||-||-||dow||-||-||-||-||-||-||-||-||datetime||
 ||0x59||id1-id2||-||-||count||-||-||-||ch1||ch2||ch3||-||-||-||
 ||0x5A||id1-id2||-||-||packetcount||-||-||-||instant||-||-||total||-||-||
 ||0x5B||id1-id2||-||-||count||-||-||-||ch1||ch2||ch3||total||-||-||
