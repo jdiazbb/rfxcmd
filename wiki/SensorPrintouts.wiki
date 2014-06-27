@@ -454,7 +454,6 @@ Battery       = OK
 == 0x57 - UV ==
 
 UV1:
-
 {{{
 09570127CB0000E13A59
 Packettype    = UV
@@ -482,6 +481,20 @@ Battery       = OK
 
 ----
 == 0x58 - Date/time ==
+
+DT1:
+{{{
+0D5801241500030101040C111469
+Packettype    = DT
+Subtype       = DT1 - RTGR328N
+Sequence nbr  = 36
+ID            = 5376
+Day of week   =  Wednesday
+Date yy/mm/dd = 3/1/1
+Time          = 12:17:20
+Signal level  = 6
+Battery       = OK
+}}}
 
 ----
 == 0x59 - Current ==
