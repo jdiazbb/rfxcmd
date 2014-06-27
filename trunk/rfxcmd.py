@@ -571,17 +571,19 @@ def insert_pgsql(timestamp, unixtime, packettype, subtype, seqnbr, battery, sign
 	try:
 		if data13 == 0:
 			data13 = "NULL"
-
+		
 		db = psycopg2.connect(dsn)
 		cursor = db.cursor()
-	
+		
 		sql = """
 				INSERT INTO %s (datetime, unixtime, packettype, subtype, seqnbr, battery, rssi, processed, data1, data2, data3, data4,
 				data5, data6, data7, data8, data9, data10, data11, data12, data13)
-				VALUES ('%s','%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', %s)
+				VALUES ('%s','%s','%s','%s','%s','%s','%s',0,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s UTC')
 				""" % (config.pgsql_table, timestamp, unixtime, packettype, subtype, seqnbr, battery, signal, data1, data2, data3, data4, data5, data6, data7,
 				data8, data9, data10, data11, data12, data13)
-
+		
+		logger.debug("SQL: %s" % str(sql))
+		
 		cursor.execute(sql)
 		db.commit()
 		
@@ -2768,6 +2770,82 @@ def decodePacket(message):
 					wwx.wwx_0x57_rssi = signal
 			
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+
+	# ---------------------------------------
+	# 0x58 Date/Time sensor
+	# ---------------------------------------
+	if packettype == '58':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+		decoded = True
+		
+		# DATA
+		sensor_id = id1 + id2
+		date_yy = int(ByteToHex(message[6]), 16)
+		date_mm = int(ByteToHex(message[7]), 16)
+		date_dd = int(ByteToHex(message[8]), 16)
+		date_string = "20%s-%s-%s" % (str(date_yy).zfill(2), str(date_mm).zfill(2), str(date_dd).zfill(2))
+		date_dow = int(ByteToHex(message[9]), 16)
+		time_hr = int(ByteToHex(message[10]), 16)
+		time_min = int(ByteToHex(message[11]), 16)
+		time_sec = int(ByteToHex(message[12]), 16)
+		time_string = "%s:%s:%s" % (str(time_hr), str(time_min), str(time_sec))
+		datetime_string = "%s %s" % (str(date_string), str(time_string))
+		logger.debug("DateTime: %s" % str(datetime_string))
+		signal = rfxdecode.decodeSignal(message[13])
+		battery = rfxdecode.decodeBattery(message[13])
+			
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			logger.debug("Printout action")
+			print("Subtype\t\t\t= %s" % str(rfx.rfx_subtype_58[subtype]))
+			print("Seqnbr\t\t\t= %s" % str(seqnbr))
+			print("Id\t\t\t= %s" % str(sensor_id))
+			print("Time\t\t\t= %s" % str(time_string))
+			print("Date (yy-mm-dd)\t\t= %s" % str(date_string))
+			print("Day of week (1-7)\t= %s" % str(date_dow))
+			print("Battery\t\t\t= %s" % str(battery))
+			print("Signal level\t\t= %s" % str(signal))
+		
+		# CSV
+		if cmdarg.printout_csv:
+			logger.debug("CSVout action")
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, packettype, subtype, seqnbr, sensor_id, str(time_string), str(date_string), str(date_dow), str(battery), str(signal) ) )
+			sys.stdout.flush()
+		
+		# TRIGGER
+		if config.trigger_active:
+			logger.debug("Trigger action")
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$date$", str(date_string) )
+					action = action.replace("$time$", str(time_string) )
+					action = action.replace("$dow$", str(date_dow) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
+		
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			logger.debug("Database action")
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, str(date_dow), 0, 0, 0, 0, 0, 0, 0, 0, str(datetime_string))
+		
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
 	# ---------------------------------------
 	# 0x59 Current Sensor
@@ -2911,52 +2989,6 @@ def decodePacket(message):
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
-	# ---------------------------------------
-	# 0x5B Current + Energy sensor
-	# ---------------------------------------
-	if packettype == '58':
-		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
-		decoded = True
-		
-		# DATA
-		sensor_id = id1 + id2
-		date_year = ByteToHex(message[6]);
-		date_month = ByteToHex(message[7]);
-		date_day = ByteToHex(message[8]);
-		date_dow = ByteToHex(message[9]);
-		time_hour = ByteToHex(message[10]);
-		time_min = ByteToHex(message[11]);
-		time_sec = ByteToHex(message[12]);
-		signal = rfxdecode.decodeSignal(message[13])
-		battery = rfxdecode.decodeBattery(message[13])
-		
-		# PRINTOUT
-		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx.rfx_subtype_58[subtype]
-			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
-		
-		# TRIGGER
-		if config.trigger_active:
-			for trigger in triggerlist.data:
-				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
-				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
-				rawcmd = ByteToHex ( message )
-				rawcmd = rawcmd.replace(' ', '')
-				if re.match(trigger_message, rawcmd):
-					logger.debug("Trigger match")
-					logger.debug("Message: " + trigger_message + ", Action: " + action)
-					action = action.replace("$raw$", raw_message )
-					action = action.replace("$packettype$", packettype )
-					action = action.replace("$subtype$", subtype )
-					logger.debug("Execute shell")
-					command = Command(action)
-					command.run(timeout=config.trigger_timeout)
-					if config.trigger_onematch:
-						logger.debug("Trigger onematch active, exit trigger")
-						return
-		
-		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
-
 	# ---------------------------------------
 	# 0x70 RFXsensor
 	# ---------------------------------------
@@ -3185,11 +3217,13 @@ def read_socket():
 					print "Send\t\t\t= " + ByteToHex( message.decode('hex') )
 					print "Date/Time\t\t= " + timestamp
 					print "Packet Length\t\t= " + ByteToHex( message.decode('hex')[0] )
-					try:
-						logger.debug("Decode message to screen")
-						decodePacket( message.decode('hex') )
-					except KeyError:
-						logger.error("Unrecognizable packet. Line: " + _line())
+					
+				try:
+					logger.debug("Decode message")
+					decodePacket( message.decode('hex') )
+				except KeyError:
+					logger.error("Unrecognizable packet. Line: " + _line())
+					if cmdarg.printout_complete == True:
 						print "Error: unrecognizable packet"
 			
 				if config.serial_active:
