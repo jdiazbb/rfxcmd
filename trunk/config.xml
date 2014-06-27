@@ -17,9 +17,9 @@
 	<!-- MySQL -->
 	<mysql_active>no</mysql_active>
 	<mysql_server>localhost</mysql_server>
-	<mysql_database>rfxcmd</mysql_database>
-	<mysql_username>user</mysql_username>
-	<mysql_password>password</mysql_password>
+	<mysql_database>rfx</mysql_database>
+	<mysql_username>rfxuser</mysql_username>
+	<mysql_password>rfxuser1</mysql_password>
 	
 	<!-- PgSQL -->
 	<pgsql_active>no</pgsql_active>
