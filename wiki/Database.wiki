@@ -18,8 +18,6 @@ This database format is only for rfxcmd version 0.3 and above.
 
 = Details =
 
-Instructions how to setup on PostreSQL can be found [PostgreSQL here]
-
 === Common ===
 
 The fields that all sensors have common:
