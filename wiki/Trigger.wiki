@@ -9,6 +9,7 @@ This page give detail information about the trigger functionality in the RFXcmd 
 ||Version||Date||Info||
 ||R1A||1-APR-2013||First version, default for 0.24 and 0.3||
 ||R1B||18-MAY-2013||Version 0.3 and above is now the only supported version for this functionality||
+||R1C||28-JUN-2014||Added info for sensor 0x58 (Date/Time)||
 
 == Function ==
 
@@ -123,6 +124,7 @@ Following sensors will forward parameters to the trigger script. This will be ex
 ||0x55||Rain||$packettype$, $subtype$, $id$, $battery$, $signal$||
 ||0x56||Wind||$packettype$, $subtype$, $id$, $direction$, $average$(not 05), $temperature$(only 04), $windchill$(only 04), $windgust$, $battery$, $signal$||
 ||0x57||UV||$packettype$, $subtype$, $id$, $uv$, $temperature$ (only 03), $battery$, $signal$||
+||0x58||Date/Time||$packettype$, $subtype$, $id$, $date$, $time$, $dow$, $battery$, $signal$||
 ||0x59||Current||$packettype$, $subtype$, $id$, $counter$, $channel1$, $channel2$, $channel3$, $battery$, $signal$||
 ||0x5A||Energy||$packettype$, $subtype$, $id$, $instant$, $total$, $battery$, $signal$||
 ||0x5B||Current and Energy||$packettype$, $subtype$||
