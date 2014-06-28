@@ -1,4 +1,4 @@
-#summary Installation of RFXCMD
+#summary Installation of RFXcmd
 
 = Introduction =
 
