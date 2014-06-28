@@ -4,6 +4,8 @@
 
 The RFXcmd is mainly developed for Mac/Linux, but the current version will work under windows as well. This has been tested with rfxcmd 0.24.
 
+Note, this page is not actively maintained, all information depends on user feedback.
+ 
 ==Tested on==
 
  * Windows XP with rfxcmd 0.24
