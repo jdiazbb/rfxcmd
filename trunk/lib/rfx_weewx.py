@@ -34,7 +34,6 @@
 # --------------------------------------------------------------------------
 
 import logging
-
 logger = logging.getLogger('rfxcmd')
 
 class weewx_data:
@@ -223,6 +222,20 @@ class weewx_data:
 		result = None
 		result = "%s;%s;%s;%s;%s" % (str(wwx.wwx_0x54_temp),str(wwx.wwx_0x54_hum),str(wwx.wwx_0x54_baro),str(wwx.wwx_0x54_batt),str(wwx.wwx_0x54_rssi))
 		logger.debug("Weewx.0x54=%s" % str(result))
+		return result
+		
+	# 0x55 Rain Sensor
+	def weewx_0x55(self):
+		result = None
+		result = "%s;%s;%s;%s" % (str(wwx.wwx_0x55_rainrate),str(wwx.wwx_0x55_raintotal),str(wwx.wwx_0x55_batt),str(wwx.wwx_0x55_rssi))
+		logger.debug("Weewx.0x55=%s" % str(result))
+		return result	
+		
+	# 0x56 Wind Sensor
+	def weewx_0x56(self):
+		result = None
+		result = "%s;%s;%s;%s;%s;%s;%s" % (str(wwx.wwx_0x56_direction),str(wwx.wwx_0x56_avspeed),str(wwx.wwx_0x56_temp),str(wwx.wwx_0x56_gust),str(wwx.wwx_0x56_chill),str(wwx.wwx_0x56_batt),str(wwx.wwx_0x56_rssi))
+		logger.debug("Weewx.0x56=%s" % str(result))
 		return result
 	
 	# 0x57 UV Sensor
