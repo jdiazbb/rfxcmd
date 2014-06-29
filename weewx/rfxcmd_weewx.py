@@ -364,29 +364,29 @@ class RfxCmd(weewx.abstractstation.AbstractStation):
 			# Update weather_data:
 			if bool(self.legacy) == True:
 				try:
-					syslog.syslog(syslog.LOG_ERR, "RfxCmd: Get data")
+					syslog.syslog(syslog.LOG_ERR, "rfxcmd: Get data")
 					data= ''
 					rbufsize= -1
 					wbufsize= 0
 					sock = None
-					syslog.syslog(syslog.LOG_ERR, "RfxCmd: Server = %s, Port = %s " % (str(self.socket_server), str(self.socket_port)))	
+					syslog.syslog(syslog.LOG_ERR, "rfxcmd: Server = %s, Port = %s " % (str(self.socket_server), str(self.socket_port)))	
 					sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 					sock.connect((self.socket_server, self.socket_port))
 					rfile = sock.makefile('rb', rbufsize)
 					wfile = sock.makefile('wb', wbufsize)	
 					wfile.write( self.socket_message +"\n" )
-					syslog.syslog(syslog.LOG_ERR, "RfxCmd: Socket message: %s " % str(self.socket_message))
+					syslog.syslog(syslog.LOG_ERR, "rfxcmd: Socket message: %s " % str(self.socket_message))
 					data= rfile.read()
 					sock.close()
 					sd = data.split("|")
 					packet_recv = 1
 				except socket.error as err:
-					syslog.syslog(syslog.LOG_ERR, "RfxCmd: Failed to connect!")
-					syslog.syslog(syslog.LOG_ERR, "RfxCmd: Error: %s " % str(err))
+					syslog.syslog(syslog.LOG_ERR, "rfxcmd: Failed to connect!")
+					syslog.syslog(syslog.LOG_ERR, "rfxcmd: Error: %s " % str(err))
 					pass
 				
 				if packet_recv == 1:
-					syslog.syslog(syslog.LOG_ERR, "RfxCmd: Received %s " % str(sd))
+					syslog.syslog(syslog.LOG_ERR, "rfxcmd: Received %s " % str(sd))
 					_packet = {'dateTime': int(self.the_time+0.5), 'usUnits' : weewx.METRIC }
 				
 					if sd[3] != '0':
@@ -434,7 +434,7 @@ class RfxCmd(weewx.abstractstation.AbstractStation):
 						_packet['rainBatteryStatus'] = 0
 					
 					yield _packet
-					syslog.syslog(syslog.LOG_NOTICE, "RfxCmd: stored new data.")
+					syslog.syslog(syslog.LOG_NOTICE, "rfxcmd: stored new data.")
 			'''
 			
 	def getTime(self):
@@ -445,6 +445,6 @@ class RfxCmd(weewx.abstractstation.AbstractStation):
 		return "RfxCmd"
 
 if __name__ == "__main__":
-	station = RfxCmd(mode='simulator',loop_interval=2.0)
+	station = rfxcmd(mode='simulator',loop_interval=2.0)
 	for packet in station.genLoopPackets():
 		print weeutil.weeutil.timestamp_to_string(packet['dateTime']), packet
