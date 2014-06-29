@@ -3559,7 +3559,7 @@ def option_simulate(indata):
 			logger.debug("Exit 0")
 			sys.exit(0)
 
-	# Printout	
+	# Printout
 	if cmdarg.printout_complete:
 		print "------------------------------------------------"
 		print "Received\t\t= " + indata
@@ -3693,7 +3693,7 @@ def option_send():
 	Send command to RFX device
 	
 	"""
-
+	
 	logger.debug("Send message to RFX device")
 
 	# Open serial port
@@ -3771,7 +3771,7 @@ def option_bsend():
 	
 	"""
 	
-	print "BSEND action is DEPRICATED, will be removed in version v0.31"
+	print "BSEND action is DEPRICATED, will be removed really soon..."
 	
 	logger.debug('Action: bsend')
 	
@@ -4075,12 +4075,12 @@ def logger_init(configfile, name, debug):
 				logfile = xmlTag.replace('<logfile>','').replace('</logfile>','')
 			except:
 				logfile = os.path.join(program_path, "rfxcmd.log")
-
+			
 			loglevel = loglevel.upper()
-
+			
 			#formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 			formatter = logging.Formatter('%(asctime)s - %(threadName)s - %(module)s:%(lineno)d - %(levelname)s - %(message)s')
-
+			
 			if debug:
 				loglevel = "DEBUG"
 				handler = logging.StreamHandler()
@@ -4088,7 +4088,7 @@ def logger_init(configfile, name, debug):
 				handler = logging.FileHandler(logfile)
 							
 			handler.setFormatter(formatter)
-
+			
 			logger = logging.getLogger(name)
 			logger.setLevel(logging.getLevelName(loglevel))
 			logger.addHandler(handler)
