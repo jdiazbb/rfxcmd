@@ -85,6 +85,6 @@
     sensor_0x57_rssi = ""
 
     # The driver to use
-    driver = weewx.drivers.rfxcmd
+    driver = weewx.drivers.rfxcmd_weewx
 
 ##############################################################################
