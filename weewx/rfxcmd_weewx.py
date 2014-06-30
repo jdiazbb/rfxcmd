@@ -82,6 +82,8 @@ class RfxCmd(weewx.abstractstation.AbstractStation):
 		self.mode = stn_dict['mode']
 		self.writelog("Mode = %s" % str(self.mode))
 		
+		self.last_totalRain = None
+		
 		# RFXcmd Socket data
 		self.socket_server = stn_dict.get('socket_server', 'localhost')
 		self.writelog("Socket server = %s" % str(self.socket_server))
@@ -258,6 +260,10 @@ class RfxCmd(weewx.abstractstation.AbstractStation):
 						self.writelog("0x52: %s = %s" % (str(self.sensor_0x52_rssi), (str(data[3]))))
 						_packet[self.sensor_0x52_rssi] = float(data[3])
 					
+					_packet['dewpoint'] = weewx.wxformulas.dewpointC(_packet[self.sensor_0x52_temp], _packet[self.sensor_0x52_hum])
+					_packet['heatindex'] = weewx.wxformulas.heatindexC(_packet[self.sensor_0x52_temp], _packet[self.sensor_0x52_hum])	
+					OT = _packet[self.sensor_0x52_temp]
+					
 					yield _packet
 					self.writelog("0x52: --- End ---")
 				else:
@@ -311,7 +317,7 @@ class RfxCmd(weewx.abstractstation.AbstractStation):
 						_packet[self.sensor_0x54_hum] = float(data[1])
 					
 					if not bool(self.sensor_0x54_baro) == False:
-						self.writelog("0x54: %s = %s" % (str(self.sensor_0x54_hum), (str(data[1]))))
+						self.writelog("0x54: %s = %s" % (str(self.sensor_0x54_baro), (str(data[1]))))
 						_packet[self.sensor_0x54_baro] = float(data[2])
 					
 					if not bool(self.sensor_0x54_batt) == False:
@@ -322,10 +328,104 @@ class RfxCmd(weewx.abstractstation.AbstractStation):
 						self.writelog("0x54: %s = %s" % (str(self.sensor_0x54_rssi), (str(data[3]))))
 						_packet[self.sensor_0x54_rssi] = float(data[4])
 					
+					SA = weewx.wxformulas.altimeter_pressure_Metric(_packet[self.sensor_0x54_baro], self.altitude)
+					_packet['altimeter'] = SA
+					
 					yield _packet
 					self.writelog("0x54: --- End ---")
 				else:
 					self.writelog("0x54: Result None, no process")
+			
+			# --------------------------------------------------------------------------------------
+			# Sensor 0x55
+			# --------------------------------------------------------------------------------------
+			if bool(self.sensor_0x55):
+				self.writelog("0x55: --- Start ---")
+				result = None
+				_packet = {'dateTime': int(self.the_time+0.5), 'usUnits' : weewx.METRIC }
+				result = self.get_rfxdata("0x55")
+				self.writelog("0x55: Data: %s " % str(result))
+				if result:
+					data = result.split(';')
+					if not bool(self.sensor_0x55_rainrate) == False:
+						self.writelog("0x55: %s = %s" % (str(self.sensor_0x55_rainrate), (str(data[0]))))
+						_packet[self.sensor_0x55_rainrate] = float(data[0])
+					
+					if not bool(self.sensor_0x55_raintotal) == False:
+						self.writelog("0x55: %s = %s" % (str(self.sensor_0x55_raintotal), (str(data[1]))))
+						_packet[self.sensor_0x55_raintotal] = float(data[1])
+					
+					if not bool(self.sensor_0x55_batt) == False:
+						self.writelog("0x55: %s = %s" % (str(self.sensor_0x55_batt), (str(data[2]))))
+						_packet[self.sensor_0x55_batt] = float(data[2])
+					
+					if not bool(self.sensor_0x55_rssi) == False:
+						self.writelog("0x55: %s = %s" % (str(self.sensor_0x55_rssi), (str(data[3]))))
+						_packet[self.sensor_0x55_rssi] = float(data[3])
+					
+					_packet['rain'] = ((_packet[self.sensor_0x55_raintotal]-self.last_totalRain)/10) if self.last_totalRain is not None else None
+					
+					if _packet['rain'] == _packet[self.sensor_0x55_raintotal]:
+						_packet['rain'] = None
+					
+					self.last_totalRain = _packet[self.sensor_0x55_raintotal]
+					
+					yield _packet
+					self.writelog("0x55: --- End ---")
+				else:
+					self.writelog("0x55: Result None, no process")
+					
+			# --------------------------------------------------------------------------------------
+			# Sensor 0x56
+			# --------------------------------------------------------------------------------------
+			if bool(self.sensor_0x56):
+				self.writelog("0x56: --- Start ---")
+				result = None
+				_packet = {'dateTime': int(self.the_time+0.5), 'usUnits' : weewx.METRICWX }
+				result = self.get_rfxdata("0x56")
+				self.writelog("0x56: Data: %s " % str(result))
+				if result:
+					data = result.split(';')
+					if not bool(self.sensor_0x56_direction) == False:
+						self.writelog("0x56: %s = %s" % (str(self.sensor_0x56_direction), (str(data[0]))))
+						_packet[self.sensor_0x56_direction] = float(data[0])
+					
+					if not bool(self.sensor_0x56_avspeed) == False:
+						self.writelog("0x56: %s = %s" % (str(self.sensor_0x56_avspeed), (str(data[1]))))
+						_packet[self.sensor_0x56_avspeed] = float(data[1])
+					
+					if not bool(self.sensor_0x56_temp) == False:
+						if not data[2] == "None":
+							self.writelog("0x56: %s = %s" % (str(self.sensor_0x56_temp), (str(data[2]))))
+							_packet[self.sensor_0x56_temp] = float(data[2])
+					
+					if not bool(self.sensor_0x56_gust) == False:
+						self.writelog("0x56: %s = %s" % (str(self.sensor_0x56_gust), (str(data[3]))))
+						_packet[self.sensor_0x56_gust] = float(data[3])
+						
+					if not bool(self.sensor_0x56_chill) == False:
+						if not data[4] == "None":
+							self.writelog("0x56: %s = %s" % (str(self.sensor_0x56_chill), (str(data[4]))))
+							_packet[self.sensor_0x56_chill] = float(data[4])
+							
+					if not bool(self.sensor_0x56_batt) == False:
+						self.writelog("0x56: %s = %s" % (str(self.sensor_0x56_batt), (str(data[5]))))
+						_packet[self.sensor_0x56_batt] = float(data[5])
+					
+					if not bool(self.sensor_0x56_rssi) == False:
+						self.writelog("0x56: %s = %s" % (str(self.sensor_0x56_rssi), (str(data[6]))))
+						_packet[self.sensor_0x56_rssi] = float(data[6])
+						
+					
+					if _packet[self.sensor_0x56_avspeed] == 0:
+						_packet[self.sensor_0x56_direction] = None
+						
+					_packet['windchill'] = weewx.wxformulas.windchillC(OT, _packet[self.sensor_0x56_avspeed])
+					
+					yield _packet
+					self.writelog("0x56: --- End ---")
+				else:
+					self.writelog("0x56: Result None, no process")
 			
 			# --------------------------------------------------------------------------------------
 			# Sensor 0x57 UV
@@ -445,6 +545,6 @@ class RfxCmd(weewx.abstractstation.AbstractStation):
 		return "RfxCmd"
 
 if __name__ == "__main__":
-	station = rfxcmd(mode='simulator',loop_interval=2.0)
+	station = RfxCmd(mode='simulator',loop_interval=2.0)
 	for packet in station.genLoopPackets():
 		print weeutil.weeutil.timestamp_to_string(packet['dateTime']), packet
