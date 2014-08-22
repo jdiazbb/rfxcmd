@@ -76,6 +76,7 @@ class rfx_data(dict):
 				"13":"Lighting4",
 				"14":"Lighting5",
 				"15":"Lighting6",
+				"16":"Chime",
 				"18":"Curtain1",
 				"19":"Blinds1",
 				"20":"Security1",
@@ -331,7 +332,18 @@ class rfx_data(dict):
 							"01":"Off",
 							"02":"group On",
 							"03":"group Off"}
-
+	
+	rfx_subtype_16 = {"00":"Byron SX"}
+	
+	rfx_subtype_16_sound = {"01":"Tubular 3 notes",
+							"03":"Big Ben",
+							"05":"Tubular 2 notes",
+							"09":"Solo",
+							"0D":"Tubular 3 notes",
+							"0E":"Big Ben",
+							"06":"Tubular 2 notes",
+							"02":"Solo"}
+	
 	rfx_subtype_18 = {"00":"Harrison Curtain"}
 
 	rfx_subtype_19 = {"00":"BlindsT0 / Rollertrol, Hasta new",

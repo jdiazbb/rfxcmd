@@ -617,23 +617,30 @@ def decodePacket(message):
 		if cmdarg.printout_complete == True:
 			print "Error: The incoming message is invalid " + _line()
 			return
+	else:
+		logger.debug("Verified OK")
 	
 	raw_message = ByteToHex(message)
 	raw_message = raw_message.replace(' ', '')
 	
 	packettype = ByteToHex(message[1])
-
+	logger.debug("PacketType: %s" % str(packettype))
+	
 	if len(message) > 2:
 		subtype = ByteToHex(message[2])
+		logger.debug("SubType: %s" % str(subtype))
 	
 	if len(message) > 3:
 		seqnbr = ByteToHex(message[3])
-
+		logger.debug("SeqNbr: %s" % str(seqnbr))
+		
 	if len(message) > 4:
 		id1 = ByteToHex(message[4])
-	
+		logger.debug("Id1: %s" % str(id1))
+		
 	if len(message) > 5:
 		id2 = ByteToHex(message[5])
+		logger.debug("Id2: %s" % str(id2))
 	
 	if cmdarg.printout_complete:
 		print "Packettype\t\t= " + rfx.rfx_packettype[packettype]
@@ -1556,7 +1563,61 @@ def decodePacket(message):
 			xpl.send(config.xpl_host, 'device=Lightning.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
+	# ---------------------------------------
+	# 0x16 Chime
+	# ---------------------------------------
+	if packettype == '16':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+		decoded = True
 		
+		# DATA
+		sensor_id = id1 + id2
+		try:
+			sound = rfx.rfx_subtype_16_sound[ByteToHex(message[6])]
+		except Exception as err:
+			logger.error("Unknown sound for sensor 0x16")
+			sound = "Unknown"
+		
+		signal = rfxdecode.decodeSignal(message[7])
+		
+		# PRINTOUT
+		if cmdarg.printout_complete:
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_16[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "ID\t\t\t= "  + sensor_id
+			print "Sound\t\t\t= " + sound
+			print "Signal level\t\t= " + str(signal)
+		
+		# TRIGGER
+		if config.trigger_active:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					action = action.replace("$sound$", sound )
+					logger.debug("Execute shell")
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
+		
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			logger.error("Database not supported yet for this sensor 0x16")
+			#insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
+	
 	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
 	# ---------------------------------------
