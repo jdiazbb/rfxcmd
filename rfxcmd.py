@@ -2919,8 +2919,8 @@ def decodePacket(message):
 		sensor_id = id1 + id2
 		count = int(ByteToHex(message[6]),16)
 		channel1 = (int(ByteToHex(message[7]),16) * 0x100 + int(ByteToHex(message[8]),16)) * 0.1
-		channel2 = int(ByteToHex(message[9]),16) * 0x100 + int(ByteToHex(message[10]),16)
-		channel3 = int(ByteToHex(message[11]),16) * 0x100 + int(ByteToHex(message[12]),16)
+		channel2 = (int(ByteToHex(message[9]),16) * 0x100 + int(ByteToHex(message[10]),16)) * 0.1
+		channel3 = (int(ByteToHex(message[11]),16) * 0x100 + int(ByteToHex(message[12]),16)) * 0.1
 		signal = rfxdecode.decodeSignal(message[13])
 		battery = rfxdecode.decodeBattery(message[13])
 	
