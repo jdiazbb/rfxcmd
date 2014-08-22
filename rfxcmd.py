@@ -3049,6 +3049,74 @@ def decodePacket(message):
 			rfxrrd.rrd1Metric(packettype, sensor_id, instant, config.rrd_path)
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+		
+	# ---------------------------------------
+	# 0x5B Current Sensor
+	# ---------------------------------------
+	if packettype == '5B':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+		decoded = True
+		
+		# DATA
+		sensor_id = id1 + id2
+		count = int(ByteToHex(message[6]),16)
+		channel1 = (int(ByteToHex(message[7]),16) * 0x100 + int(ByteToHex(message[8]),16)) * 0.1
+		channel2 = (int(ByteToHex(message[9]),16) * 0x100 + int(ByteToHex(message[10]),16)) * 0.1
+		channel3 = (int(ByteToHex(message[11]),16) * 0x100 + int(ByteToHex(message[12]),16)) * 0.1
+		total = int ((int(ByteToHex(message[13]), 16) * 0x10000000000 + int(ByteToHex(message[14]), 16) * 0x100000000 +int(ByteToHex(message[15]), 16) * 0x1000000 + int(ByteToHex(message[16]), 16) * 0x10000 + int(ByteToHex(message[17]), 16) * 0x100 + int(ByteToHex(message[18]), 16) ) / 223.666)
+		signal = rfxdecode.decodeSignal(message[19])
+		battery = rfxdecode.decodeBattery(message[19])
+		
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_5A[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "Id\t\t\t= " + sensor_id
+			print "Counter\t\t\t= " + str(count)
+			print "Channel 1\t\t= " + str(channel1) + "A"
+			print "Channel 2\t\t= " + str(channel2) + "A"
+			print "Channel 3\t\t= " + str(channel3) + "A"
+			print "Total\t\t\t= " + str(total)
+			print "Battery\t\t\t= " + str(battery)
+			print "Signal level\t\t= " + str(signal)
+		
+		# TRIGGER
+		if config.trigger_active:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$counter$", str(count) )
+					action = action.replace("$channel1$", str(channel1) )
+					action = action.replace("$channel2$", str(channel2) )
+					action = action.replace("$channel3$", str(channel3) )
+					action = action.replace("$battery$", str(battery) )
+					action = action.replace("$signal$", str(signal) )
+					action = action.replace("$total$", str(total) )
+					logger.debug("Execute shell")
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
+			
+		# XPL
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel2\ncurrent='+str(channel2)+'\nunits=A', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel3\ncurrent='+str(channel3)+'\nunits=A', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=battery\ncurrent='+str(battery*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
 	# ---------------------------------------
 	# 0x70 RFXsensor
