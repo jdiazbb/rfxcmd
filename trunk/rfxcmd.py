@@ -2434,7 +2434,7 @@ def decodePacket(message):
 					action = action.replace("$id$", str(sensor_id) )
 					action = action.replace("$temperature$", str(temperature) )
 					action = action.replace("$humidity$", str(humidity) )
-					action = action.replace("$baromatric$", str(baromatric) )
+					action = action.replace("$barometric$", str(barometric) )
 					action = action.replace("$battery$", str(battery) )
 					action = action.replace("$signal$", str(signal) )
 					logger.debug("Execute shell")
