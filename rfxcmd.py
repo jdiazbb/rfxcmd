@@ -3063,20 +3063,21 @@ def decodePacket(message):
 		channel1 = (int(ByteToHex(message[7]),16) * 0x100 + int(ByteToHex(message[8]),16)) * 0.1
 		channel2 = (int(ByteToHex(message[9]),16) * 0x100 + int(ByteToHex(message[10]),16)) * 0.1
 		channel3 = (int(ByteToHex(message[11]),16) * 0x100 + int(ByteToHex(message[12]),16)) * 0.1
-		total = int ((int(ByteToHex(message[13]), 16) * 0x10000000000 + int(ByteToHex(message[14]), 16) * 0x100000000 +int(ByteToHex(message[15]), 16) * 0x1000000 + int(ByteToHex(message[16]), 16) * 0x10000 + int(ByteToHex(message[17]), 16) * 0x100 + int(ByteToHex(message[18]), 16) ) / 223.666)
+		total = float ((int(ByteToHex(message[13]), 16) * 0x10000000000 + int(ByteToHex(message[14]), 16) * 0x100000000 +int(ByteToHex(message[15]), 16) * 0x1000000 + int(ByteToHex(message[16]), 16) * 0x10000 + int(ByteToHex(message[17]), 16) * 0x100 + int(ByteToHex(message[18]), 16) ) / 223.666)
 		signal = rfxdecode.decodeSignal(message[19])
 		battery = rfxdecode.decodeBattery(message[19])
 		
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx.rfx_subtype_5A[subtype]
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_5B[subtype]
 			print "Seqnbr\t\t\t= " + seqnbr
 			print "Id\t\t\t= " + sensor_id
 			print "Counter\t\t\t= " + str(count)
 			print "Channel 1\t\t= " + str(channel1) + "A"
 			print "Channel 2\t\t= " + str(channel2) + "A"
 			print "Channel 3\t\t= " + str(channel3) + "A"
-			print "Total\t\t\t= " + str(total)
+			if total <> 0:
+				print("Total\t\t\t= %s Wh" % str(round(total,1)))
 			print "Battery\t\t\t= " + str(battery)
 			print "Signal level\t\t= " + str(signal)
 		
