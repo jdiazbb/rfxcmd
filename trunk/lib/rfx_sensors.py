@@ -657,8 +657,8 @@ class rfx_data(dict):
 					
 	rfx_subtype_56 = {"01":"WTGR800",
 						"02":"WGR800",
-						"03":"STR918, WGR918",
-						"04":"TFA (WIND4)",
+						"03":"STR918, WGR918, WGR928",
+						"04":"TFA",
 						"05":"UPM WDS500",
 						"06":"WS2300"}
 
@@ -668,7 +668,7 @@ class rfx_data(dict):
 					
 	rfx_subtype_58 = {"01":"RTGR328N"}
 
-	rfx_subtype_59 = {"01":"CM113, Electrisave"}
+	rfx_subtype_59 = {"01":"CM113, Electrisave, cent-a-meter"}
 
 	rfx_subtype_5A = {"01":"CM119/160",
 						"02":"CM180"}
@@ -711,6 +711,8 @@ class rfx_data(dict):
 	rfx_subtype_72 = {"00":"FS20",
 						"01":"FHT8V valve",
 						"02":"FHT80 door/window sensor"}
-
+	
+	rfx_subtype_7F = {"00":"Raw transmit"}
+	
 	def __getitem__(self, key): return self[key]
 	def keys(self): return self.keys()
