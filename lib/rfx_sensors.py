@@ -358,6 +358,8 @@ class rfx_data(dict):
 							"06":"Tubular 2 notes",
 							"02":"Solo"}
 	
+	rfx_subtype_17 = {"00":"Siemens SF01 - LF959RA50/LF259RB50/LF959RB50"}
+	
 	rfx_subtype_18 = {"00":"Harrison Curtain"}
 
 	rfx_subtype_19 = {"00":"BlindsT0 / Rollertrol, Hasta new",
