@@ -182,7 +182,10 @@ class rfx_data(dict):
 					"04":"Chacon EMW200",
 					"05":"IMPULS",
 					"06":"RisingSun",
-					"07":"Philips SBC"}
+					"07":"Philips SBC",
+					"08":"Energenie ENER010",
+					"09":"Energenie 5-gang",
+					"0A":"COCO GDR2-2000R"}
 
 	rfx_subtype_10_housecode = {"41":"A",
 								"42":"B",
@@ -205,8 +208,8 @@ class rfx_data(dict):
 							"01":"On",
 							"02":"Dim",
 							"03":"Bright",
-							"04":"All/Group Off",
-							"05":"All/Group On",
+							"05":"All/Group Off",
+							"06":"All/Group On",
 							"07":"Chime",
 							"FF":"Illegal cmnd received"}
 
