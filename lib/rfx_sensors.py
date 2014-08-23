@@ -323,6 +323,14 @@ class rfx_data(dict):
 							"02":"Dim+ or gang2 on/off",
 							"03":"Dim- or gang3 on/off"}
 	
+	# 0x06 TRC02
+	rfx_subtype_14_cmnd6 = {"00":"Off",
+							"01":"On",
+							"02":"Bright",
+							"03":"Dim",
+							"04":"Color+",
+							"05":"Color-"}
+	
 	rfx_subtype_15 = {"00":"Blyss"}
 
 	rfx_subtype_15_groupcode = {"41":"A",
