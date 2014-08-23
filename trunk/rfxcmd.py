@@ -3108,7 +3108,11 @@ def decodePacket(message):
 					if config.trigger_onematch:
 						logger.debug("Trigger onematch active, exit trigger")
 						return
-			
+		
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, count, 0, 0, 0, float(channel1), float(channel2), float(channel3), float(total), 0, 0)
+		
 		# XPL
 		if config.xpl_active:
 			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=channel1\ncurrent='+str(channel1)+'\nunits=A', config.xpl_sourcename, config.xpl_includehostname)
