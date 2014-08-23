@@ -1158,7 +1158,7 @@ def decodePacket(message):
 		signal = rfxdecode.decodeSignal(message[7])
 		
 		try:
-			subtype = str(rfx.rfx_subtype_10[subtype])
+			subtype_str = str(rfx.rfx_subtype_10[subtype])
 		except Exception as err:
 			subtype = "Error: Unknown subtype"
 			logger.error("Unknown subtype received, %s" % str(err))
@@ -1166,7 +1166,7 @@ def decodePacket(message):
 		
 		# PRINTOUT
 		if cmdarg.printout_complete:
-			print("Subtype\t\t\t= %s" % str(subtype))
+			print("Subtype\t\t\t= %s" % subtype_str)
 			print("Seqnbr\t\t\t= %s" % str(seqnbr))
 			print("Housecode\t\t= %s" % str(housecode))
 			print("Unitcode\t\t= %s" % str(unitcode))
@@ -1466,15 +1466,15 @@ def decodePacket(message):
 		signal = rfxdecode.decodeSignal(message[10])
 		
 		try:
-			subtype = rfx.rfx_subtype_14[subtype]
+			subtype_str = rfx.rfx_subtype_14[subtype]
 		except Exception as err:
 			logger.error("Error: Invalid subtype")
-			subtype = "Unknown"
+			subtype_str = "Unknown"
 			pass
 			
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print("Subtype\t\t\t= %s" % str(subtype))
+			print("Subtype\t\t\t= %s" % subtype_str)
 			print("Seqnbr\t\t\t= %s" % str(seqnbr))
 			print("Id\t\t\t= %s" % str(sensor_id))
 			
