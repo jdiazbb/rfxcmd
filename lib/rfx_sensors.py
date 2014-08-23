@@ -654,7 +654,11 @@ class rfx_data(dict):
 
 	rfx_subtype_5D = {"01":"BWR101/102",
 						"02":"GR101"}
-					
+	
+	rfx_subtype_5E = {"01":"Gas usage sensor"}
+	
+	rfx_subtype_5F = {"01":"Water usage sensor"}
+	
 	rfx_subtype_70 = {"00":"RFXSensor temperature",
 						"01":"RFXSensor A/S",
 						"02":"RFXSensor voltage",
