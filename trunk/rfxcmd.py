@@ -1441,6 +1441,15 @@ def decodePacket(message):
 			command = rfx.rfx_subtype_14_cmnd4[ByteToHex(message[8])]
 		elif subtype == '05':
 			command = rfx.rfx_subtype_14_cmnd5[ByteToHex(message[8])]
+		elif subtype == '06':
+			try:
+				command = rfx.rfx_subtype_14_cmnd5[ByteToHex(message[8])]
+			except Exception as err:
+				# if the value is between x06 and x84 it is 'select color'
+				# This should be improved, as it will not catch unknown values
+				logger.error("Value is not in the sensor list")
+				command = "Select Color"
+				pass
 		else:
 			command = "Unknown"
 		
@@ -1451,11 +1460,18 @@ def decodePacket(message):
 		
 		signal = rfxdecode.decodeSignal(message[10])
 		
+		try:
+			subtype = rfx.rfx_subtype_14[subtype]
+		except Exception as err:
+			logger.error("Error: Invalid subtype")
+			subtype = "Unknown"
+			pass
+			
 		# PRINTOUT
 		if cmdarg.printout_complete == True:
-			print "Subtype\t\t\t= " + rfx.rfx_subtype_14[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Id\t\t\t= " + sensor_id
+			print("Subtype\t\t\t= %s" % str(subtype))
+			print("Seqnbr\t\t\t= %s" % str(seqnbr))
+			print("Id\t\t\t= %s" % str(sensor_id))
 			
 			if subtype <> '03' and subtype <> '05':
 				print "Unitcode\t\t= Not used"
