@@ -3126,6 +3126,150 @@ def decodePacket(message):
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 	
 	# ---------------------------------------
+	# 0x5C Power Sensors
+	# ---------------------------------------
+	if packettype == '5C':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+		decoded = True
+		
+		# DATA
+		sensor_id = id1 + id2
+		voltage = int(ByteToHex(message[6]),16)
+		current = (int(ByteToHex(message[7]),16) * 0x100 + int(ByteToHex(message[8]),16)) * 0.01
+		power = (int(ByteToHex(message[9]),16) * 0x100 + int(ByteToHex(message[10]),16)) * 0.1
+		energy = (int(ByteToHex(message[11]),16) * 0x100 + int(ByteToHex(message[12]),16)) * 0.01
+		powerfactor = (int(ByteToHex(message[13]), 16)) * 0.01
+		freq = int(ByteToHex(message[14]), 16)
+		signal = rfxdecode.decodeSignal(message[15])
+		
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print("Subtype\t\t\t= %s" % str(rfx.rfx_subtype_5C[subtype]))
+			print("Seqnbr\t\t\t= %s" % str(seqnbr))
+			print("Id\t\t\t= %s" % str(sensor_id))
+			print("Voltage\t\t\t= %s Volt" % (str(voltage)))
+			print("Current\t\t\t= %s Ampere" % str(current))
+			print("Instant power\t\t= %s Watt" % str(power))
+			print("Total usage\t\t= %s kWh" % str(energy))
+			print("Power factor\t\t= %s " % str(powerfactor))
+			print("Frequency\t\t= %s Hz" % str(freq))
+			print("Signal level\t\t= %s" % str(signal))
+			
+		# TRIGGER
+		if config.trigger_active:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					action = action.replace("$id$", str(sensor_id) )
+					action = action.replace("$voltage$", str(voltage) )
+					action = action.replace("$current$", str(current) )
+					action = action.replace("$instantpower$", str(instantpower) )
+					action = action.replace("$totalusage$", str(totalusage) )
+					action = action.replace("$powerfactor$", str(powerfactor) )
+					action = action.replace("$frequency$", str(freq) )
+					action = action.replace("$signal$", str(signal) )
+					logger.debug("Execute shell")
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
+		
+		# DATABASE
+		if config.mysql_active or config.sqlite_active or config.pgsql_active:
+			insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, battery, signal, sensor_id, 0, 0, 0, 0, voltage, freq, float(instantpower), float(current), float(powerfactor), float(totalusage), 0, 0)
+		
+		# XPL
+		if config.xpl_active:
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=voltage\ncurrent='+str(channel1)+'\nunits=V', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=current\ncurrent='+str(channel2)+'\nunits=A', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=instantpower\ncurrent='+str(channel3)+'\nunits=Watt', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=totalusage\ncurrent='+str(channel3)+'\nunits=kWh', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=powerfactor\ncurrent='+str(channel3)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=frequency\ncurrent='+str(channel3)+'\nunits=Hz', config.xpl_sourcename, config.xpl_includehostname)
+			xpl.send(config.xpl_host, 'device=Current.'+sensor_id+'\ntype=signal\ncurrent='+str(signal*10)+'\nunits=%', config.xpl_sourcename, config.xpl_includehostname)
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
+	# ---------------------------------------
+	# 0x5E Gas Usage Sensor
+	# ---------------------------------------
+	if packettype == '5E':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+		
+		decoded = True
+		
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_5E[subtype]
+			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
+		
+		# TRIGGER
+		if config.trigger_active:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
+	# ---------------------------------------
+	# 0x5F Water Usage Sensor
+	# ---------------------------------------
+	if packettype == '5F':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+		
+		decoded = True
+		
+		# PRINTOUT
+		if cmdarg.printout_complete == True:
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_5F[subtype]
+			print "Not implemented in RFXCMD, please send sensor data to sebastian.sjoholm@gmail.com"
+		
+		# TRIGGER
+		if config.trigger_active:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
+	# ---------------------------------------
 	# 0x70 RFXsensor
 	# ---------------------------------------
 	if packettype == '70':
