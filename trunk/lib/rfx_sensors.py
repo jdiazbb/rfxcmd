@@ -96,9 +96,11 @@ class rfx_data(dict):
 				"58":"Date/Time sensors",
 				"59":"Current sensors",
 				"5A":"Energy usage sensors",
-				"5B":"Gas usage sensors",
-				"5C":"Water usage sensors",
+				"5B":"Current + Energy sensors",
+				"5C":"Power sensors",
 				"5D":"Weighting scale",
+				"5E":"Gas usage sensors",
+				"5F":"Water usage sensors",
 				"70":"RFXSensor",
 				"71":"RFXMeter",
 				"72":"FS20"
