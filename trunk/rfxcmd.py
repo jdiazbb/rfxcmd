@@ -1135,11 +1135,23 @@ def decodePacket(message):
 		decoded = True
 		
 		# DATA
-		housecode = rfx.rfx_subtype_10_housecode[ByteToHex(message[4])]
+		try:
+			housecode = rfx.rfx_subtype_10_housecode[ByteToHex(message[4])]
+		except Exception as err:
+			housecode = "Error: Unknown housecode"
+			logger.error("Unknown house command received")
+			pass
+			
 		unitcode = int(ByteToHex(message[5]), 16)
-		command = rfx.rfx_subtype_10_cmnd[ByteToHex(message[6])]
+		try:
+			command = rfx.rfx_subtype_10_cmnd[ByteToHex(message[6])]
+		except Exception as err:
+			command = "Error: Unknown command"
+			logger.error("Unknown command received")
+			pass
+		
 		signal = rfxdecode.decodeSignal(message[7])
-
+		
 		# PRINTOUT
 		if cmdarg.printout_complete:
 			print "Subtype\t\t\t= " + rfx.rfx_subtype_10[subtype]
