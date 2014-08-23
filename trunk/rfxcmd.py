@@ -1139,7 +1139,7 @@ def decodePacket(message):
 			housecode = rfx.rfx_subtype_10_housecode[ByteToHex(message[4])]
 		except Exception as err:
 			housecode = "Error: Unknown housecode"
-			logger.error("Unknown house command received")
+			logger.error("Unknown house command received, %s" % str(err))
 			pass
 			
 		unitcode = int(ByteToHex(message[5]), 16)
@@ -1147,19 +1147,26 @@ def decodePacket(message):
 			command = rfx.rfx_subtype_10_cmnd[ByteToHex(message[6])]
 		except Exception as err:
 			command = "Error: Unknown command"
-			logger.error("Unknown command received")
+			logger.error("Unknown command received, %s" % str(err))
 			pass
 		
 		signal = rfxdecode.decodeSignal(message[7])
 		
+		try:
+			subtype = str(rfx.rfx_subtype_10[subtype])
+		except Exception as err:
+			subtype = "Error: Unknown subtype"
+			logger.error("Unknown subtype received, %s" % str(err))
+			pass
+		
 		# PRINTOUT
 		if cmdarg.printout_complete:
-			print "Subtype\t\t\t= " + rfx.rfx_subtype_10[subtype]
-			print "Seqnbr\t\t\t= " + seqnbr
-			print "Housecode\t\t= " + housecode
-			print "Unitcode\t\t= " + str(unitcode)
-			print "Command\t\t\t= " + command
-			print "Signal level\t\t= " + str(signal)
+			print("Subtype\t\t\t= %s" % str(subtype))
+			print("Seqnbr\t\t\t= %s" % str(seqnbr))
+			print("Housecode\t\t= %s" % str(housecode))
+			print("Unitcode\t\t= %s" % str(unitcode))
+			print("Command\t\t\t= %s" % str(command))
+			print("Signal level\t\t= %s" % str(signal))
 
 		# CSV
 		if cmdarg.printout_csv:
