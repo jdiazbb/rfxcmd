@@ -382,7 +382,8 @@ class rfx_data(dict):
 						"05":"Visonic PowerCode motion sensor (with alive packets)",
 						"06":"Visonic CodeSecure (no alive packets)",
 						"07":"Visonic PowerCode door/window sensor - auxiliary contact (no alive packets)",
-						"08":"Meiantech"}
+						"08":"Meiantech",
+						"09":"SA30"}
 
 	rfx_subtype_20_status = {"00":"Normal",
 							"01":"Normal delayed",
@@ -572,12 +573,11 @@ class rfx_data(dict):
 	rfx_subtype_40_mode = {"0":"Heating",
 							"1":"Cooling"}
 
-	# 0x41 receive not implemented in RFX
 	rfx_subtype_41 = {"00":"HE105",
-						"01":"RTS10"}
+						"01":"RTS10, RFS10, TLX1206"}
 
 	rfx_subtype_42 = {"00":"Mertik G6R-H4T1",
-						"01":"Mertik G6R-H4TB / G6-H4T"}
+						"01":"Mertik G6R-H4TB / G6-H4T / G6R-H4T21-Z22"}
 
 	rfx_subtype_42_cmd00 = {"00":"Off",
 							"01":"On",
@@ -593,6 +593,8 @@ class rfx_data(dict):
 							"03":"Down",
 							"04":"2nd Off",
 							"05":"2nd On"}
+
+	rfx_subtype_4E = {"00":"Maverick ET-732"}
 
 	rfx_subtype_50 = {"01":"THR128/138, THC138",
 						"02":"THC238/268,THN132,THWR288,THRN122,THN122,AW129/131",
