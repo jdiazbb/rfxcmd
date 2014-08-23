@@ -1823,6 +1823,11 @@ def decodePacket(message):
 			print("Command\t\t\t= %s" % command_str)
 			print "Signal level\t\t= " + str(signal)
 		
+		# CSV
+		if cmdarg.printout_csv:
+			sys.stdout.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (timestamp, unixtime_utc, packettype, subtype, seqnbr, str(battery), str(signal), sensor_id, unitcode_str, command_str ) )
+			sys.stdout.flush()
+		
 		# TRIGGER
 		if config.trigger_active:
 			for trigger in triggerlist.data:
