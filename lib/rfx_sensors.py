@@ -600,7 +600,7 @@ class rfx_data(dict):
 						"02":"THC238/268,THN132,THWR288,THRN122,THN122,AW129/131",
 						"03":"THWR800",
 						"04":"RTHN318",
-						"05":"La Crosse TX3, TX4, TX17",
+						"05":"La Crosse TX2, TX3, TX4, TX17",
 						"06":"TS15C",
 						"07":"Viking 02811",
 						"08":"La Crosse WS2300",
@@ -624,7 +624,8 @@ class rfx_data(dict):
 						"07":"TFA TS34C, Cresta",
 						"08":"WT260,WT260H,WT440H,WT450,WT450H",
 						"09":"Viking 02035, 02038",
-						"0A":"Rubicson"}
+						"0A":"Rubicson",
+						"0B":"EW109"}
 
 	rfx_subtype_52_humstatus = {"00":"Dry",
 								"01":"Comfort",
@@ -651,7 +652,8 @@ class rfx_data(dict):
 						"02":"PCR800",
 						"03":"TFA",
 						"04":"UPM RG700",
-						"05":"WS2300"}
+						"05":"WS2300",
+						"06":"La Crosse TX5"}
 					
 	rfx_subtype_56 = {"01":"WTGR800",
 						"02":"WGR800",
