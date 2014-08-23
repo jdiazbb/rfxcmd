@@ -265,7 +265,8 @@ class rfx_data(dict):
 						"02":"BBSB new types",
 						"03":"MDREMOTE LED dimmer",
 						"04":"Conrad RSL2",
-						"05":"Livolo"}
+						"05":"Livolo",
+						"06":"RGB TRC02"}
 	
 	# 0x00 LightwaveRF, Siemens
 	rfx_subtype_14_cmnd0 = {"00":"Off",
