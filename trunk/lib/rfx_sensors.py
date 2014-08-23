@@ -367,7 +367,12 @@ class rfx_data(dict):
 						"02":"BlindsT2 / A-OK RF01",
 						"03":"BlindsT3 / A-OK AC114",
 						"04":"BlindsT4 / Raex YR1326",
-						"05":"BlindsT5 / Media Mount"}
+						"05":"BlindsT5 / Media Mount",
+						"06":"BlindsT6 / DC106/Rohrmotor24-RMF/Yooda",
+						"07":"BlindsT7 / Forest"}
+
+	rfx_subtype_1A = {"00":"RTS",
+						"01":"RTS ext (not yet fully implemented)"}
 
 	rfx_subtype_20 = {"00":"X10 security door/window sensor",
 						"01":"X10 security motion sensor",
