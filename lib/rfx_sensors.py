@@ -79,6 +79,7 @@ class rfx_data(dict):
 				"16":"Chime",
 				"18":"Curtain1",
 				"19":"Blinds1",
+				"1A":"RTS",
 				"20":"Security1",
 				"28":"Camera1",
 				"30":"Remote control and IR",
@@ -373,6 +374,21 @@ class rfx_data(dict):
 
 	rfx_subtype_1A = {"00":"RTS",
 						"01":"RTS ext (not yet fully implemented)"}
+	
+	rfx_subtype_1A_cmnd = {"00":"Stop",
+							"01":"Up",
+							"02":"Up+Stop (Set upper limit)",
+							"03":"Down",
+							"04":"Down+Stop (Set lower limit)",
+							"05":"Up+Down (Connect motor)",
+							"07":"Program",
+							"08":"Program > 2 seconds",
+							"09":"Program > 7 seconds",
+							"0A":"Stop > 2 seconds (Set position / Change direction)",
+							"0B":"Stop > 5 seconds (Set middle position)",
+							"0C":"Up+Down > 5 seconds (Change upper position)",
+							"0D":"Erase this RTS remote from RFXtrx",
+							"0E":"Erase all RTS remotes from the RFXtrx"}
 
 	rfx_subtype_20 = {"00":"X10 security door/window sensor",
 						"01":"X10 security motion sensor",
