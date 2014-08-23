@@ -650,6 +650,8 @@ class rfx_data(dict):
 
 	rfx_subtype_5B = {"01":"CM180i"}
 
+	rfx_subtype_5C = {"01":"Revolt"}
+
 	rfx_subtype_5D = {"01":"BWR101/102",
 						"02":"GR101"}
 					
