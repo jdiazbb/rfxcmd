@@ -720,6 +720,11 @@ def decodePacket(message):
 		decoded = True
 		packettype = None
 	
+	if packettype == '1A' and len(message) <> 13:
+		logger.error("Packet has wrong length, discarding")
+		decoded = True
+		packettype = None
+	
 	if packettype == '20' and len(message) <> 9:
 		logger.error("Packet has wrong length, discarding")
 		decoded = True
@@ -1545,6 +1550,7 @@ def decodePacket(message):
 		unitcode = int(ByteToHex(message[7]),16)
 		command = rfx.rfx_subtype_15_cmnd[ByteToHex(message[8])]
 		command_seqnbr = ByteToHex(message[9])
+		seqnbr2 = ByteToHex(message[10])
 		signal = rfxdecode.decodeSignal(message[11])
 
 		# PRINTOUT
@@ -1556,6 +1562,7 @@ def decodePacket(message):
 			print "Unitcode\t\t= " + str(unitcode)
 			print "Command\t\t\t= " + command
 			print "Command seqnbr\t\t= " + command_seqnbr
+			print("Seqnbr2\t\t\t= %s" % str(seqnbr2))
 			print "Signal level\t\t= " + str(signal)
 
 		# CSV
@@ -1654,6 +1661,45 @@ def decodePacket(message):
 		
 	
 	# ---------------------------------------
+	# 0x17 Fan (Transmitter only)
+	# ---------------------------------------
+	if packettype == '17':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+		decoded = True
+		
+		# PRINTOUT
+		if cmdarg.printout_complete:
+			print "Subtype\t\t\t= " + rfx.rfx_subtype_18[subtype]
+			print "Seqnbr\t\t\t= " + seqnbr
+			print "This sensor is not completed, please send printout to sebastian.sjoholm@gmail.com"
+
+		# TRIGGER
+		if config.trigger_active:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$raw$", raw_message )
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
+		
+		# DATABASE
+		#if config.mysql_active or config.sqlite_active or config.pgsql_active:
+		#	insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
+	# ---------------------------------------
 	# 0x18 Curtain1 (Transmitter only)
 	# ---------------------------------------
 	if packettype == '18':
@@ -1730,7 +1776,78 @@ def decodePacket(message):
 		#	insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 		
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
+	# ---------------------------------------
+	# 0x1A RTS
+	# ---------------------------------------
+	if packettype == '1A':
+		logger.debug("Decode packetType 0x" + str(packettype) + " - Start")
+		decoded = True
 		
+		# DATA
+		sensor_id = id1 + id2 + ByteToHex(message[6])
+		
+		try:
+			subtype_str = rfx.rfx_subtype_1A[subtype]
+		except Exception as err:
+			logger.error("Unknown subtype")
+			subtype = "Error: Unknown subtype"
+			pass
+		
+		if subtype == "00":
+			unitcode = ByteToHex(message[6])
+			if unitcode == "00":
+				unitcode_str = "All"
+			else:
+				unitcode_str = str(unitcode)
+		elif subtype == "01":
+			unitcode = ByteToHex(message[6])
+			unitcode_str = str(unitcode)
+		
+		command = ByteToHex(message[7])
+		try:
+			command_str = rfx.rfx_subtype_1A_cmnd[command]
+		except Exception as err:
+			logger.error("Unknown command received")
+			command_str = "Error: Unknown command received"
+			pass
+		
+		signal = rfxdecode.decodeSignal(message[8])
+		
+		# PRINTOUT
+		if cmdarg.printout_complete:
+			print("Subtype\t\t\t= %s" % str(subtype_str))
+			print("Seqnbr\t\t\t= %s" % str(seqnbr))
+			print("Id1-3\t\t\t= %s" % str(sensor_id))
+			print("Unitcode\t\t= %s" % unitcode_str)
+			print("Command\t\t\t= %s" % command_str)
+			print "Signal level\t\t= " + str(signal)
+		
+		# TRIGGER
+		if config.trigger_active:
+			for trigger in triggerlist.data:
+				trigger_message = trigger.getElementsByTagName('message')[0].childNodes[0].nodeValue
+				action = trigger.getElementsByTagName('action')[0].childNodes[0].nodeValue
+				rawcmd = ByteToHex ( message )
+				rawcmd = rawcmd.replace(' ', '')
+				if re.match(trigger_message, rawcmd):
+					logger.debug("Trigger match")
+					logger.debug("Message: " + trigger_message + ", Action: " + action)
+					action = action.replace("$packettype$", packettype )
+					action = action.replace("$subtype$", subtype )
+					logger.debug("Execute shell")
+					command = Command(action)
+					command.run(timeout=config.trigger_timeout)
+					if config.trigger_onematch:
+						logger.debug("Trigger onematch active, exit trigger")
+						return
+		
+		# DATABASE
+		#if config.mysql_active or config.sqlite_active or config.pgsql_active:
+		#	insert_database(timestamp, unixtime_utc, packettype, subtype, seqnbr, 255, signal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+		
+		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
+	
 	# ---------------------------------------
 	# 0x20 Security1
 	# Credit: Dimitri Clatot
