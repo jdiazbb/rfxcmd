@@ -121,32 +121,32 @@ class rfx_data(dict):
 							"5A":"868.35MHz FSK",
 							"5B":"868.95MHz"}
 
-	rfx_subtype_01_msg3 = {"128":"Display of undecoded packets",
-							"64":"RFU6",
-							"32":"RFU5",
-							"16":"RFU4",
-							"8":"RFU3",
-							"4":"FineOffset / Viking (433.92)",
-							"2":"Rubicson (433.92)",
-							"1":"AE (433.92)"}
+	rfx_subtype_01_msg3 = {"128":"Undecoded",
+							"64":"RFU",
+							"32":"Byron SX",
+							"16":"RSL",
+							"8":"Lightning4",
+							"4":"FineOffset / Viking",
+							"2":"Rubicson",
+							"1":"AE Blyss"}
 						
-	rfx_subtype_01_msg4 = {"128":"BlindsT1/T2/T3 (433.92)",
-							"64":"BlindsT0 (433.92)",
-							"32":"ProGuard (868.35 FSK)",
-							"16":"FS20 (868.35)",
-							"8":"La Crosse (433.92/868.30)",
-							"4":"Hideki/UPM (433.92)",
-							"2":"AD (433.92)",
-							"1":"Mertik (433.92)"}
+	rfx_subtype_01_msg4 = {"128":"Blinds T1/T2/T3/T4",
+							"64":"Blinds T0",
+							"32":"ProGuard",
+							"16":"FS20",
+							"8":"La Crosse",
+							"4":"Hideki / UPM",
+							"2":"AD Lightwave RF",
+							"1":"Mertik"}
 						
-	rfx_subtype_01_msg5 = {"128":"Visonic (315/868.95)",
-							"64":"ATI (433.92)",
-							"32":"Oregon Scientific (433.92)",
-							"16":"Meiantech (433.92)",
-							"8":"HomeEasy EU (433.92)",
-							"4":"AC (433.92)",
-							"2":"ARC (433.92)",
-							"1":"X10 (310/433.92)"}
+	rfx_subtype_01_msg5 = {"128":"Visonic",
+							"64":"ATI",
+							"32":"Oregon Scientific",
+							"16":"Meiantech",
+							"8":"HomeEasy EU",
+							"4":"AC",
+							"2":"ARC",
+							"1":"X10"}
 
 	rfx_subtype_02 = {"00":"Error, receiver did not lock",
 						"01":"Transmitter response"}
