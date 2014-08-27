@@ -41,6 +41,9 @@ import xml.dom.minidom as minidom
 # --------------------------------------------------------------------------
 
 def print_protocolfile(protocol_file):
+	"""
+	Print the contents of the protocol configuration file to stdout
+	"""
 	logger.debug("Open protocol file and read it, file: %s" % str(protocol_file))
 	try:
 		xmldoc = minidom.parse( protocol_file )
@@ -108,7 +111,9 @@ def print_protocolfile(protocol_file):
 	return
 	
 def set_protocolfile(protocol_file):
-	
+	"""
+	Create the data message out of the protocol configuration file and return the packet
+	"""
 	logger.debug("Open protocol file and read it, file: %s" % str(protocol_file))
 	try:
 		xmldoc = minidom.parse( protocol_file )
