@@ -5,7 +5,7 @@
 #	
 #	RFXCMD.PY
 #	
-#	Copyright (C) 2012-2013 Sebastian Sjoholm, sebastian.sjoholm@gmail.com
+#	Copyright (C) 2012-2014 Sebastian Sjoholm, sebastian.sjoholm@gmail.com
 #	
 #	This program is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -51,12 +51,12 @@
 # ------------------------------------------------------------------------------
 
 __author__ = "Sebastian Sjoholm"
-__copyright__ = "Copyright 2012-2013, Sebastian Sjoholm"
+__copyright__ = "Copyright 2012-2014, Sebastian Sjoholm"
 __license__ = "GPL"
 __version__ = "0.3 (" + filter(str.isdigit, "$Rev$") + ")"
 __maintainer__ = "Sebastian Sjoholm"
 __email__ = "sebastian.sjoholm@gmail.com"
-__status__ = "Development-Alpha-2"
+__status__ = "Development-Beta-1"
 __date__ = "$Date$"
 
 # Default modules
@@ -103,31 +103,10 @@ try:
 	import lib.rfx_decode as rfxdecode
 	import lib.rfx_rrd as rfxrrd
 	import lib.rfx_xplcom as xpl
+	import lib.rfx_protocols as protocol
 except ImportError as err:
 	print("Error: %s " % str(err))
 	sys.exit(1)
-
-#
-# Depricated import structure
-#
-
-#try:
-#	import lib.rfx_sensors
-#except ImportError:
-#	print "Error: module lib/rfx_sensors not found"
-#	sys.exit(1)
-	
-#try:
-#	from lib.rfx_rrd import *
-#except ImportError:
-#	print "Error: module lib/rfx_rrd not found"
-#	sys.exit(1)
-
-#try:
-#	from lib import rfx_xplcom as xpl
-#except ImportError:
-#	print "Error: module lib/rfx_xplcom not found"
-#	pass
 
 # 3rd party modules
 # These might not be needed, depended on usage
@@ -210,7 +189,9 @@ class config_data:
 		rrd_path = "",
 		barometric = 0,
 		log_msg = False,
-		log_msgfile = ""
+		log_msgfile = "",
+		protocol_startup = False,
+		protocol_file = "protocol.xml"
 		):
 
 		self.serial_active = serial_active
@@ -261,6 +242,8 @@ class config_data:
 		self.barometric = barometric
 		self.log_msg = log_msg
 		self.log_msgfile = log_msgfile
+		self.protocol_startup = protocol_startup
+		self.protocol_file = protocol_file
 
 class cmdarg_data:
 	def __init__(
@@ -918,131 +901,161 @@ def decodePacket(message):
 			# MSG 2
 			print "Firmware version\t= " + str(int(data['msg2'],16))
 			
-			if testBit(int(data['msg3'],16),7) == 128:
-				print "Display undecoded\t= On"
-			else:
-				print "Display undecoded\t= Off"
-			
 			print "Protocols:"
 			
+			# ------------------------------------------------------
 			# MSG 3
-			if testBit(int(data['msg3'],16),0) == 1:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg3['1']
+			
+			protocol = str(rfx.rfx_subtype_01_msg3['128'])
+			if testBit(int(data['msg3'],16),7) == 128:
+				print("%-25s Enabled" % protocol)
 			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg3['1']
-				
-			if testBit(int(data['msg3'],16),1) == 2:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg3['2']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg3['2']
-				
-			if testBit(int(data['msg3'],16),2) == 4:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg3['4']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg3['4']
-				
-			if testBit(int(data['msg3'],16),3) == 8:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg3['8']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg3['8']
-				
-			if testBit(int(data['msg3'],16),4) == 16:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg3['16']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg3['16']
-				
-			if testBit(int(data['msg3'],16),5) == 32:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg3['32']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg3['32']
-				
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg3['64'])
 			if testBit(int(data['msg3'],16),6) == 64:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg3['64']
+				print("%-25s Enabled" % protocol)
 			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg3['64']
+				print("%-25s Disabled" % protocol)
 			
+			protocol = str(rfx.rfx_subtype_01_msg3['32'])
+			if testBit(int(data['msg3'],16),5) == 32:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg3['16'])
+			if testBit(int(data['msg3'],16),4) == 16:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg3['8'])
+			if testBit(int(data['msg3'],16),3) == 8:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg3['4'])
+			if testBit(int(data['msg3'],16),2) == 4:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg3['2'])
+			if testBit(int(data['msg3'],16),1) == 2:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg3['1'])
+			if testBit(int(data['msg3'],16),0) == 1:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			# ------------------------------------------------------
 			# MSG 4
-			if testBit(int(data['msg4'],16),0) == 1:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['1']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['1']
 			
-			if testBit(int(data['msg4'],16),1) == 2:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['2']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['2']
-			
-			if testBit(int(data['msg4'],16),2) == 4:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['4']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['4']
-			
-			if testBit(int(data['msg4'],16),3) == 8:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['8']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['8']
-			
-			if testBit(int(data['msg4'],16),4) == 16:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['16']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['16']
-			
-			if testBit(int(data['msg4'],16),5) == 32:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['32']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['32']
-			
-			if testBit(int(data['msg4'],16),6) == 64:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['64']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['64']
-			
+			protocol = str(rfx.rfx_subtype_01_msg4['128'])
 			if testBit(int(data['msg4'],16),7) == 128:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg4['128']
+				print("%-25s Enabled" % protocol)
 			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg4['128']
+				print("%-25s Disabled" % protocol)
 			
+			protocol = str(rfx.rfx_subtype_01_msg4['64'])
+			if testBit(int(data['msg4'],16),6) == 64:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg4['32'])
+			if testBit(int(data['msg4'],16),5) == 32:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg4['16'])
+			if testBit(int(data['msg4'],16),4) == 16:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg4['8'])
+			if testBit(int(data['msg4'],16),3) == 8:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg4['4'])
+			if testBit(int(data['msg4'],16),2) == 4:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg4['2'])
+			if testBit(int(data['msg4'],16),1) == 2:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg4['1'])
+			if testBit(int(data['msg4'],16),0) == 1:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			# ------------------------------------------------------
 			# MSG 5
-			if testBit(int(data['msg5'],16),0) == 1:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['1']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['1']
 			
-			if testBit(int(data['msg5'],16),1) == 2:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['2']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['2']
-			
-			if testBit(int(data['msg5'],16),2) == 4:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['4']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['4']
-			
-			if testBit(int(data['msg5'],16),3) == 8:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['8']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['8']
-			
-			if testBit(int(data['msg5'],16),4) == 16:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['16']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['16']
-			
-			if testBit(int(data['msg5'],16),5) == 32:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['32']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['32']
-			
-			if testBit(int(data['msg5'],16),6) == 64:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['64']
-			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['64']
-			
+			protocol = str(rfx.rfx_subtype_01_msg5['128'])
 			if testBit(int(data['msg5'],16),7) == 128:
-				print "Enabled\t\t\t" + rfx.rfx_subtype_01_msg5['128']
+				print("%-25s Enabled" % protocol)
 			else:
-				print "Disabled\t\t" + rfx.rfx_subtype_01_msg5['128']
-		
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg5['64'])
+			if testBit(int(data['msg5'],16),6) == 64:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg5['32'])
+			if testBit(int(data['msg5'],16),5) == 32:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg5['16'])
+			if testBit(int(data['msg5'],16),4) == 16:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg5['8'])
+			if testBit(int(data['msg5'],16),3) == 8:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg5['4'])
+			if testBit(int(data['msg5'],16),2) == 4:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg5['2'])
+			if testBit(int(data['msg5'],16),1) == 2:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
+			protocol = str(rfx.rfx_subtype_01_msg5['1'])
+			if testBit(int(data['msg5'],16),0) == 1:
+				print("%-25s Enabled" % protocol)
+			else:
+				print("%-25s Disabled" % protocol)
+			
 		logger.debug("Decode packetType 0x" + str(packettype) + " - End")
 		
 	# ---------------------------------------
@@ -1839,7 +1852,9 @@ def decodePacket(message):
 					logger.debug("Trigger match")
 					logger.debug("Message: " + trigger_message + ", Action: " + action)
 					action = action.replace("$packettype$", packettype )
-					action = action.replace("$subtype$", subtype )
+					action = action.replace("$subtype$", str(subtype) )
+					action = action.replace("$unitcode$", str(unitcode) )
+					action = action.replace("$command$", str(command) )
 					logger.debug("Execute shell")
 					command = Command(action)
 					command.run(timeout=config.trigger_timeout)
@@ -4069,7 +4084,20 @@ def option_listen():
 		serial_param.port.write( rfxcmd.status.decode('hex') )
 		logger.debug("Sleep 1 sec")
 		time.sleep(1)
-
+		
+		# If active (autostart)
+		if config.protocol_startup:
+			logger.debug("Protocol AutoStart activated")
+			try:
+				pMessage = protocol.set_protocolfile(config.protocol_file)
+				logger.debug("Send set protocol message (" + pMessage + ")")
+				serial_param.port.write( pMessage.decode('hex') )
+				logger.debug("Sleep 1 sec")
+				time.sleep(1)
+			except Exception as err:
+				logger.error("Could not create protocol message")
+				pass
+		
 	try:
 		while 1:
 			# Let it breath
@@ -4403,6 +4431,14 @@ def read_configfile():
 			config.log_msg = False
 		config.log_msgfile = read_config(cmdarg.configfile, "log_msgfile")
 		
+		# ------------------------
+		# PROTOCOLS
+		if (read_config(cmdarg.configfile, "protocol_startup") == "yes"):
+			config.protocol_startup = True
+		else:
+			config.protocol_startup = False
+		config.protocol_file = read_config(cmdarg.configfile, "protocol_file")
+		
 	else:
 		# config file not found, set default values
 		print "Error: Configuration file not found (" + cmdarg.configfile + ")"
@@ -4552,6 +4588,7 @@ def main():
 	parser.add_option("-c", "--csv", action="store_true", dest="csv", default=False, help="Output all messages to stdout in CSV format")
 	parser.add_option("-V", "--version", action="store_true", dest="version", help="Print rfxcmd version information")
 	parser.add_option("-D", "--debug", action="store_true", dest="debug", default=False, help="Debug printout on stdout")
+	parser.add_option("--listprotocol", action="store_true", dest="listprotocol", default=False, help="List protocol settings")
 	(options, args) = parser.parse_args()
 
 	# ----------------------------------------------------------
@@ -4599,6 +4636,12 @@ def main():
 		cmdarg.printout_csv = True
 	else:
 		cmdarg.printout_csv = False
+	
+	# ----------------------------------------------------------
+	# Print protocol list
+	if options.listprotocol:
+		logger.debug("List protocol file to screen")
+		protocol.print_protocolfile(config.protocol_file)
 	
 	# ----------------------------------------------------------
 	# WHITELIST
