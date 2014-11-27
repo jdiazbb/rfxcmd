@@ -641,7 +641,8 @@ class rfx_data(dict):
 						"08":"WT260,WT260H,WT440H,WT450,WT450H",
 						"09":"Viking 02035, 02038",
 						"0A":"Rubicson",
-						"0B":"EW109"}
+						"0B":"EW109",
+						"0C":"Imagintronix Soil Sensor"}
 
 	rfx_subtype_52_humstatus = {"00":"Dry",
 								"01":"Comfort",
