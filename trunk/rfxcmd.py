@@ -4510,64 +4510,73 @@ def logger_init(configfile, name, debug):
 	Input: 
 	
 		- configfile = location of the config.xml
-		- name	= name
+		- name = name
 		- debug = True will send log to stdout, False to file
 		
 	Output:
 	
 		- Returns logger handler
+		- In case of no configfile found, return False
 	
 	"""
 	program_path = os.path.dirname(os.path.realpath(__file__))
 	dom = None
 	
-	if os.path.exists( os.path.join(program_path, "config.xml") ):
-
+	if os.path.exists( os.path.join(program_path, configfile) ):
+		
 		# Read config file
-		f = open(os.path.join(program_path, "config.xml"),'r')
+		f = open(os.path.join(program_path, configfile),'r')
 		data = f.read()
 		f.close()
-
+		
 		try:
 			dom = minidom.parseString(data)
 		except:
-			print "Error: problem in the config.xml file, cannot process it"
-
-		if dom:
+			print("Error: problem in the %s file, cannot process it" % str(configfile))
+			return False
 		
+		if dom:
+			
+			#formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+			formatter = logging.Formatter('%(asctime)s - %(threadName)s - %(module)s:%(lineno)d - %(levelname)s - %(message)s')
+			
 			# Get loglevel from config file
 			try:
 				xmlTag = dom.getElementsByTagName( 'loglevel' )[0].toxml()
 				loglevel = xmlTag.replace('<loglevel>','').replace('</loglevel>','')
+				loglevel = loglevel.upper()
 			except:
-				loglevel = "INFO"
-
+				loglevel = "ERROR"
+			
 			# Get logfile from config file
 			try:
 				xmlTag = dom.getElementsByTagName( 'logfile' )[0].toxml()
 				logfile = xmlTag.replace('<logfile>','').replace('</logfile>','')
 			except:
-				logfile = os.path.join(program_path, "rfxcmd.log")
-			
-			loglevel = loglevel.upper()
-			
-			#formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
-			formatter = logging.Formatter('%(asctime)s - %(threadName)s - %(module)s:%(lineno)d - %(levelname)s - %(message)s')
+				logfile = None
+				pass
 			
 			if debug:
 				loglevel = "DEBUG"
 				handler = logging.StreamHandler()
-			else:
-				handler = logging.FileHandler(logfile)
-							
-			handler.setFormatter(formatter)
+				handler.setFormatter(formatter)
+				logger = logging.getLogger(name)
+				logger.setLevel(logging.getLevelName(loglevel))
+				logger.addHandler(handler)
 			
-			logger = logging.getLogger(name)
-			logger.setLevel(logging.getLevelName(loglevel))
-			logger.addHandler(handler)
+			if logfile:
+				handler = logging.FileHandler(logfile)
+				handler.setFormatter(formatter)
+				logger = logging.getLogger(name)
+				logger.setLevel(logging.getLevelName(loglevel))
+				logger.addHandler(handler)
 			
 			return logger
-
+		
+	else:
+		logger.error("Error: Cannot find configuration file (%s)" % str(configfile))
+		return False
+	
 # ----------------------------------------------------------------------------
 
 def main():
@@ -4610,10 +4619,14 @@ def main():
 	else:
 		logger = logger_init(cmdarg.configfile,'rfxcmd', False)
 	
+	if not logger:
+		print("Error: Cannot find configuration file (%s)" % str(configfile))
+		sys.exit(1)
+	
 	logger.debug("Python version: %s.%s.%s" % sys.version_info[:3])
 	logger.debug("RFXCMD Version: " + __version__)
 	logger.debug(__date__.replace('$', ''))
-
+	
 	# ----------------------------------------------------------
 	# PROCESS CONFIG.XML
 	logger.debug("Configfile: " + cmdarg.configfile)
