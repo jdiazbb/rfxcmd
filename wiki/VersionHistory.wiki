@@ -1,4 +1,4 @@
-#summary RFXCMD version history
+#summary RFXCMD version history (moved to rfxcmd.eu)
 = Version History =
 
 The version history can now be found here: [http://rfxcmd.eu/?page_id=46 http://rfxcmd.eu/?page_id=46]
