@@ -1,0 +1,1 @@
+This instruction has been moved to http://rfxcmd.eu/?page_id=155

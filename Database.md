@@ -1,0 +1,1 @@
+This page as been moved to [rfxcmd.eu](http://rfxcmd.eu/?page_id=117)

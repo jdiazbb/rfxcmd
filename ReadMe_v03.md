@@ -1,0 +1,574 @@
+## DESCRIPTION ##
+
+RFXcmd is Python script that interfaces the RFX USB devices from RFXcom http://www.rfxcom.com.
+
+## NOTE ##
+
+This ReadMe file is written for version 0.3 and above, which is still in development.
+
+The configuration for xPL, Graphite, MySQL and Sqlite has been moved to configuration file instead of command line switches.
+
+## REQUIREMENTS ##
+
+  * Python 2.7, does not work with Python 3.x
+  * Tested on Raspberry Pi (Debian Squeezy) with Python 2.6
+  * Tested on Mac OSX 10.8.2 with Python 2.7.2
+  * Tested with RFXCOM device RFXtrx433-USB (v2.1)
+
+## RFXCMD.PY ##
+
+Options;
+
+|-d|Serial device of the RFX device|
+|:-|:------------------------------|
+|-l|Listen for messages from RFX device|
+|-x|Simulate one incoming message  |
+|-s|Send one message to RFX device |
+|-f|Get RFX device status          |
+|-o|Optional path and file for the configuration file|
+|-v|Output all messages to STDOUT  |
+|-c|Output all messages to STDOUT in CSV format|
+|-V|Print version and date         |
+|-D|Debug printout on STDOUT       |
+|-h|Help                           |
+
+### Serial device (-d) ###
+
+---
+
+```
+option -d <device>
+```
+
+Specify the serial device where the RFX device is connected to. On Linux system like
+Ubuntu the name can be like /dev/ttyUSB0, or on OSX it can be /dev/tty.usbserial-03VHG0ZQ
+
+In version 0.3 this switch is now optionally as the serial device can now be specified in the config.xml file. But if it is defined on the command line it will use that instead of the config.xml.
+
+### Listen (-l) ###
+
+---
+
+```
+option -l
+```
+
+The rfxcmd will start listen to the incoming data from the RFX device, and process the messages according to the settings in the config.xml.
+
+### Config file (-o) ###
+
+---
+
+```
+option -o <configfile>
+```
+
+Optional config file location, default the script will look for config.xml in the same directory as the script itself.
+
+### Simulate incoming message (-x) ###
+
+---
+
+```
+option -x <message>
+```
+
+Simulate a message, RFXcmd will simply decode it, it does not matter if it is a incoming or outgoing
+message, it should be decoded anyway. All settings in the config.xml will apply.
+
+```
+$ ./rfxcmd.py -x "0A5201000A01006A390269"
+RFXCMD version 0.1j
+------------------------------------------------
+Received		= 0A5201000A01006A390269
+Date/Time		= 2012-10-11 18:58:41
+Packettype		= Temperature and humidity sensors
+Subtype			= THGN122/123, THGN132, THGR122/228/238/268
+Seqnbr			= 00
+Id 1 (House)		= 0A
+Id 2 (Channel)		= 01
+Temperature		= 10.6 C
+Humidity		= 57
+Humidity Status		= Normal
+Battery (0-9)		= 9
+Signal level (0-15)	= 6
+```
+
+### Send one message (-s) ###
+
+---
+
+```
+option -s <message>
+```
+
+Specify the message data to be sent to the RFX. If the message contains spaces (which is not recommended) please insert them inside quotes.
+
+### Version (-V) ###
+
+---
+
+```
+option -V
+```
+
+Print version, svn revision and date.
+
+Example;
+
+```
+$ ./rfxcmd.py -V
+RFXCMD Version: 0.3 (515)
+Date: 2013-05-18 14:17:08 +0200 (Sat, 18 May 2013) 
+$
+```
+
+### Debug (-D) ###
+
+---
+
+```
+option -D
+```
+
+RFXcmd will print extensive debug printouts to STDOUT, this should be used in troubleshooting.
+
+### Help (-h) ###
+
+---
+
+```
+option -h
+```
+
+Will printout list of command switches that are available for the user.
+
+
+---
+
+## CONFIG.XML ##
+
+When a change of settings is made in the config.xml, the RFXcmd as to be restarted, as it only read the config.xml during startup.
+
+
+
+<serial\_device>
+
+
+
+
+<serial\_rate>
+
+
+
+
+<serial\_timeout>
+
+
+
+Serial configuration, the rate is default suited for RFXtrx433, as well the timeout. If the serial device is not defined here, it must be defined on the command line. The command line serial device will hold higher priority when device is chosen.
+
+
+
+<process\_rfxmsg>
+
+
+
+If the user wants to run RFXcmd without collecting data from RFX device, and only keep it listening via the socket, then this should be set as 'yes'.
+
+
+
+<daemon\_active>
+
+
+
+
+<daemon\_pidfile>
+
+
+
+Run the RFXcmd as a daemon service (works only under unix flavors), if the pidfile is not defined it will be saved in the same path as the RFXcmd.
+
+
+
+<trigger\_active>
+
+
+
+
+<trigger\_onematch>
+
+
+
+
+<trigger\_file>
+
+
+
+
+<trigger\_timeout>
+
+
+
+See more on trigger settings on the [Trigger](Trigger.md) page.
+
+
+
+<mysql\_active>
+
+
+
+
+<mysql\_server>
+
+
+
+
+<mysql\_database>
+
+
+
+
+<mysql\_username>
+
+
+
+
+<mysql\_password>
+
+
+
+See more on mysql settings on the [Database](Database.md) page.
+
+
+
+<sqlite\_active>
+
+
+
+
+<sqlite\_database>
+
+
+
+
+<sqlite\_table>
+
+
+
+See more on sqlite settings on the [Database](Database.md) page.
+
+
+
+<pgsql\_active>
+
+
+
+
+<pgsql\_server>
+
+
+
+
+<pgsql\_database>
+
+
+
+
+<pgsql\_port>
+
+
+
+
+<pgsql\_username>
+
+
+
+
+<pgsql\_password>
+
+
+
+
+<pgsql\_table>
+
+
+
+See more on pgsql settings on the [Database](Database.md) page.
+
+
+
+&lt;loglevel&gt;
+
+
+
+At the moment only info, error, debug can be used. This is at the moment only used in development and 'info' will not output any information at all. 'debug' will be very detailed. The logevents from 'error' and 'debug' will be logged in 'rfxcmd.log' file.
+
+
+
+&lt;logfile&gt;
+
+
+
+Version 0.24 and later. Possibility to add the path and logfile name where the log will be written.
+
+
+
+<graphite\_active>
+
+
+
+
+<graphite\_server>
+
+
+
+
+<graphite\_port>
+
+
+
+The server address and port for the graphite server.
+
+
+
+<xpl\_active>
+
+
+
+
+<xpl\_host>
+
+
+
+The host settings to send the incoming data in xPL format. Note, that not all sensors have yet been configured with xPL.
+
+
+
+&lt;socketserver&gt;
+
+
+
+
+&lt;sockethost&gt;
+
+
+
+
+&lt;socketport&gt;
+
+
+
+Configuration for the incoming socket communication, the RFXcmd will open a listening socket to receive RFX commands (raw) and will forward them to the RFX device.
+
+
+
+<whitelist\_active>
+
+
+
+
+<whitelist\_file>
+
+
+
+If the whitelist is active, it will only parse the incoming data that match the regex inside the whitelist file.
+
+
+
+<weewx\_active>
+
+
+
+To make it possible to export data to WeeWx. Set to yes for activate the function, default no.
+
+
+
+<rrd\_active>
+
+
+
+
+<rrd\_path>
+
+
+
+To export sensor data to RRD, still experimental as there are only two sensors that support this 0x52 and 0x5A. Will be extended in the future, and by request.
+
+
+
+&lt;barometric&gt;
+
+
+
+Barometric adjustment, if there is a need to adjust the barometric value of the sensor 0x54, then it can be done here. Default = 0.
+
+
+
+<log\_msg>
+
+
+
+
+<log\_msgfile>
+
+
+
+Log messages, when 
+
+<log\_msg>
+
+ is yes, all messages that are coming in from the RFX device will be saved in the file that is specified at the 
+
+<log\_msgfile>
+
+ tag. The reason for this function is to be able to record all traffic, and makes it easier for troubleshooting in later time. In normal use this function does not need to be activated.
+
+Default config.xml file;
+
+```
+<config>
+	<version>1</version>
+	
+	<!-- Serial -->
+	<serial_device>/dev/ttyUSB0</serial_device>
+	<serial_rate>38400</serial_rate>
+	<serial_timeout>9</serial_timeout>
+
+	<!-- Process -->
+	<process_rfxmsg>no</process_rfxmsg>
+
+	<!-- Daemon -->
+	<daemon_active>no</daemon_active>
+	<daemon_pidfile>/var/run/rfxcmd.pid</daemon_pidfile>
+	
+	<!-- MySQL -->
+	<mysql_active>no</mysql_active>
+	<mysql_server>localhost</mysql_server>
+	<mysql_database>rfxcmd</mysql_database>
+	<mysql_username>user</mysql_username>
+	<mysql_password>password</mysql_password>
+	
+	<!-- Trigger -->
+	<trigger_active>no</trigger_active>
+	<trigger_onematch>no</trigger_onematch>
+	<trigger_file>trigger.xml</trigger_file>
+	<trigger_timeout>10</trigger_timeout>
+	
+	<!-- Sqlite -->
+	<sqlite_active>no</sqlite_active>
+	<sqlite_database>sqlite.db</sqlite_database>
+	<sqlite_table>rfxcmd</sqlite_table>
+	
+	<!-- PgSQL -->
+	<pgsql_active>no</pgsql_active>
+        <pgsql_server>localhost</pgsql_server>
+        <pgsql_database>rfx</pgsql_database>
+        <pgsql_port>5432</pgsql_port>
+        <pgsql_username>rfxuser</pgsql_username>
+        <pgsql_password>rfxuser1</pgsql_password>
+	<pgsql_table>rfxcmd</pgsql_table> 
+
+	<!-- Logging -->
+	<loglevel>error</loglevel>
+	<logfile>rfxcmd.log</logfile>
+	
+	<!-- Graphite -->
+	<graphite_active>no</graphite_active>
+	<graphite_server>127.0.0.1</graphite_server>
+	<graphite_port>2003</graphite_port>
+	
+	<!-- xPL -->
+	<xpl_active>no</xpl_active>
+	<xpl_host>127.0.0.1</xpl_host>
+	
+	<!-- Socket server -->
+	<socketserver>yes</socketserver>
+	<sockethost>localhost</sockethost>
+	<socketport>55000</socketport>
+	
+	<!-- Whitelist -->
+	<whitelist_active>no</whitelist_active>
+	<whitelist_file>whitelist.xml</whitelist_file>
+	
+	<!-- Weewx -->
+	<weewx_active>no</weewx_active>          
+	
+	<!-- RRD -->
+	<rrd_active>no</rrd_active>
+	<rrd_path></rrd_path>
+	
+	<!-- Barometric adjustemnt, only 0x54 -->
+	<barometric>0</barometric>
+	
+	<!-- Log messages -->
+	<log_msg>no</log_msg>
+	<log_msgfile>msg.log</log_msgfile>
+
+</config>
+```
+
+
+---
+
+## TRIGGER.XML ##
+
+The file trigger.xml contains the messages and actions that the rfxcmd should executes if the message matches the trigger message.
+
+More about the trigger functionality in the [Trigger](Trigger.md) page.
+
+
+---
+
+## EXAMPLES ##
+
+to be written...
+
+
+---
+
+## OTHER ##
+
+If RFXCMD messages are not processed, you get instead this message;
+
+"RFXCMD does not handle this message, see readme.txt for more information."
+
+That means that I have not included the post process for the specific protocol, most likely because I don't have the sensor and therefor no way to test it. If you want the RFXCMD to handle the message then please send me the raw output, and preferable also from RFXManager, so I can accurately integrate the message to RFXCMD.
+
+
+---
+
+## THANKS ##
+
+Thanks to following users who have helped with testing, patches, ideas, bug reports, and so on (in no special order).
+
+Anders, Dimitri, Patrik, Ludwig, Jean-Michel, Jean-Baptiste, Robert, Fabien, Bert, George, Jean-Francois, Mark, Frederic, Matthew, Arno, Jean-Louis, Christophe, Fredrik, Neil, Pierre-Yves
+
+and to [RFXCOM](http://www.rfxcom.com) for their support.
+
+
+---
+
+## NOTES ##
+
+RFXCOM is a Trademark of RFSmartLink.
+
+
+---
+
+## COPYRIGHT ##
+
+Copyright (C) 2012 Sebastian Sjoholm
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
